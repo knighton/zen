@@ -43,8 +43,23 @@ class Layer(Layerlike):
 
 
 class Spec(object):
-    def build(self):
+    def build(self, in_shape=None):
         raise NotImplementedError
+
+
+class InputLayer(Layer):
+    def forward(self, x):
+        return x
+
+
+class InputSpec(Spec):
+    def __init__(self, *shape):
+        self.shape = shape
+
+    def build(self, in_shape=None):
+        if in_shape is not None:
+            assert in_shape == self.shape
+        return InputLayer(), self.shape
 
 
 class DenseLayer(Layer):
@@ -58,12 +73,14 @@ class DenseLayer(Layer):
 
 
 class DenseSpec(Spec):
-    def __init__(self, in_dim, out_dim):
-        self.in_dim = in_dim
+    def __init__(self, out_dim):
         self.out_dim = out_dim
 
-    def build(self):
-        return DenseLayer(init(self.in_dim, self.out_dim), init(self.out_dim))
+    def build(self, in_shape=None):
+        in_dim, = in_shape
+        out_shape = self.out_dim,
+        layer = DenseLayer(init(in_dim, self.out_dim), init(self.out_dim))
+        return layer, out_shape
 
 
 class ReLULayer(Layer):
@@ -75,8 +92,8 @@ class ReLULayer(Layer):
 
 
 class ReLUSpec(Spec):
-    def build(self):
-        return ReLULayer()
+    def build(self, in_shape=None):
+        return ReLULayer(), in_shape
 
 
 class SequenceLayer(Layerlike):
@@ -100,10 +117,10 @@ class SequenceSpec(Spec):
     def __init__(self, *specs):
         self.specs = specs
 
-    def build(self):
+    def build(self, in_shape=None):
         layers = []
         for spec in self.specs:
-            layer = spec.build()
+            layer, in_shape = spec.build(in_shape)
             layers.append(layer)
         return SequenceLayer(layers)
 
@@ -119,9 +136,10 @@ x = constant(init(batch_size, in_dim), tt)
 y_true = constant(init(batch_size, num_classes), tt)
 
 spec = SequenceSpec(
-    DenseSpec(in_dim, hidden_dim),
+    InputSpec(in_dim),
+    DenseSpec(hidden_dim),
     ReLUSpec(),
-    DenseSpec(hidden_dim, num_classes)
+    DenseSpec(num_classes)
 )
 model = spec.build()
 params = model.get_params()
