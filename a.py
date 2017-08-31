@@ -49,7 +49,7 @@ class Dense(Layer):
         self.b = self.add_param(b)
 
     def forward(self, x):
-        return x.mm(self.w) + b
+        return x.mm(self.w) + self.b
 
 
 class ReLU(Layer):
