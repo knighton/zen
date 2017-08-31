@@ -44,7 +44,7 @@ class Layer(Layerlike):
 
 
 class Spec(object):
-    def build(self, in_shape=None):
+    def build(self, in_shape=None, in_dtype=None):
         raise NotImplementedError
 
 
@@ -54,14 +54,17 @@ class InputLayer(Layer):
 
 
 class InputSpec(Spec):
-    def __init__(self, *shape):
+    def __init__(self, shape, dtype):
         super().__init__()
         self.shape = shape
+        self.dtype = dtype
 
-    def build(self, in_shape=None):
+    def build(self, in_shape=None, in_dtype=None):
         if in_shape is not None:
             assert in_shape == self.shape
-        return InputLayer(), self.shape
+        if in_dtype is not None:
+            assert in_dtype == self.dtype
+        return InputLayer(), self.shape, self.dtype
 
 
 class DenseLayer(Layer):
@@ -79,11 +82,11 @@ class DenseSpec(Spec):
         super().__init__()
         self.out_dim = out_dim
 
-    def build(self, in_shape=None):
+    def build(self, in_shape=None, in_dtype=None):
         in_dim, = in_shape
         out_shape = self.out_dim,
         layer = DenseLayer(init(in_dim, self.out_dim), init(self.out_dim))
-        return layer, out_shape
+        return layer, out_shape, in_dtype
 
 
 class ReLULayer(Layer):
@@ -95,8 +98,8 @@ class ReLULayer(Layer):
 
 
 class ReLUSpec(Spec):
-    def build(self, in_shape=None):
-        return ReLULayer(), in_shape
+    def build(self, in_shape=None, in_dtype=None):
+        return ReLULayer(), in_shape, in_dtype
 
 
 class SequenceLayer(Layerlike):
@@ -121,12 +124,12 @@ class SequenceSpec(Spec):
         super().__init__()
         self.specs = specs
 
-    def build(self, in_shape=None):
+    def build(self, in_shape=None, in_dtype=None):
         layers = []
         for spec in self.specs:
-            layer, in_shape = spec.build(in_shape)
+            layer, in_shape, in_dtype = spec.build(in_shape, in_dtype)
             layers.append(layer)
-        return SequenceLayer(layers)
+        return SequenceLayer(layers), in_shape, in_dtype
 
 
 tt = torch.cuda.FloatTensor
@@ -140,12 +143,12 @@ x = constant(init(batch_size, in_dim), tt)
 y_true = constant(init(batch_size, num_classes), tt)
 
 spec = SequenceSpec(
-    InputSpec(in_dim),
+    InputSpec((in_dim,), 'float32'),
     DenseSpec(hidden_dim),
     ReLUSpec(),
     DenseSpec(num_classes)
 )
-model = spec.build()
+model, out_shape, out_dtype = spec.build()
 params = model.get_params()
 
 for t in range(500):
