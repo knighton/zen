@@ -43,15 +43,13 @@ class Layer(Layerlike):
 
 
 class Dense(Layer):
-    def __init__(self, w):
+    def __init__(self, w, b):
         super().__init__()
         self.w = self.add_param(w)
-
-    def get_params(self):
-        return [self.w]
+        self.b = self.add_param(b)
 
     def forward(self, x):
-        return x.mm(self.w)
+        return x.mm(self.w) + b
 
 
 class ReLU(Layer):
@@ -91,10 +89,12 @@ y_true = constant(init(batch_size, num_classes), tt)
 
 layers = []
 w1 = init(in_dim, hidden_dim)
-layers.append(Dense(w1))
+b1 = init(hidden_dim)
+layers.append(Dense(w1, b1))
 layers.append(ReLU())
 w2 = init(hidden_dim, num_classes)
-layers.append(Dense(w2))
+b2 = init(num_classes)
+layers.append(Dense(w2, b2))
 model = Sequence(layers)
 params = model.get_params()
 
