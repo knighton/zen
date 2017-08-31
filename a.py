@@ -19,10 +19,10 @@ x = constant(init(batch_size, in_dim))
 y_true = constant(init(batch_size, num_classes))
 
 spec = SequenceSpec(
-    InputSpec((in_dim,), 'float32'),
-    DenseSpec(hidden_dim),
-    ReLUSpec(),
-    DenseSpec(num_classes)
+    Input((in_dim,), 'float32'),
+    Dense(hidden_dim),
+    ReLU,
+    Dense(num_classes)
 )
 model, out_shape, out_dtype = spec.build()
 

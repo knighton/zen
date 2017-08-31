@@ -1,5 +1,5 @@
 from ... import init
-from ..layer import Layer, Spec
+from ..layer import Layer, Spec, Sugar
 
 
 class DenseLayer(Layer):
@@ -26,3 +26,6 @@ class DenseSpec(Spec):
         out_shape = out_dim,
         layer = DenseLayer(init(in_dim, out_dim), init(out_dim))
         return layer, out_shape, in_dtype
+
+
+Dense = Sugar(DenseSpec)

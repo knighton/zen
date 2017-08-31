@@ -26,6 +26,6 @@ class SequenceSpec(Spec):
     def build(self, in_shape=None, in_dtype=None):
         layers = []
         for spec in self.specs:
-            layer, in_shape, in_dtype = spec.build(in_shape, in_dtype)
+            layer, in_shape, in_dtype = spec().build(in_shape, in_dtype)
             layers.append(layer)
         return SequenceLayer(layers), in_shape, in_dtype
