@@ -25,7 +25,7 @@ class Layerlike(object):
     def get_params(self):
         raise NotImplementedError
 
-    def forward(self, x):
+    def forward(self, x, is_training):
         raise NotImplementedError
 
 
@@ -49,7 +49,7 @@ class Spec(object):
 
 
 class InputLayer(Layer):
-    def forward(self, x):
+    def forward(self, x, is_training):
         return x
 
 
@@ -73,7 +73,7 @@ class DenseLayer(Layer):
         self.w = self.add_param(w)
         self.b = self.add_param(b)
 
-    def forward(self, x):
+    def forward(self, x, is_training):
         return x.mm(self.w) + self.b
 
 
@@ -93,7 +93,7 @@ class ReLULayer(Layer):
     def get_params(self):
         return []
 
-    def forward(self, x):
+    def forward(self, x, is_training):
         return x.clamp(min=0)
 
 
@@ -113,9 +113,9 @@ class SequenceLayer(Layerlike):
             params += layer.get_params()
         return params
 
-    def forward(self, x):
+    def forward(self, x, is_training):
         for layer in self.layers:
-            x = layer.forward(x)
+            x = layer.forward(x, is_training)
         return x
 
 
@@ -152,7 +152,7 @@ model, out_shape, out_dtype = spec.build()
 params = model.get_params()
 
 for t in range(500):
-    y_pred = model.forward(x)
+    y_pred = model.forward(x, True)
 
     loss = mean_squared_error(y_true, y_pred)
     print(t, loss.data[0])
