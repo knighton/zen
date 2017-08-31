@@ -42,7 +42,12 @@ class Layer(Layerlike):
         return self._params
 
 
-class Dense(Layer):
+class Spec(object):
+    def build(self):
+        raise NotImplementedError
+
+
+class DenseLayer(Layer):
     def __init__(self, w, b):
         super().__init__()
         self.w = self.add_param(w)
@@ -52,7 +57,16 @@ class Dense(Layer):
         return x.mm(self.w) + self.b
 
 
-class ReLU(Layer):
+class DenseSpec(Spec):
+    def __init__(self, in_dim, out_dim):
+        self.in_dim = in_dim
+        self.out_dim = out_dim
+
+    def build(self):
+        return DenseLayer(init(self.in_dim, self.out_dim), init(self.out_dim))
+
+
+class ReLULayer(Layer):
     def get_params(self):
         return []
 
@@ -60,7 +74,12 @@ class ReLU(Layer):
         return x.clamp(min=0)
 
 
-class Sequence(Layerlike):
+class ReLUSpec(Spec):
+    def build(self):
+        return ReLULayer()
+
+
+class SequenceLayer(Layerlike):
     def __init__(self, layers):
         super().__init__()
         self.layers = layers
@@ -77,6 +96,18 @@ class Sequence(Layerlike):
         return x
 
 
+class SequenceSpec(Spec):
+    def __init__(self, *specs):
+        self.specs = specs
+
+    def build(self):
+        layers = []
+        for spec in self.specs:
+            layer = spec.build()
+            layers.append(layer)
+        return SequenceLayer(layers)
+
+
 tt = torch.cuda.FloatTensor
 batch_size = 64
 in_dim = 1000
@@ -87,15 +118,12 @@ learning_rate = 1e-6
 x = constant(init(batch_size, in_dim), tt)
 y_true = constant(init(batch_size, num_classes), tt)
 
-layers = []
-w1 = init(in_dim, hidden_dim)
-b1 = init(hidden_dim)
-layers.append(Dense(w1, b1))
-layers.append(ReLU())
-w2 = init(hidden_dim, num_classes)
-b2 = init(num_classes)
-layers.append(Dense(w2, b2))
-model = Sequence(layers)
+spec = SequenceSpec(
+    DenseSpec(in_dim, hidden_dim),
+    ReLUSpec(),
+    DenseSpec(hidden_dim, num_classes)
+)
+model = spec.build()
 params = model.get_params()
 
 for t in range(500):
