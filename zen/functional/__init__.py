@@ -22,3 +22,21 @@ def reshape(x, out_shape):
     """
     batch_out_shape = (x.size(0),) + out_shape
     return x.view(batch_out_shape)
+
+
+_EPSILON = 1e-6
+
+
+def binary_cross_entropy(true, pred):
+    pred = pred.clamp(_EPSILON, 1. - _EPSILON)
+    return -true * pred.log() - (1. - true) * (1. - pred).log()
+
+
+def categorical_cross_entropy(true, pred):
+    pred = pred.clamp(_EPSILON, 1. - _EPSILON)
+    ret = -true * pred.log()
+    return ret.mean()
+
+
+def mean_squared_error(true, pred):
+    return (true - pred).pow(2).mean()

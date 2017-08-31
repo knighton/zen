@@ -1,40 +1,60 @@
-import torch
+from argparse import ArgumentParser
 
 from zen import constant
+from zen.dataset.mnist import load_mnist
+from zen.functional import categorical_cross_entropy
 from zen.layer import *
 from zen.optim import MVO
+from zen.transform.one_hot import one_hot
 
 
-def mean_squared_error(true, pred):
-    return (true - pred).pow(2).sum()
-
-
-batch_size = 64
-in_dim = 1000
-hidden_dim = 100
-num_classes = 10
-learning_rate = 1e-6
-
-x = constant(init(batch_size, in_dim))
-y_true = constant(init(batch_size, num_classes))
+(x_train, y_train), (x_val, y_val) = load_mnist()
+image_shape = x_train.shape[1:]
+num_classes = y_train.max() + 1
+y_train = one_hot(y_train, num_classes)
+y_val = one_hot(y_val, num_classes)
 
 spec = SequenceSpec(
-    Input((in_dim,), 'float32'),
-    Dense(hidden_dim),
+    Input(image_shape),
+    Flatten,
+    Dense(256),
     ReLU,
-    Dense(num_classes)
+    Dense(64),
+    ReLU,
+    Dense(num_classes),
+    Softmax
 )
+
 model, out_shape, out_dtype = spec.build()
 
-opt = MVO(learning_rate)
+opt = MVO(1e-1)
 opt.set_params(model.get_params())
 
-for t in range(500):
-    y_pred = model.forward(x, True)
-
-    loss = mean_squared_error(y_true, y_pred)
-    print(t, loss.data[0])
-
-    loss.backward()
-
-    opt.step()
+batch_size = 64
+num_epochs = 10
+num_train_batches = len(x_train) // batch_size
+num_val_batches = len(x_val) // batch_size
+for i in range(num_epochs):
+    train_losses = []
+    for j in range(num_train_batches):
+        a = j * batch_size
+        z = (j + 1) * batch_size
+        x = constant(x_train[a:z])
+        y_true = constant(y_train[a:z])
+        y_pred = model.forward(x, True)
+        loss = categorical_cross_entropy(y_true, y_pred)
+        train_losses.append(loss.data.cpu().numpy()[0])
+        loss.backward()
+        opt.step()
+    val_losses = []
+    for j in range(num_val_batches):
+        a = j * batch_size
+        z = (j + 1) * batch_size
+        x = constant(x_train[a:z])
+        y_true = constant(y_train[a:z])
+        y_pred = model.forward(x, False)
+        loss = categorical_cross_entropy(y_true, y_pred)
+        val_losses.append(loss.data.cpu().numpy()[0])
+    train_loss = np.array(train_losses).mean()
+    val_loss = np.array(val_losses).mean()
+    print('epoch %4d train %.4f val %.4f' % (i, train_loss, val_loss))
