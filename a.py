@@ -22,8 +22,11 @@ def mean_squared_error(true, pred):
 
 
 tt = torch.cuda.FloatTensor
-
-batch_size, in_dim, hidden_dim, num_classes = 64, 1000, 100, 10
+batch_size = 64
+in_dim = 1000
+hidden_dim = 100
+num_classes = 10
+learning_rate = 1e-6
 
 x = constant(init(batch_size, in_dim), tt)
 y_true = constant(init(batch_size, num_classes), tt)
@@ -31,7 +34,6 @@ y_true = constant(init(batch_size, num_classes), tt)
 w1 = variable(init(in_dim, hidden_dim), tt)
 w2 = variable(init(hidden_dim, num_classes), tt)
 
-learning_rate = 1e-6
 for t in range(500):
     y_pred = x.mm(w1).clamp(min=0).mm(w2)
 
