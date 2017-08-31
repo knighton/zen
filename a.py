@@ -33,7 +33,8 @@ class Layer(Layerlike):
     def __init__(self):
         self._params = []
 
-    def add_param(self, param):
+    def add_param(self, arr):
+        param = variable(arr, tt)
         self._params.append(param)
         return param
 
@@ -89,10 +90,10 @@ x = constant(init(batch_size, in_dim), tt)
 y_true = constant(init(batch_size, num_classes), tt)
 
 layers = []
-w1 = variable(init(in_dim, hidden_dim), tt)
+w1 = init(in_dim, hidden_dim)
 layers.append(Dense(w1))
 layers.append(ReLU())
-w2 = variable(init(hidden_dim, num_classes), tt)
+w2 = init(hidden_dim, num_classes)
 layers.append(Dense(w2))
 model = Sequence(layers)
 params = model.get_params()
