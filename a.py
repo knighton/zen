@@ -31,6 +31,7 @@ class Layerlike(object):
 
 class Layer(Layerlike):
     def __init__(self):
+        super().__init__()
         self._params = []
 
     def add_param(self, arr):
@@ -54,6 +55,7 @@ class InputLayer(Layer):
 
 class InputSpec(Spec):
     def __init__(self, *shape):
+        super().__init__()
         self.shape = shape
 
     def build(self, in_shape=None):
@@ -74,6 +76,7 @@ class DenseLayer(Layer):
 
 class DenseSpec(Spec):
     def __init__(self, out_dim):
+        super().__init__()
         self.out_dim = out_dim
 
     def build(self, in_shape=None):
@@ -115,6 +118,7 @@ class SequenceLayer(Layerlike):
 
 class SequenceSpec(Spec):
     def __init__(self, *specs):
+        super().__init__()
         self.specs = specs
 
     def build(self, in_shape=None):
