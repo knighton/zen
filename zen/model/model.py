@@ -96,9 +96,21 @@ class Model(object):
             self.train_on_epoch(data, metrics, opt, batch_size, epoch)
 
     def train_regressor(self, data, opt='mvo', batch_size=64, stop=1000):
+        """
+        Train as a regressor.
+
+        Wrapper around train() that automatically uses mean squared error loss.
+        Single output only.
+        """
         metrics = 'mean_squared_error',
         return self.train(data, metrics, opt, batch_size, stop)
 
     def train_classifier(self, data, opt='mvo', batch_size=64, stop=1000):
+        """
+        Train as a classifier.
+
+        Wrapper around train() that automatically uses cross-entropy loss and
+        adds accuracy as a metric.  Single output only.
+        """
         metrics = 'cross_entropy', 'accuracy'
         return self.train(data, metrics, opt, batch_size, stop)
