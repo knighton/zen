@@ -39,6 +39,16 @@ class ReLU(Layer):
         return x.clamp(min=0)
 
 
+class Sequence(Layer):
+    def __init__(self, layers):
+        self.layers = layers
+
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer.forward(x)
+        return x
+
+
 tt = torch.cuda.FloatTensor
 batch_size = 64
 in_dim = 1000
@@ -49,16 +59,16 @@ learning_rate = 1e-6
 x = constant(init(batch_size, in_dim), tt)
 y_true = constant(init(batch_size, num_classes), tt)
 
+layers = []
 w1 = variable(init(in_dim, hidden_dim), tt)
-layer1 = Dense(w1)
-layer2 = ReLU()
+layers.append(Dense(w1))
+layers.append(ReLU())
 w2 = variable(init(hidden_dim, num_classes), tt)
-layer3 = Dense(w2)
+layers.append(Dense(w2))
+model = Sequence(layers)
 
 for t in range(500):
-    y = layer1.forward(x)
-    y = layer2.forward(y)
-    y_pred = layer3.forward(y)
+    y_pred = model.forward(x)
 
     loss = mean_squared_error(y_true, y_pred)
     print(t, loss.data[0])
