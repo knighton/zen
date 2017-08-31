@@ -1,14 +1,11 @@
 from copy import deepcopy
 
+from ..model.model import Model
 from .. import variable
 
 
-class Layerlike(object):
-    def get_params(self):
-        raise NotImplementedError
-
-    def forward(self, x, is_training):
-        raise NotImplementedError
+class Layerlike(Model):
+    pass
 
 
 class Layer(Layerlike):
