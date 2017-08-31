@@ -2,6 +2,7 @@ import numpy as np
 
 from .. import constant
 from ..functional import categorical_accuracy, categorical_cross_entropy
+from .. import optim
 
 
 class Model(object):
@@ -48,7 +49,8 @@ class Model(object):
         print('epoch %4d train %.4f (%.2f%%) val %.4f (%.2f%%)' %
               (epoch, train_loss, train_acc, val_loss, val_acc))
 
-    def train_classifier(self, data, opt, batch_size=64, stop=1000):
+    def train_classifier(self, data, opt='mvo', batch_size=64, stop=1000):
+        opt = optim.get(opt)
         opt.set_params(self.get_params())
         for epoch in range(stop):
             self.train_classifier_on_epoch(data, opt, batch_size, epoch)
