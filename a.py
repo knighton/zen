@@ -22,6 +22,9 @@ def mean_squared_error(true, pred):
 
 
 class Layer(object):
+    def get_params(self):
+        raise NotImplementedError
+
     def forward(self, x):
         raise NotImplementedError
 
@@ -30,11 +33,17 @@ class Dense(Layer):
     def __init__(self, w):
         self.w = w
 
+    def get_params(self):
+        return [self.w]
+
     def forward(self, x):
         return x.mm(self.w)
 
 
 class ReLU(Layer):
+    def get_params(self):
+        return []
+
     def forward(self, x):
         return x.clamp(min=0)
 
@@ -42,6 +51,12 @@ class ReLU(Layer):
 class Sequence(Layer):
     def __init__(self, layers):
         self.layers = layers
+
+    def get_params(self):
+        params = []
+        for layer in self.layers:
+            params += layer.get_params()
+        return params
 
     def forward(self, x):
         for layer in self.layers:
@@ -66,6 +81,7 @@ layers.append(ReLU())
 w2 = variable(init(hidden_dim, num_classes), tt)
 layers.append(Dense(w2))
 model = Sequence(layers)
+params = model.get_params()
 
 for t in range(500):
     y_pred = model.forward(x)
@@ -75,8 +91,6 @@ for t in range(500):
 
     loss.backward()
 
-    w1.data -= learning_rate * w1.grad.data
-    w2.data -= learning_rate * w2.grad.data
-
-    w1.grad.data.zero_()
-    w2.grad.data.zero_()
+    for param in params:
+        param.data -= learning_rate * param.grad.data
+        param.grad.data.zero_()
