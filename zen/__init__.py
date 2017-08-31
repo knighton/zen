@@ -15,3 +15,8 @@ def constant(arr, tensor_type=torch.cuda.FloatTensor):
 
 def init(*shape):
     return np.random.normal(0., 1., shape)
+
+
+def update_grad(param, lr):
+    param.data -= lr * param.grad.data
+    param.grad.data.zero_()

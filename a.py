@@ -2,6 +2,7 @@ import torch
 
 from zen import constant
 from zen.layer import *
+from zen.optim import MVO
 
 
 def mean_squared_error(true, pred):
@@ -24,7 +25,9 @@ spec = SequenceSpec(
     DenseSpec(num_classes)
 )
 model, out_shape, out_dtype = spec.build()
-params = model.get_params()
+
+opt = MVO(learning_rate)
+opt.set_params(model.get_params())
 
 for t in range(500):
     y_pred = model.forward(x, True)
@@ -34,6 +37,4 @@ for t in range(500):
 
     loss.backward()
 
-    for param in params:
-        param.data -= learning_rate * param.grad.data
-        param.grad.data.zero_()
+    opt.step()
