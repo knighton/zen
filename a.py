@@ -21,7 +21,7 @@ def mean_squared_error(true, pred):
     return (true - pred).pow(2).sum()
 
 
-class Layer(object):
+class Layerlike(object):
     def get_params(self):
         raise NotImplementedError
 
@@ -29,9 +29,22 @@ class Layer(object):
         raise NotImplementedError
 
 
+class Layer(Layerlike):
+    def __init__(self):
+        self._params = []
+
+    def add_param(self, param):
+        self._params.append(param)
+        return param
+
+    def get_params(self):
+        return self._params
+
+
 class Dense(Layer):
     def __init__(self, w):
-        self.w = w
+        super().__init__()
+        self.w = self.add_param(w)
 
     def get_params(self):
         return [self.w]
@@ -48,8 +61,9 @@ class ReLU(Layer):
         return x.clamp(min=0)
 
 
-class Sequence(Layer):
+class Sequence(Layerlike):
     def __init__(self, layers):
+        super().__init__()
         self.layers = layers
 
     def get_params(self):
