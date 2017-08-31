@@ -21,6 +21,24 @@ def mean_squared_error(true, pred):
     return (true - pred).pow(2).sum()
 
 
+class Layer(object):
+    def forward(self, x):
+        raise NotImplementedError
+
+
+class Dense(Layer):
+    def __init__(self, w):
+        self.w = w
+
+    def forward(self, x):
+        return x.mm(self.w)
+
+
+class ReLU(Layer):
+    def forward(self, x):
+        return x.clamp(min=0)
+
+
 tt = torch.cuda.FloatTensor
 batch_size = 64
 in_dim = 1000
@@ -32,10 +50,15 @@ x = constant(init(batch_size, in_dim), tt)
 y_true = constant(init(batch_size, num_classes), tt)
 
 w1 = variable(init(in_dim, hidden_dim), tt)
+layer1 = Dense(w1)
+layer2 = ReLU()
 w2 = variable(init(hidden_dim, num_classes), tt)
+layer3 = Dense(w2)
 
 for t in range(500):
-    y_pred = x.mm(w1).clamp(min=0).mm(w2)
+    y = layer1.forward(x)
+    y = layer2.forward(y)
+    y_pred = layer3.forward(y)
 
     loss = mean_squared_error(y_true, y_pred)
     print(t, loss.data[0])
