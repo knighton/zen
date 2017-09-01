@@ -1,9 +1,7 @@
 import numpy as np
 import os
 import pickle
-from random import shuffle
 import tarfile
-from tqdm import tqdm
 
 from .util import download, get_dataset_dir
 
@@ -27,7 +25,7 @@ def _load_split(tar, num_classes, split):
     return x, y
 
 
-def _load_classes(tar, num_classes):
+def _load_labels(tar, num_classes):
     info = tar.getmember('cifar-100-python/meta')
     data = tar.extractfile(info).read()
     obj = pickle.loads(data, encoding='bytes')
@@ -37,15 +35,15 @@ def _load_classes(tar, num_classes):
         key = b'fine_label_names'
     else:
         assert False
-    classes = obj[key]
-    return list(map(lambda s: s.decode('utf-8'), classes))
+    labels = obj[key]
+    return list(map(lambda s: s.decode('utf-8'), labels))
 
 
 class CIFAR100(object):
-    def __init__(self, train, val, classes):
+    def __init__(self, train, val, labels):
         self.train = train
         self.val = val
-        self.classes = classes
+        self.labels = labels
 
 
 def load_cifar100(num_classes=100, verbose=2):
@@ -56,6 +54,6 @@ def load_cifar100(num_classes=100, verbose=2):
     tar = tarfile.open(filename, 'r:gz')
     train = _load_split(tar, num_classes, 'train')
     val = _load_split(tar, num_classes, 'test')
-    classes = _load_classes(tar, num_classes)
+    labels = _load_labels(tar, num_classes)
     tar.close()
-    return CIFAR100(train, val, classes)
+    return CIFAR100(train, val, labels)

@@ -1,7 +1,6 @@
 import numpy as np
 import os
 import pickle
-from random import shuffle
 import tarfile
 from tqdm import tqdm
 
@@ -13,10 +12,10 @@ _CIFAR10_URL = 'https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
 
 
 class CIFAR10(object):
-    def __init__(self, x, y, classes):
+    def __init__(self, x, y, labels):
         self.x = x
         self.y = y
-        self.classes = classes
+        self.labels = labels
 
 
 def _load_x_y(tar, verbose):
@@ -44,12 +43,12 @@ def _load_x_y(tar, verbose):
     return np.vstack(xx), np.hstack(yy)
 
 
-def _load_classes(tar):
+def _load_labels(tar):
     path = 'cifar-10-batches-py/batches.meta'
     data = tar.extractfile(path).read()
     obj = pickle.loads(data, encoding='bytes')
-    classes = obj[b'label_names']
-    return list(map(lambda s: s.decode('utf-8'), classes))
+    labels = obj[b'label_names']
+    return list(map(lambda s: s.decode('utf-8'), labels))
 
 
 def load_cifar10(verbose=2):
@@ -58,6 +57,6 @@ def load_cifar10(verbose=2):
     download(_CIFAR10_URL, filename, verbose)
     tar = tarfile.open(filename, 'r:gz')
     x, y = _load_x_y(tar, verbose)
-    classes = _load_classes(tar)
+    labels = _load_labels(tar)
     tar.close()
-    return CIFAR10(x, y, classes)
+    return CIFAR10(x, y, labels)
