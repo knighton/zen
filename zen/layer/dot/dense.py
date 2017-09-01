@@ -1,31 +1,37 @@
+from ... import functional as F
 from ... import init
 from ..layer import Layer, Spec, Sugar
 
 
 class DenseLayer(Layer):
-    def __init__(self, w, b):
+    def __init__(self, kernel, bias):
         super().__init__()
-        self.w = self.add_param(w)
-        self.b = self.add_param(b)
+        self.kernel = self.add_param(kernel)
+        self.bias = self.add_param(bias)
 
     def forward(self, x, is_training):
-        return x.mm(self.w) + self.b
+        return F.dense(x, self.kernel, self.bias)
 
 
 class DenseSpec(Spec):
-    def __init__(self, out_dim=None):
+    def __init__(self, channels=None, kernel_init='glorot_uniform',
+                 bias_init='zero'):
         super().__init__()
-        self.out_dim = out_dim
+        if channels is not None:
+            F.check_dim(channels)
+        self.channels = channels
+        self.kernel_init = init.get(kernel_init)
+        self.bias_init = init.get(bias_init)
 
-    def build(self, in_shape=None, in_dtype=None):
-        in_dim, = in_shape
-        if self.out_dim is None:
-            out_dim = in_dim
-        else:
-            out_dim = self.out_dim
-        out_shape = out_dim,
-        layer = DenseLayer(init(in_dim, out_dim), init(out_dim))
-        return layer, out_shape, in_dtype
+    def build(self, in_shape, in_dtype):
+        in_channels, = in_shape
+        out_channels = self.channels
+        kernel_shape = out_channels, in_channels
+        kernel = self.kernel_init(kernel_shape, in_dtype)
+        bias_shape = out_channels,
+        bias = self.bias_init(bias_shape, in_dtype)
+        out_shape = out_channels,
+        return DenseLayer(kernel, bias), out_shape, in_dtype
 
 
 Dense = Sugar(DenseSpec)

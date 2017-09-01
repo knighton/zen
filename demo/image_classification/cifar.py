@@ -19,7 +19,7 @@ def run(args):
     data = load_cifar(args.dataset, args.cifar10_val_frac, args.verbose)
 
     image_shape = data.train[0].shape[1:]
-    num_classes = data.train[1].max() + 1
+    num_classes = int(data.train[1].max() + 1)
     train = data.train[0], one_hot(data.train[1], num_classes)
     val = data.val[0], one_hot(data.val[1], num_classes)
     if args.verbose:

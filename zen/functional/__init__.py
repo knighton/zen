@@ -2,6 +2,25 @@ import torch
 from torch.nn import functional as F
 
 
+def floatx():
+    return 'float32'
+
+
+def check_dim(dim):
+    assert isinstance(dim, int), \
+        'Dimension must be an integer (got %s): %s.' % (type(dim), dim)
+    assert 1 <= dim, 'Dimension must be positive: %d.' % dim
+
+
+def dense(x, kernel, bias):
+    """
+    x       tensor (batch_size, in_channels)
+    kernel  tensor (out_channels, in_channels)
+    bias    tensor (out_channels,)
+    """
+    return F.linear(x, kernel, bias)
+
+
 def sigmoid(x):
     return F.sigmoid(x)
 
