@@ -2,7 +2,7 @@ import sys
 import torch
 from torch.nn import functional as F
 
-from .general import *
+from .fuzz import *
 
 
 def get(name, dim=None):
