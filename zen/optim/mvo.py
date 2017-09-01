@@ -7,7 +7,7 @@ class MVO(Optimizer):
     Minimum viable optimizer.
     """
 
-    def __init__(self, lr=0.1):
+    def __init__(self, lr=0.01):
         defaults = {'lr': lr}
         super().__init__(defaults)
 
