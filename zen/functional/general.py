@@ -40,3 +40,19 @@ def batch_norm(x, is_training, reduction_axes, momentum, beta, gamma,
     beta = beta.squeeze()
     return F.batch_norm(x, running_mean, running_variance, gamma, beta,
                         is_training, momentum, 1e-3)
+
+
+batch_norm0d = batch_norm
+batch_norm1d = batch_norm
+batch_norm2d = batch_norm
+batch_norm3d = batch_norm
+
+
+def dropout(x, is_training, rate):
+    return F.dropout(x, rate, is_training, False)
+
+
+dropout0d = dropout
+dropout1d = dropout
+dropout2d = dropout
+dropout3d = dropout

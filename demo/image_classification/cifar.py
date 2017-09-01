@@ -21,9 +21,13 @@ def mlp(image_shape, num_classes):
         Input(image_shape),
         Flatten,
         Dense(256),
+        BatchNorm(),
         ReLU,
+        Dropout(0.5),
         Dense(64),
+        BatchNorm(),
         ReLU,
+        Dropout(0.5),
         Dense(num_classes),
         Softmax
     )
@@ -38,15 +42,19 @@ def cnn(image_shape, num_classes):
         Conv(16),
         BatchNorm(),
         ReLU,
+        Dropout(0.25),
         Conv(32),
         BatchNorm(),
         ReLU,
+        Dropout(0.25),
         Conv(64),
         BatchNorm(),
         ReLU,
+        Dropout(0.25),
         Conv(128),
         BatchNorm(),
         ReLU,
+        Dropout(0.25),
         Dense(num_classes),
         Softmax
     )

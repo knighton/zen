@@ -1,7 +1,15 @@
+import sys
 import torch
 from torch.nn import functional as F
 
 from .general import *
+
+
+def get(name, dim=None):
+    if dim is not None:
+        name = '%s%dd' % (name, dim)
+    module = sys.modules[__name__]
+    return getattr(module, name)
 
 
 def floatx():

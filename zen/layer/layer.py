@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 from ..model.model import Model
-from .. import variable
+from .. import constant, variable
 
 
 class Layerlike(Model):
@@ -13,9 +13,12 @@ class Layer(Layerlike):
         super().__init__()
         self._params = []
 
-    def add_param(self, arr):
-        param = variable(arr)
-        self._params.append(param)
+    def add_param(self, arr, trainable=True):
+        if trainable:
+            param = variable(arr)
+            self._params.append(param)
+        else:
+            param = constant(arr)
         return param
 
     def get_params(self):
