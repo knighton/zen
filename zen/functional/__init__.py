@@ -1,6 +1,8 @@
 import torch
 from torch.nn import functional as F
 
+from .general import *
+
 
 def floatx():
     return 'float32'
@@ -125,6 +127,10 @@ def reshape(x, out_shape):
 
 
 _EPSILON = 1e-6
+
+
+def epsilon():
+    return _EPSILON
 
 
 def binary_cross_entropy(true, pred):
