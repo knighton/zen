@@ -1,13 +1,15 @@
 from argparse import ArgumentParser
 from random import shuffle
 
-from zen.dataset.cifar import load_cifar10
+from zen.dataset.cifar10 import load_cifar10
+from zen.dataset.cifar100 import load_cifar100
 from zen.layer import *
 from zen.transform.one_hot import one_hot
 
 
 def parse_args():
     ap = ArgumentParser()
+    ap.add_argument('--dataset', type=int, default=10)
     ap.add_argument('--verbose', type=int, default=2)
     ap.add_argument('--stop', type=int, default=1000)
     return ap.parse_args()
@@ -25,9 +27,17 @@ def split(x, y, val_frac):
 
 
 def run(args):
-    val_frac = 0.2
-    data = load_cifar10(args.verbose)
-    train, val = split(data.x, data.y, val_frac)
+    if args.dataset == 10:
+        val_frac = 0.2
+        data = load_cifar10(args.verbose)
+        train, val = split(data.x, data.y, val_frac)
+    elif args.dataset in {20, 100}:
+        data = load_cifar100(args.dataset)
+        train = data.train
+        val = data.val
+    else:
+        assert False
+
     image_shape = train[0].shape[1:]
     num_classes = train[1].max() + 1
     train = train[0], one_hot(train[1], num_classes)

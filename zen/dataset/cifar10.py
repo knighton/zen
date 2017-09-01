@@ -10,7 +10,6 @@ from .util import download, get_dataset_dir
 
 _DATASET_NAME = 'cifar'
 _CIFAR10_URL = 'https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz'
-_CIFAR100_URL = 'https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz'
 
 
 class CIFAR10(object):
@@ -20,7 +19,7 @@ class CIFAR10(object):
         self.classes = classes
 
 
-def _cifar10_load_x_y(tar, verbose):
+def _load_x_y(tar, verbose):
     if verbose == 2:
         bar = tqdm(total=5, leave=False)
     xx = []
@@ -45,7 +44,7 @@ def _cifar10_load_x_y(tar, verbose):
     return np.vstack(xx), np.hstack(yy)
 
 
-def _cifar10_load_classes(tar):
+def _load_classes(tar):
     path = 'cifar-10-batches-py/batches.meta'
     data = tar.extractfile(path).read()
     obj = pickle.loads(data, encoding='bytes')
@@ -58,7 +57,7 @@ def load_cifar10(verbose=2):
     filename = os.path.join(dataset_dir, os.path.basename(_CIFAR10_URL))
     download(_CIFAR10_URL, filename, verbose)
     tar = tarfile.open(filename, 'r:gz')
-    x, y = _cifar10_load_x_y(tar, verbose)
-    classes = _cifar10_load_classes(tar)
+    x, y = _load_x_y(tar, verbose)
+    classes = _load_classes(tar)
     tar.close()
     return CIFAR10(x, y, classes)
