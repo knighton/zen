@@ -17,51 +17,20 @@ def parse_args():
 
 
 def mlp(image_shape, num_classes):
+    layer = lambda n: SequenceSpec(Dense(n), BatchNorm, ReLU, Dropout(0.5))
+    mlp = SequenceSpec(layer(256), layer(64))
     spec = SequenceSpec(
-        Input(image_shape),
-        Flatten,
-        Dense(256),
-        BatchNorm(),
-        ReLU,
-        Dropout(0.5),
-        Dense(64),
-        BatchNorm(),
-        ReLU,
-        Dropout(0.5),
-        Dense(num_classes),
-        Softmax
-    )
+        Input(image_shape), Flatten, mlp, Dense(num_classes), Softmax)
     model, out_shape, out_dtype = spec.build()
     return model
 
 
 def cnn(image_shape, num_classes):
+    layer = lambda n: Sequence(
+        Conv(n), BatchNorm, ReLU, SpatialDropout(0.25), MaxPool)
+    cnn = layer(16), layer(32), layer(64), layer(128)
     spec = SequenceSpec(
-        Input(image_shape),
-        Flatten,
-        Conv(16),
-        BatchNorm(),
-        ReLU,
-        SpatialDropout(0.25),
-        Maxpool(),
-        Conv(32),
-        BatchNorm(),
-        ReLU,
-        SpatialDropout(0.25),
-        Maxpool(),
-        Conv(64),
-        BatchNorm(),
-        ReLU,
-        SpatialDropout(0.25),
-        Maxpool(),
-        Conv(128),
-        BatchNorm(),
-        ReLU,
-        SpatialDropout(0.25),
-        Maxpool(),
-        Dense(num_classes),
-        Softmax
-    )
+        Input(image_shape), cnn, Flatten, Dense(num_classes), Softmax)
     model, out_shape, out_dtype = spec.build()
     return model
 
