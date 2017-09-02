@@ -3,6 +3,7 @@ import torch
 from torch.nn import functional as F
 
 from .fuzz import *
+from .shape import *
 
 
 def get(name, dim=None):
