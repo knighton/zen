@@ -1,3 +1,9 @@
+def check_dim(dim):
+    assert isinstance(dim, int), \
+        'Dimension must be an integer (got %s): %s.' % (type(dim), dim)
+    assert 1 <= dim, 'Dimension must be positive: %d.' % dim
+
+
 def to_one(x):
     if isinstance(x, int):
         return x
