@@ -5,70 +5,26 @@ from ..core.util import to_shape
 
 
 """
-1D convolution.  See also `conv_out_shape`.
+Convolution.
+
+    x, kernel, bias, padding, stride, dilation -> y
 
 Input:
-    x         variable (batch_size, in_channels, width)
-    kernel    variable (out_channels, in_channels, width)
-    bias      variable (out_channels,)
-    padding   dim or shape
-    stride    dim or shape
-    dilation  dim or shape
+                            1D   2D    3D
+                            --   --    --
+    x         varibale      NCW  NCHW  NCDHW
+    kernel    variable      OCW  OCHW  OCDHW
+    bias      variable      O    O     O
+    padding   dim or shape  W    HW    DHW
+    stride    dim or shape  W    HW    DHW
+    dilation  dim or shape  W    HW    DHW
 
 Output:
-    x         variable (batch_size, out_channels, width)
+    y         variable      NOW  NOHW  NODHW
 """
 conv1d = Z.conv1d
-
-
-"""
-2D convolution.  See also `conv_out_shape`.
-
-Input:
-    x         variable (batch_size, in_channels, height, width)
-    kernel    variable (out_channels, in_channels, height, width)
-    bias      variable (out_channels,)
-    padding   dim or shape
-    stride    dim or shape
-    dilation  dim or shape
-
-Output:
-    x         variable (batch_size, out_channels, height, width)
-"""
 conv2d = Z.conv2d
-
-
-"""
-3D convolution.  See also `conv_out_shape`.
-
-Input:
-    x         variable (batch_size, in_channels, depth, height, width)
-    kernel    variable (out_channels, in_channels, depth, height, width)
-    bias      variable (out_channels,)
-    padding   dim or shape
-    stride    dim or shape
-    dilation  dim or shape
-
-Output:
-    x         variable (batch_size, out_channels, depth, height, width)
-"""
 conv3d = Z.conv3d
-
-
-"""
-ND convolution.  See also `conv_out_shape`.
-
-Input:
-    x         variable (batch_size, in_channels, shape...)
-    kernel    variable (out_channels, in_channels, shape...)
-    bias      variable (out_channels,)
-    padding   dim or shape
-    stride    dim or shape
-    dilation  dim or shape
-
-Output:
-    x         variable (batch_size, out_channels, shape...)
-"""
 conv = Z.conv
 
 

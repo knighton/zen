@@ -17,56 +17,21 @@ def _my_spatial_dropout(x, is_training, rate):
 
 
 """
-ND spatial dropout.
+Spatial ropout.
+
+    x, is_training, rate -> y
 
 Input:
-    x            variable (NC...)  Input data.
-    is_training  bool              Whether to drop.
-    rate         0. < float < 1.   Fraction dropped.
+                           0D  1D   2D    3D
+                           --  --   --    --
+    x            variable  NC  NCW  NCHW  NCDHW
+    is_training  bool
+    rate         0 to 1
 
 Output:
-    y            variable (NC...)  Output data.
+    y            variable  NC  NCW  NCHW  NCDHW
 """
 spatial_dropout = Z.get('spatial_dropout', _my_spatial_dropout)
-
-
-"""
-1D spatial dropout (sequences).
-
-Input:
-    x            variable (NCW)    Input data.
-    is_training  bool              Whether to drop.
-    rate         0. < float < 1.   Fraction dropped.
-
-Output:
-    y            variable (NCW)    Output data.
-"""
 spatial_dropout1d = Z.get('spatial_dropout1d', _my_spatial_dropout)
-
-
-"""
-2D spatial dropout (images).
-
-Input:
-    x            variable (NCHW)   Input data.
-    is_training  bool              Whether to drop.
-    rate         0. < float < 1.   Fraction dropped.
-
-Output:
-    y            variable (NCHW)   Output data.
-"""
 spatial_dropout2d = Z.get('spatial_dropout2d', _my_spatial_dropout)
-
-
-"""
-3D spatial dropout (video).
-
-Input:
-    x            variable (NCDHW)  Input data.
-    is_training  bool              Whether to drop.
-    rate         0. < float < 1.   Fraction dropped.
-
-Output:
-    y            variable (NCDHW)  Output data.
-"""
 spatial_dropout3d = Z.get('spatial_dropout3d', _my_spatial_dropout)

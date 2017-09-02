@@ -44,110 +44,32 @@ def _my_batch_norm(x, is_training, reduction_axes, momentum, beta, gamma,
 
 
 """
-ND batch normalization.
+Batch normalization.
+
+    (x, is_training, reduction_axes, momentum, beta, gamma, running_mean,
+     running_variance) -> y
 
 Input:
-    x                 variable (NC...)     Input data.
-    is_training       bool                 Whether in training mode.
-    reduction_axes    list of dims (ints)  Axes to normalize over.
-    momentum          0. <= float <= 1.    How quickly to update the running
-                                           statistics.
-    beta              variable (1?...)     Batch norm beta.
-                                           Reduced axes are 1, and non-reduced
-                                           axes are same as x.  Eg, 1C....
-    gamma             variable (")         Batch norm gamma.
-    running_mean      constant (")         Batch norm mean.
-    running_variance  constant (")         Batch norm variance.
+                                    0D  1D   2D    3D
+                                    --  --   --    --
+    x                 variable      NC  NCW  NCHW  NCDHW
+    is_training       bool
+    reduction_axes    list of ints
+    momentum          0 to 1
+    beta              variable      1C  1C1  1C11  1C111
+    gamma             variable      1C  1C1  1C11  1C111
+    running_mean      constant      1C  1C1  1C11  1C111
+    running_variance  constant      1C  1C1  1C11  1C111
 
 Output:
-    y                 variable (NC...)     Output data.
+    y                 variable      NC  NCW  NCHW  NCDHW
+
+The variables beta, gamma, running_mean, and running_variance are the same shape
+as `x` but with a length of 1 on every reduced axis.  Reduction axes is going to
+be everything but the channels axis.
 """
 batch_norm = Z.get('batch_norm', _my_batch_norm)
-
-
-"""
-0D batch normalization.
-
-Input:
-    x                 variable (NC)        Input data.
-    is_training       bool                 Whether in training mode.
-    reduction_axes    list of dims (ints)  Axes to normalize over.
-    momentum          0. <= float <= 1.    How quickly to update the running
-                                           statistics.
-    beta              variable (1?)        Batch norm beta.
-                                           Reduced axes are 1, and non-reduced
-                                           axes are same as x.  Eg, 1C.
-    gamma             variable (")         Batch norm gamma.
-    running_mean      constant (")         Batch norm mean.
-    running_variance  constant (")         Batch norm variance.
-
-Output:
-    y                 variable (NC)        Output data.
-"""
 batch_norm0d = Z.get('batch_norm0d', _my_batch_norm)
-
-
-"""
-1D batch normalization.
-
-Input:
-    x                 variable (NCW)       Input data.
-    is_training       bool                 Whether in training mode.
-    reduction_axes    list of dims (ints)  Axes to normalize over.
-    momentum          0. <= float <= 1.    How quickly to update the running
-                                           statistics.
-    beta              variable (1??)       Batch norm beta.
-                                           Reduced axes are 1, and non-reduced
-                                           axes are same as x.  Eg, 1C1.
-    gamma             variable (")         Batch norm gamma.
-    running_mean      constant (")         Batch norm mean.
-    running_variance  constant (")         Batch norm variance.
-
-Output:
-    y                 variable (NCW)       Output data.
-"""
 batch_norm1d = Z.get('batch_norm1d', _my_batch_norm)
-
-
-"""
-2D batch normalization.
-
-Input:
-    x                 variable (NCHW)      Input data.
-    is_training       bool                 Whether in training mode.
-    reduction_axes    list of dims (ints)  Axes to normalize over.
-    momentum          0. <= float <= 1.    How quickly to update the running
-                                           statistics.
-    beta              variable (1???)      Batch norm beta.
-                                           Reduced axes are 1, and non-reduced
-                                           axes are same as x.  Eg, 1C11.
-    gamma             variable (")         Batch norm gamma.
-    running_mean      constant (")         Batch norm mean.
-    running_variance  constant (")         Batch norm variance.
-
-Output:
-    y                 variable (NCHW)      Output data.
-"""
 batch_norm2d = Z.get('batch_norm2d', _my_batch_norm)
-
-
-"""
-3D batch normalization.
-
-Input:
-    x                 variable (NCDHW)     Input data.
-    is_training       bool                 Whether in training mode.
-    reduction_axes    list of dims (ints)  Axes to normalize over.
-    momentum          0. <= float <= 1.    How quickly to update the running
-                                           statistics.
-    beta              variable (1????)     Batch norm beta.
-                                           Reduced axes are 1, and non-reduced
-                                           axes are same as x.  Eg, 1C111.
-    gamma             variable (")         Batch norm gamma.
-    running_mean      constant (")         Batch norm mean.
-    running_variance  constant (")         Batch norm variance.
-
-Output:
-    y                 variable (NCDHW)     Output data.
-"""
 batch_norm3d = Z.get('batch_norm3d', _my_batch_norm)
