@@ -1,5 +1,7 @@
 from torch.nn import functional as F
 
+from ..core.util import to_one
+
 
 def avg_pool1d(x, window, pad, stride):
     """
