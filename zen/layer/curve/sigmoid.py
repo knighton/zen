@@ -4,7 +4,7 @@ from ..layer import Layer, Spec, Sugar
 
 class SigmoidLayer(Layer):
     def forward(self, x, is_training):
-        return F.sigmoid(x)
+        return Z.sigmoid(x)
 
 
 class SigmoidSpec(Spec):

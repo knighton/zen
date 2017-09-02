@@ -4,7 +4,7 @@ from ..layer import Layer, Spec, Sugar
 
 class SoftmaxLayer(Layer):
     def forward(self, x, is_training):
-        return F.softmax(x)
+        return Z.softmax(x)
 
 
 class SoftmaxSpec(Spec):
