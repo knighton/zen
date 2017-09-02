@@ -1,5 +1,6 @@
 from argparse import ArgumentParser
 from random import shuffle
+import sys
 
 from zen.dataset.cifar import load_cifar
 from zen.layer import *
@@ -26,9 +27,9 @@ def mlp(image_shape, num_classes):
 
 
 def cnn(image_shape, num_classes):
-    layer = lambda n: Sequence(
+    layer = lambda n: SequenceSpec(
         Conv(n), BatchNorm, ReLU, SpatialDropout(0.25), MaxPool)
-    cnn = layer(16), layer(32), layer(64), layer(128)
+    cnn = SequenceSpec(layer(16), layer(32), layer(64), layer(128))
     spec = SequenceSpec(
         Input(image_shape), cnn, Flatten, Dense(num_classes), Softmax)
     model, out_shape, out_dtype = spec.build()
@@ -36,6 +37,8 @@ def cnn(image_shape, num_classes):
 
 
 def run(args):
+    module = sys.modules[__name__]
+    build = getattr(module, args.model)
     data = load_cifar(args.dataset, args.cifar10_val_frac, args.verbose)
     image_shape = data.train[0].shape[1:]
     num_classes = int(data.train[1].max() + 1)
@@ -46,7 +49,7 @@ def run(args):
         for i, label in enumerate(data.labels):
             ss.append('%s (%d)' % (label, i))
         print('Classes: %s.' % ', '.join(ss))
-    model = mlp(image_shape, num_classes)
+    model = build(image_shape, num_classes)
     model.train_classifier((train, val), stop=args.stop)
 
 

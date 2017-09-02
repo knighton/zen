@@ -15,7 +15,7 @@ class ConvBaseLayer(Layer):
 
 class ConvBaseSpec(Spec):
     def __init__(self, channels=None, window=3, padding=1, stride=1, dilation=1,
-                 kernel_init='glorot_uniform', bias_init='zero', dim=None):
+                 kernel_init='glorot_uniform', bias_init='zero', ndim=None):
         """
         channels     {None, dim}         Output channels.
                                          None means match input channels.
@@ -26,16 +26,15 @@ class ConvBaseSpec(Spec):
         dilation     {dim, shape}        Dilation (single ints are repeated).
         kernel_init  {str, Initializer}  Kernel initializer.
         bias_init    {str, Initializer}  Bias initializer.
-        dim          {None, 1, 2, 3}     Specifies input dimensionality.
+        ndim         {None, 1, 2, 3}     Specifies input dimensionality.
         """
         super().__init__()
-        if channels is not None:
-            assert Z.is_dim(channels)
-        assert dim in {None, 1, 2, 3}
-        assert Z.is_shape_or_one(window, dim)
-        assert Z.is_shape_or_one(padding, dim)
-        assert Z.is_shape_or_one(stride, dim)
-        assert Z.is_shape_or_one(dilation, dim)
+        Z.check_out_channels(channels, 'channels')
+        Z.check_input_ndim(ndim, {1, 2, 3}, 'ndim')
+        Z.check_dim_or_shape(window, ndim, 'window'),
+        Z.check_coord_or_coords(padding, ndim, 'padding')
+        Z.check_dim_or_shape(stride, ndim, 'stride')
+        Z.check_dim_or_shape(dilation, ndim, 'dilation')
         self.channels = channels
         self.window = window
         self.padding = padding
@@ -43,7 +42,7 @@ class ConvBaseSpec(Spec):
         self.dilation = dilation
         self.kernel_init = init.get(kernel_init)
         self.bias_init = init.get(bias_init)
-        self.dim = dim
+        self.ndim = ndim
 
     def make_layer(self, kernel, bias, padding, stride, dilation):
         raise NotImplementedError
@@ -56,13 +55,9 @@ class ConvBaseSpec(Spec):
             out_channels = in_shape[0]
         else:
             out_channels = self.channels
-        if self.dim is None:
-            dim = len(in_shape) - 1
-        else:
-            dim = self.dim
-            assert len(in_shape) == dim + 1
+        ndim = Z.verify_input_ndim(self.ndim, in_shape)
         in_channels = in_shape[0]
-        window = Z.to_shape(self.window, dim)
+        window = Z.to_shape(self.window, ndim)
         kernel_shape = (out_channels, in_channels) + window
         kernel = self.kernel_init(kernel_shape, in_dtype)
         bias_shape = out_channels,
@@ -77,8 +72,8 @@ class ConvBaseSpec(Spec):
 class ConvLayer(ConvBaseLayer):
     def __init__(self, kernel, bias, padding, stride, dilation):
         super().__init__(kernel, bias, padding, stride, dilation)
-        dim = Z.shape(kernel) - 2
-        self.conv = Z.get('conv', dim)
+        ndim = Z.get_ndim(self.kernel) - 2
+        self.conv = Z.get('conv', ndim)
 
     def forward(self, x, is_training):
         return self.conv(x, self.kernel, self.bias, self.padding, self.stride,
@@ -94,6 +89,6 @@ class ConvSpec(ConvBaseSpec):
 
 
 Conv = Sugar(ConvSpec)
-Conv1D = Sugar(ConvSpec, {'dim': 1})
-Conv2D = Sugar(ConvSpec, {'dim': 2})
-Conv3D = Sugar(ConvSpec, {'dim': 3})
+Conv1D = Sugar(ConvSpec, {'ndim': 1})
+Conv2D = Sugar(ConvSpec, {'ndim': 2})
+Conv3D = Sugar(ConvSpec, {'ndim': 3})

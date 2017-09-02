@@ -3,9 +3,9 @@ from ..layer import Layer, Spec, Sugar
 
 
 class DropoutLayer(Layer):
-    def __init__(self, dim, rate):
+    def __init__(self, ndim, rate):
         super().__init__()
-        self.dropout = Z.get('dropout', dim)
+        self.dropout = Z.get('dropout', ndim)
         self.rate = rate
 
     def forward(self, x, is_training):
@@ -13,24 +13,24 @@ class DropoutLayer(Layer):
 
 
 class DropoutSpec(Spec):
-    def __init__(self, rate, dim=None):
+    def __init__(self, rate, ndim=None):
         super().__init__()
         assert 0. < rate < 1.
         self.rate = rate
-        assert dim in {None, 0, 1, 2, 3}
-        self.dim = dim
+        assert ndim in {None, 0, 1, 2, 3}
+        self.ndim = ndim
 
     def build(self, in_shape, in_dtype):
-        if self.dim is not None:
-            assert Z.is_shape(in_shape, self.dim + 1)
-            dim = len(in_shape) - 1
+        if self.ndim is not None:
+            assert Z.is_shape(in_shape, self.ndim + 1)
+            ndim = len(in_shape) - 1
         else:
-            dim = self.dim
-        return DropoutLayer(dim, self.rate), in_shape, in_dtype
+            ndim = self.ndim
+        return DropoutLayer(ndim, self.rate), in_shape, in_dtype
 
 
 Dropout = Sugar(DropoutSpec)
-Dropout0D = Sugar(DropoutSpec, {'dim': 0})
-Dropout1D = Sugar(DropoutSpec, {'dim': 1})
-Dropout2D = Sugar(DropoutSpec, {'dim': 2})
-Dropout3D = Sugar(DropoutSpec, {'dim': 3})
+Dropout0D = Sugar(DropoutSpec, {'ndim': 0})
+Dropout1D = Sugar(DropoutSpec, {'ndim': 1})
+Dropout2D = Sugar(DropoutSpec, {'ndim': 2})
+Dropout3D = Sugar(DropoutSpec, {'ndim': 3})

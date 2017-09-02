@@ -1,7 +1,7 @@
 from math import floor
 
 from .. import backend as Z
-from ..util import to_shape
+from ..core.util import to_shape
 
 
 """

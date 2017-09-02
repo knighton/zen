@@ -2,11 +2,11 @@ import torch
 from torch.autograd import Variable
 
 
-def ndim(x):
+def get_ndim(x):
     return x.dim()
 
 
-def shape(x):
+def get_shape(x):
     return tuple(x.size())
 
 

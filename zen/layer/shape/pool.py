@@ -11,74 +11,92 @@ class PoolLayer(Layer):
 
 
 class PoolSpec(Spec):
-    def __init__(self, window=2, padding=0, stride=None, dim=None):
+    """
+    Pooling spec abstract base class.
+    """
+
+    def __init__(self, window=2, padding=0, stride=None, ndim=None):
         """
         window   {dim, shape}        Int means repeat per dimension.
         padding  {dim, shape}        Padding.
         stride   {None, dim, shape}  None means match window.
                                      Int means repeat per dimension.
-        dim      {None, 1, 2, 3}     Optinally specify dimensionality of input.
+        ndim     {None, 1, 2, 3}     Optinally specify dimensionality of input.
         """
         super().__init__()
-        assert dim in {None, 1, 2, 3}
-        assert Z.is_shape_or_one(window, dim)
-        assert Z.is_shape_or_one(padding, dim)
+        Z.check_input_ndim(ndim, {1, 2, 3}, 'ndim')
+        Z.check_dim_or_shape(window, ndim, 'window')
+        Z.check_coord_or_coords(padding, ndim, 'padding')
         if stride is None:
             stride = window
         else:
-            assert Z.is_shape_or_one(stride, dim)
+            Z.check_dim_or_shape(stride, ndim)
         self.window = window
         self.padding = padding
         self.stride = stride
-        self.dim = dim
+        self.ndim = ndim
 
-    def make_layer(self, dim):
+    def make_layer(self, ndim):
         raise NotImplementedError
 
     def build(self, in_shape, in_dtype):
-        if self.dim is None:
-            dim = len(in_shape) - 1
-        else:
-            assert Z.is_shape(in_shape, self.dim + 1)
-            dim = self.dim
+        ndim = Z.verify_input_ndim(self.ndim, in_shape)
         out_shape = (in_shape[0],) + Z.pool_out_shape(
             in_shape[1:], self.window, self.padding, self.stride)
-        return self.make_layer(dim), out_shape, in_dtype
+        return self.make_layer(ndim), out_shape, in_dtype
 
 
 class AvgPoolLayer(PoolLayer):
-    def __init__(self, dim):
-        self.avg_pool = Z.get('avg_pool', dim)
+    """
+    Average pooling layer.
+    """
+
+    def __init__(self, ndim, window, padding, stride):
+        super().__init__(window, padding, stride)
+        self.avg_pool = Z.get('avg_pool', ndim)
 
     def forward(self, x, is_training):
         return self.avg_pool(x, self.window, self.padding, self.stride)
 
 
 class AvgPoolSpec(PoolSpec):
-    def make_layer(self, dim):
-        return AvgPoolLayer(self.dim, self.window, self.padding, self.stride)
+    """
+    Average pooling spec.
+    """
+
+    def make_layer(self, ndim, window, padding, stride):
+        return AvgPoolLayer(self.ndim, self.window, self.padding, self.stride)
 
 
 AvgPool = Sugar(AvgPoolSpec)
-AvgPool1D = Sugar(AvgPoolSpec, {'dim': 1})
-AvgPool2D = Sugar(AvgPoolSpec, {'dim': 2})
-AvgPool3D = Sugar(AvgPoolSpec, {'dim': 3})
+AvgPool1D = Sugar(AvgPoolSpec, {'ndim': 1})
+AvgPool2D = Sugar(AvgPoolSpec, {'ndim': 2})
+AvgPool3D = Sugar(AvgPoolSpec, {'ndim': 3})
 
 
 class MaxPoolLayer(PoolLayer):
-    def __init__(self, dim):
-        self.max_pool = Z.get('max_pool', dim)
+    """
+    Max pooling layer.
+    """
+
+    def __init__(self, ndim, window, padding, stride):
+        super().__init__(window, padding, stride)
+        self.max_pool = Z.get('max_pool', ndim)
 
     def forward(self, x, is_training):
         return self.max_pool(x, self.window, self.padding, self.stride)
 
 
 class MaxPoolSpec(PoolSpec):
-    def make_layer(self, dim):
-        return MaxPoolLayer(self.dim, self.window, self.padding, self.stride)
+    """
+    Max pooling spec.
+    """
+
+    def make_layer(self, ndim):
+        return MaxPoolLayer(self.ndim, self.window, self.padding, self.stride)
 
 
 MaxPool = Sugar(MaxPoolSpec)
-MaxPool1D = Sugar(MaxPoolSpec, {'dim': 1})
-MaxPool2D = Sugar(MaxPoolSpec, {'dim': 2})
-MaxPool3D = Sugar(MaxPoolSpec, {'dim': 3})
+MaxPool1D = Sugar(MaxPoolSpec, {'ndim': 1})
+MaxPool2D = Sugar(MaxPoolSpec, {'ndim': 2})
+MaxPool3D = Sugar(MaxPoolSpec, {'ndim': 3})
