@@ -55,15 +55,45 @@ Output:
 conv3d = Z.conv3d
 
 
+_DIM2CONV = {
+    1: conv1d,
+    2: conv2d,
+    3: conv3d,
+}
+
+
+def conv(x, is_training, rate):
+    """
+    ND convolution.  See also `conv_out_shape`.
+
+    Input:
+        x         variable (batch_size, in_channels, shape...)
+        kernel    variable (out_channels, in_channels, shape...)
+        bias      variable (out_channels,)
+        padding   dim or shape
+        stride    dim or shape
+        dilation  dim or shape
+
+    Output:
+        x         variable (batch_size, out_channels, shape...)
+    """
+    dim = x.size() - 2
+    return _DIM2CONV[dim](x, is_training, rate)
+
+
 def conv_out_shape(in_shape, window, padding, stride, dilation):
     """
     Calculate convolution output shape.
 
-    in_shape      shape         The shape of x without the channel dimension.
-    window        dim or shape  Filter shape.
-    padding       dim or shape  Padding.
-    stride        dim or shape  Stride.
-    dilation      dim or shape  Dilation.
+    Input:
+        in_shape      shape         The shape of x without channel dimension.
+        window        dim or shape  Filter shape.
+        padding       dim or shape  Padding.
+        stride        dim or shape  Stride.
+        dilation      dim or shape  Dilation.
+
+    Output:
+        out_shape     shape         The shape of y without channel dimension.
     """
     dim = len(in_shape)
     window = to_shape(window, dim)
