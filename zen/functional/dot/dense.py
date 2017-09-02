@@ -7,4 +7,4 @@ def dense(x, kernel, bias):
     kernel  tensor (out_channels, in_channels)
     bias    tensor (out_channels,)
     """
-    return F.linear(x, kernel, bias)
+    return x.matmul(kernel) + bias

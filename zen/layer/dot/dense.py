@@ -26,7 +26,7 @@ class DenseSpec(Spec):
     def build(self, in_shape, in_dtype):
         in_channels, = in_shape
         out_channels = self.channels
-        kernel_shape = out_channels, in_channels
+        kernel_shape = in_channels, out_channels
         kernel = self.kernel_init(kernel_shape, in_dtype)
         bias_shape = out_channels,
         bias = self.bias_init(bias_shape, in_dtype)

@@ -1,4 +1,5 @@
 import numpy as np
+from time import time
 
 from .. import constant
 from ..functional import categorical_accuracy, categorical_cross_entropy
@@ -59,6 +60,7 @@ class Model(object):
         return metric_values
 
     def train_on_epoch(self, data, metrics, opt, batch_size, epoch):
+        t0 = time()
         (x_train, y_train), (x_val, y_val) = data
         num_train_batches = len(x_train) // batch_size
         num_val_batches = len(x_val) // batch_size
@@ -84,8 +86,9 @@ class Model(object):
         val_metric_values = []
         for values in val_metric_value_lists:
             val_metric_values.append(np.array(values).mean())
-        print('epoch %4d train %s val %s' %
-              (epoch, train_metric_values, val_metric_values))
+        t = time() - t0
+        print('epoch %4d took %.3f sec train %s val %s' %
+              (epoch, t, train_metric_values, val_metric_values))
 
     def train(self, data, metrics, opt='mvo', batch_size=64, stop=1000):
         y_sample_shape = data[0][1].shape[1:]
