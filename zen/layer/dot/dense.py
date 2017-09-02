@@ -10,7 +10,7 @@ class DenseLayer(Layer):
         self.bias = self.add_param(bias)
 
     def forward(self, x, is_training):
-        return Z.dense(x, self.kernel, self.bias)
+        return Z.matmul(x, self.kernel) + self.bias
 
 
 class DenseSpec(Spec):
