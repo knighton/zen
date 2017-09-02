@@ -5,6 +5,10 @@ def clip(x, min_value=-np.inf, max_value=np.inf):
     return x.clamp(min_value, max_value)
 
 
+def log(x):
+    return x.log()
+
+
 def sqrt(x):
     return x.sqrt()
 

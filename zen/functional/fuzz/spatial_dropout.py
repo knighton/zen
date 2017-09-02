@@ -16,7 +16,7 @@ def _my_spatial_dropout(x, is_training, rate):
     return x * mask / (1. - rate)
 
 
-spatial_dropout1d = my_spatial_dropout
+spatial_dropout1d = _my_spatial_dropout
 
 
 def spatial_dropout2d(x, is_training, rate):
