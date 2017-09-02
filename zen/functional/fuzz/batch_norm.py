@@ -1,16 +1,8 @@
-import numpy as np
 from torch.nn import functional as F
 
-from .core import epsilon, mean, sqrt, square
-
-from .. import constant
-
-
-to_constant = constant
-
-
-def shape(x):
-    return tuple(x.size())
+from ..core.elemwise import sqrt, square
+from ..core.epsilon import epsilon
+from ..core.reduce import mean
 
 
 def _do_batch_norm(x, mean, variance, beta, gamma):
@@ -30,7 +22,7 @@ def _running_average_update(x_running, x_new, momentum):
     x_running.data = momentum * x_running.data + (1. - momentum) * x_new.data
 
 
-def my_batch_norm(x, is_training, reduction_axes, momentum, beta, gamma,
+def _my_batch_norm(x, is_training, reduction_axes, momentum, beta, gamma,
                running_mean, running_variance):
     if is_training:
         mean, variance = _moments(x, reduction_axes)
@@ -56,37 +48,3 @@ batch_norm0d = batch_norm
 batch_norm1d = batch_norm
 batch_norm2d = batch_norm
 batch_norm3d = batch_norm
-
-
-def dropout(x, is_training, rate):
-    return F.dropout(x, rate, is_training, False)
-
-
-dropout0d = dropout
-dropout1d = dropout
-dropout2d = dropout
-dropout3d = dropout
-
-
-def spatial_dropout(x, is_training, rate):
-    if not is_training:
-        return x
-
-    shape = shape(x)
-    noise_shape = shape[:2] + (1,) * (len(shape) - 2)
-    max_value = 1. / rate
-    mask = np.random.uniform(0, max_value, noise_shape).astype('float32')
-    mask = np.floor(mask.clip(0., 1.))
-    mask = to_constant(mask)
-    return x * mask / (1. - rate)
-
-
-spatial_dropout1d = spatial_dropout
-
-
-def spatial_dropout2d(x, is_training, rate):
-    return F.dropout2d(x, rate, is_training, False)
-
-
-def spatial_dropout3d(x, is_training, rate):
-    return F.dropout3d(x, rate, is_training, False)
