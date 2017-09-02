@@ -1,3 +1,3 @@
-from .relu import *
-from .sigmoid import *
-from .softmax import *
+from .relu import *  # noqa
+from .sigmoid import *  # noqa
+from .softmax import *  # noqa

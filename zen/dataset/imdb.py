@@ -51,7 +51,6 @@ def _process_split_polarity(tgz_dir, processed_dir, split, polarity, verbose):
             text = open(f).read()
             texts.append(text)
 
-    dirname = os.path.dirname(processed_dir)
     if not os.path.exists(processed_dir):
         os.mkdir(processed_dir)
 

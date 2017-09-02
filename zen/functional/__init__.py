@@ -1,12 +1,12 @@
 import sys
 
-from .accuracy import *
-from .core import *
-from .curve import *
-from .dot import *
-from .fuzz import *
-from .loss import *
-from .shape import *
+from .accuracy import *  # noqa
+from .core import *  # noqa
+from .curve import *  # noqa
+from .dot import *  # noqa
+from .fuzz import *  # noqa
+from .loss import *  # noqa
+from .shape import *  # noqa
 
 
 def get(name, dim=None):

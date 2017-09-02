@@ -1,5 +1,5 @@
-from .arch import *
-from .curve import *
-from .dot import *
-from .fuzz import *
-from .shape import *
+from .arch import *  # noqa
+from .curve import *  # noqa
+from .dot import *  # noqa
+from .fuzz import *  # noqa
+from .shape import *  # noqa

@@ -7,8 +7,8 @@ from ..core.data import constant, shape
 def _my_spatial_dropout(x, is_training, rate):
     if not is_training:
         return x
-    shape = shape(x)
-    noise_shape = shape[:2] + (1,) * (len(shape) - 2)
+    x_shape = shape(x)
+    noise_shape = x_shape[:2] + (1,) * (len(x_shape) - 2)
     max_value = 1. / rate
     mask = np.random.uniform(0, max_value, noise_shape).astype('float32')
     mask = np.floor(mask.clip(0., 1.))
@@ -30,7 +30,7 @@ def spatial_dropout3d(x, is_training, rate):
 _DIM2SPATIAL_DROPOUT = {
     1: spatial_dropout1d,
     2: spatial_dropout2d,
-    2: spatial_dropout3d,
+    3: spatial_dropout3d,
 }
 
 

@@ -23,7 +23,7 @@ def _running_average_update(x_running, x_new, momentum):
 
 
 def _my_batch_norm(x, is_training, reduction_axes, momentum, beta, gamma,
-               running_mean, running_variance):
+                   running_mean, running_variance):
     if is_training:
         mean, variance = _moments(x, reduction_axes)
         x = _do_batch_norm(x, mean, variance, beta, gamma)

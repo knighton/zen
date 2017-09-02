@@ -1,6 +1,3 @@
-from torch.nn import functional as F
-
-
 def dense(x, kernel, bias):
     """
     x       tensor (batch_size, in_channels)

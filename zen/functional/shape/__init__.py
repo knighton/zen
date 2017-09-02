@@ -1,2 +1,2 @@
-from .pool import *
-from .reshape import *
+from .pool import *  # noqa
+from .reshape import *  # noqa

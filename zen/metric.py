@@ -1,8 +1,7 @@
 import sys
 
-from .functional import binary_accuracy, binary_cross_entropy, \
-                        categorical_accuracy, categorical_cross_entropy, \
-                        mean_squared_error
+from .functional.accuracy import *  # noqa
+from .functional.loss import *  # noqa
 
 
 def get(x):

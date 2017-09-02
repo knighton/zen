@@ -1,9 +1,4 @@
-import numpy as np
-import os
-import pickle
 from random import shuffle
-import tarfile
-from tqdm import tqdm
 
 from .cifar10 import load_cifar10
 from .cifar100 import load_cifar100

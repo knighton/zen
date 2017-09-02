@@ -1,2 +1,2 @@
-from .input import *
-from .sequence import *
+from .input import *  # noqa
+from .sequence import *  # noqa

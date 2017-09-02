@@ -26,7 +26,7 @@ class DropoutSpec(Spec):
             dim = len(in_shape) - 1
         else:
             dim = self.dim
-        return DropoutLayer(self.dim, self.rate), in_shape, in_dtype
+        return DropoutLayer(dim, self.rate), in_shape, in_dtype
 
 
 Dropout = Sugar(DropoutSpec)

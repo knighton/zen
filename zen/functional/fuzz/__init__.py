@@ -1,3 +1,3 @@
-from .batch_norm import *
-from .dropout import *
-from .spatial_dropout import *
+from .batch_norm import *  # noqa
+from .dropout import *  # noqa
+from .spatial_dropout import *  # noqa
