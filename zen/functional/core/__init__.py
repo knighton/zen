@@ -1,11 +1,5 @@
+from .epsilon import *
 from .util import *
-
-
-_EPSILON = 1e-6
-
-
-def epsilon():
-    return _EPSILON
 
 
 def _normalize_axis(axis, num_dims):
