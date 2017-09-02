@@ -1,16 +1,19 @@
+from .core.elemwise import clip, log, square
 from .core.epsilon import epsilon
+from .core.reduce import mean
 
 
 def binary_cross_entropy(true, pred):
-    pred = pred.clamp(epsilon(), 1. - epsilon())
-    return -true * pred.log() - (1. - true) * (1. - pred).log()
+    pred = clip(pred, epsilon(), 1. - epsilon())
+    return -true * log(pred) - (1. - true) * log(1. - pred)
 
 
 def categorical_cross_entropy(true, pred):
-    pred = pred.clamp(epsilon(), 1. - epsilon())
-    ret = -true * pred.log()
-    return ret.mean()
+    pred = clip(pred, epsilon(), 1. - epsilon())
+    ret = -true * log(pred)
+    return mean(ret, -1)
 
 
 def mean_squared_error(true, pred):
-    return (true - pred).pow(2).mean()
+    ret = square(true - pred)
+    return mean(ret, -1)

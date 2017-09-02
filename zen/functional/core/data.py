@@ -2,6 +2,10 @@ import torch
 from torch.autograd import Variable
 
 
+def shape(x):
+    return tuple(x.size())
+
+
 def variable(arr, tensor_type=torch.cuda.FloatTensor):
     tensor = torch.from_numpy(arr).type(tensor_type)
     return Variable(tensor, requires_grad=True)
