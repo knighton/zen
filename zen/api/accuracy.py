@@ -1,15 +1,13 @@
-import torch
+from . import core as C
 
 
 def binary_accuracy(true, pred):
-    ret = true == pred.round()
-    ret = ret.type(torch.cuda.FloatTensor)
-    return 100. * ret.mean()
+    ret = C.equal(true, C.round(pred))
+    return C.mean(C.cast(ret), -1, False)
 
 
 def categorical_accuracy(true, pred):
-    true = true.max(1)[1]
-    pred = pred.max(1)[1]
-    ret = true == pred
-    ret = ret.type(torch.cuda.FloatTensor)
-    return 100. * ret.mean()
+    true = C.argmax(true, -1)
+    pred = C.argmax(pred, -1)
+    ret = C.equal(true, pred)
+    return C.mean(C.cast(ret), -1, False)
