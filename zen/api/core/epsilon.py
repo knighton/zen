@@ -7,7 +7,7 @@ def epsilon():
 
 def set_epsilon(x):
     assert isinstance(x, float), \
-        'Epsilon must be a float (got %s): %s.' % (type(x), x)
+        'Epsilon must be a float (got a %s: %s).' % (type(x), x)
     assert 0. < x, 'Epsilon must be positive (got %s).' % x
     global _EPSILON
     _EPSILON = x
