@@ -10,10 +10,10 @@ from ..backend.pytorch.core.util import to_one  # TODO: fix
 
 def avg_pool1d(x, window, padding, stride):
     """
-    x        tensor (batch_size, channels, in_width)
-    window   dim or (width,)
-    padding  dim or (width,)
-    stride   dim or (width,)
+    x        variable (NCW)
+    window   dim or shape (W)
+    padding  dim or shape (W)
+    stride   dim or shape (W)
     """
     window = to_one(window)
     padding = to_one(padding)
@@ -23,20 +23,20 @@ def avg_pool1d(x, window, padding, stride):
 
 def avg_pool2d(x, window, padding, stride):
     """
-    x        tensor (batch_size, channels, in_height, in_width)
-    window   dim or (height, width)
-    padding  dim or (height, width)
-    stride   dim or (height, width)
+    x        variable (NCHW)
+    window   dim or shape (HW)
+    padding  dim or shape (HW)
+    stride   dim or shape (HW)
     """
     return F.avg_pool2d(x, window, stride, padding)
 
 
 def avg_pool3d(x, window, padding, stride):
     """
-    x        tensor (batch_size, channels, in_depth, in_height, in_width)
-    window   dim or (depth, height, width)
-    padding  dim or (depth, height, width)
-    stride   dim or (depth, height, width)
+    x        variable (NCDHW)
+    window   dim or shape (DHW)
+    padding  dim or shape (DHW)
+    stride   dim or shape (DHW)
     """
     x = pad3d(x, padding)
     return F.avg_pool3d(x, window, stride)
@@ -51,7 +51,7 @@ _DIM2AVG_POOL = {
 
 def avg_pool(x, window, padding, stride):
     """
-    x        tensor (batch_size, channels, in_shape...)
+    x        variable (NC...)
     window   dim or shape
     padding  dim or shape
     stride   dim or shape
@@ -62,10 +62,10 @@ def avg_pool(x, window, padding, stride):
 
 def max_pool1d(x, window, padding, stride):
     """
-    x        tensor (batch_size, channels, in_width)
-    window   dim or (width,)
-    padding  dim or (width,)
-    stride   dim or (width,)
+    x        variable (NCW)
+    window   dim or shape (W)
+    padding  dim or shape (W)
+    stride   dim or shape (W)
     """
     window = to_one(window)
     padding = to_one(padding)
@@ -75,20 +75,20 @@ def max_pool1d(x, window, padding, stride):
 
 def max_pool2d(x, window, padding, stride):
     """
-    x        tensor (batch_size, channels, in_height, in_width)
-    window   dim or (height, width)
-    padding  dim or (height, width)
-    stride   dim or (height, width)
+    x        variable (NCHW)
+    window   dim or shape (HW)
+    padding  dim or shape (HW)
+    stride   dim or shape (HW)
     """
     return F.max_pool2d(x, window, stride, padding)
 
 
 def max_pool3d(x, window, padding, stride):
     """
-    x        tensor (batch_size, channels, in_depth, in_height, in_width)
-    window   dim or (depth, height, width)
-    padding  dim or (depth, height, width)
-    stride   dim or (depth, height, width)
+    x        variable (NCDHW)
+    window   dim or shape (DHW)
+    padding  dim or shape (DHW)
+    stride   dim or shape (DHW)
     """
     return F.max_pool3d(x, window, stride, padding)
 
@@ -102,7 +102,7 @@ _DIM2MAX_POOL = {
 
 def max_pool(x, window, padding, stride):
     """
-    x        tensor (batch_size, channels, in_shape...)
+    x        variable (NC...)
     window   dim or shape
     padding  dim or shape
     stride   dim or shape
@@ -113,7 +113,7 @@ def max_pool(x, window, padding, stride):
 
 def pool_out_shape(in_shape, window, padding, stride):
     """
-    in_shape  shape... (of x without channel dim)
+    in_shape  shape (of x without channel dim)
     window    dim or shape
     padding   dim or shape
     stride    dim or shape
