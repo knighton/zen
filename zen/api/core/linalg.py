@@ -1,2 +1,4 @@
-def matmul(a, b):
-    return a.matmul(b)
+from .. import backend as Z
+
+
+matmul = Z.matmul

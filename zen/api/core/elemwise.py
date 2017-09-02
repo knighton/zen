@@ -1,17 +1,7 @@
-import numpy as np
+from .. import backend as Z
 
 
-def clip(x, min_value=-np.inf, max_value=np.inf):
-    return x.clamp(min_value, max_value)
-
-
-def log(x):
-    return x.log()
-
-
-def sqrt(x):
-    return x.sqrt()
-
-
-def square(x):
-    return x.pow(2)
+clip = Z.clip
+log = Z.log
+sqrt = Z.sqrt
+square = Z.square

@@ -1,25 +1,8 @@
-import torch
-from torch.autograd import Variable
+from .. import backend as Z
 
 
-def ndim(x):
-    return x.dim()
-
-
-def shape(x):
-    return tuple(x.size())
-
-
-def variable(arr, tensor_type=torch.cuda.FloatTensor):
-    tensor = torch.from_numpy(arr).type(tensor_type)
-    return Variable(tensor, requires_grad=True)
-
-
-def constant(arr, tensor_type=torch.cuda.FloatTensor):
-    tensor = torch.from_numpy(arr).type(tensor_type)
-    return Variable(tensor, requires_grad=False)
-
-
-def update_grad(param, lr):
-    param.data -= lr * param.grad.data
-    param.grad.data.zero_()
+ndim = Z.ndim
+shape = Z.shape
+variable = Z.to_variable
+constant = Z.to_constant
+update_grad = Z.update_grad
