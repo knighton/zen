@@ -1,4 +1,4 @@
-from . import backend as Z
+from .. import backend as Z
 
 
 """
@@ -18,7 +18,7 @@ dropout = Z.dropout
 
 
 """
-0D dropout.  Use with vectors (Dense layers).
+0D dropout.
 
 Input:
     x            variable (batch_size, channels)  The input.
@@ -32,9 +32,7 @@ dropout0d = Z.dropout0d
 
 
 """
-1D dropout.  Use with sequences (Conv1D layers).
-
-For spatial dropout, see `spatial_dropout`.
+1D dropout.  For spatial dropout, see `spatial_dropout`.
 
 Input:
     x            variable (batch_size, channels,  The input.
@@ -50,9 +48,7 @@ dropout1d = Z.dropout1d
 
 
 """
-2D dropout.  Used with images (Conv2D layers).
-
-For spatial dropout, see `spatial_dropout`.
+2D dropout.  For spatial dropout, see `spatial_dropout`.
 
 Input:
     x            variable (batch_size, channels,  The input.
@@ -68,9 +64,7 @@ dropout2d = Z.dropout2d
 
 
 """
-3D dropout.  Use with video (Conv3D layers).
-
-For spatial dropout, see `spatial_dropout`.
+3D dropout.  For spatial dropout, see `spatial_dropout`.
 
 Input:
     x            variable (batch_size, channels,  The input.
