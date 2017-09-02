@@ -4,18 +4,66 @@ from .. import backend as Z
 from ..util import to_shape
 
 
+"""
+1D convolution.  See also `conv_out_shape`.
+
+Input:
+    x         variable (batch_size, in_channels, width)
+    kernel    variable (out_channels, in_channels, width)
+    bias      variable (out_channels,)
+    padding   dim or shape
+    stride    dim or shape
+    dilation  dim or shape
+
+Output:
+    x         variable (batch_size, out_channels, width)
+"""
 conv1d = Z.conv1d
+
+
+"""
+2D convolution.  See also `conv_out_shape`.
+
+Input:
+    x         variable (batch_size, in_channels, height, width)
+    kernel    variable (out_channels, in_channels, height, width)
+    bias      variable (out_channels,)
+    padding   dim or shape
+    stride    dim or shape
+    dilation  dim or shape
+
+Output:
+    x         variable (batch_size, out_channels, height, width)
+"""
 conv2d = Z.conv2d
+
+
+"""
+3D convolution.  See also `conv_out_shape`.
+
+Input:
+    x         variable (batch_size, in_channels, depth, height, width)
+    kernel    variable (out_channels, in_channels, depth, height, width)
+    bias      variable (out_channels,)
+    padding   dim or shape
+    stride    dim or shape
+    dilation  dim or shape
+
+Output:
+    x         variable (batch_size, out_channels, depth, height, width)
+"""
 conv3d = Z.conv3d
 
 
 def conv_out_shape(in_shape, window, padding, stride, dilation):
     """
-    in_shape      shape (of x without channel dim)
-    window        dim or shape
-    padding       dim or shape
-    stride        dim or shape
-    dilation      dim or shape
+    Calculate convolution output shape.
+
+    in_shape      shape         The shape of x without the channel dimension.
+    window        dim or shape  Filter shape.
+    padding       dim or shape  Padding.
+    stride        dim or shape  Stride.
+    dilation      dim or shape  Dilation.
     """
     dim = len(in_shape)
     window = to_shape(window, dim)
