@@ -1,3 +1,10 @@
+_EPSILON = 1e-6
+
+
+def epsilon():
+    return _EPSILON
+
+
 def _normalize_axis(axis, num_dims):
     if axis is None:
         return None

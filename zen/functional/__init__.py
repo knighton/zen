@@ -134,20 +134,13 @@ def reshape(x, out_shape):
     return x.view(batch_out_shape)
 
 
-_EPSILON = 1e-6
-
-
-def epsilon():
-    return _EPSILON
-
-
 def binary_cross_entropy(true, pred):
-    pred = pred.clamp(_EPSILON, 1. - _EPSILON)
+    pred = pred.clamp(epsilon(), 1. - epsilon())
     return -true * pred.log() - (1. - true) * (1. - pred).log()
 
 
 def categorical_cross_entropy(true, pred):
-    pred = pred.clamp(_EPSILON, 1. - _EPSILON)
+    pred = pred.clamp(epsilon(), 1. - epsilon())
     ret = -true * pred.log()
     return ret.mean()
 
