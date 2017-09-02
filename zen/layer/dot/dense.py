@@ -1,4 +1,4 @@
-from ... import functional as F
+from ... import api as Z
 from ... import init
 from ..layer import Layer, Spec, Sugar
 
@@ -10,7 +10,7 @@ class DenseLayer(Layer):
         self.bias = self.add_param(bias)
 
     def forward(self, x, is_training):
-        return F.dense(x, self.kernel, self.bias)
+        return Z.dense(x, self.kernel, self.bias)
 
 
 class DenseSpec(Spec):
@@ -18,7 +18,7 @@ class DenseSpec(Spec):
                  bias_init='zero'):
         super().__init__()
         if channels is not None:
-            F.check_dim(channels)
+            Z.check_dim(channels)
         self.channels = channels
         self.kernel_init = init.get(kernel_init)
         self.bias_init = init.get(bias_init)

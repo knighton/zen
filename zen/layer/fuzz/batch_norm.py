@@ -1,4 +1,4 @@
-from ... import functional as F
+from ... import api as Z
 from ... import init
 from ..layer import Layer, Spec, Sugar
 
@@ -7,7 +7,7 @@ class BatchNormLayer(Layer):
     def __init__(self, dim, momentum, beta, gamma, running_mean,
                  running_variance, reduction_axes):
         super().__init__()
-        self.batch_norm = F.get('batch_norm', dim)
+        self.batch_norm = Z.get('batch_norm', dim)
         self.momentum = momentum
         self.beta = self.add_param(beta)
         self.gamma = self.add_param(gamma)

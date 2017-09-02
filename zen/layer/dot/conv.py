@@ -1,4 +1,4 @@
-from ... import functional as F
+from ... import api as Z
 from ... import init
 from ..layer import Layer, Spec, Sugar
 
@@ -30,12 +30,12 @@ class ConvBaseSpec(Spec):
         """
         super().__init__()
         if channels is not None:
-            assert F.is_dim(channels)
+            assert Z.is_dim(channels)
         assert dim in {None, 1, 2, 3}
-        assert F.is_shape_or_one(window, dim)
-        assert F.is_shape_or_one(padding, dim)
-        assert F.is_shape_or_one(stride, dim)
-        assert F.is_shape_or_one(dilation, dim)
+        assert Z.is_shape_or_one(window, dim)
+        assert Z.is_shape_or_one(padding, dim)
+        assert Z.is_shape_or_one(stride, dim)
+        assert Z.is_shape_or_one(dilation, dim)
         self.channels = channels
         self.window = window
         self.padding = padding
@@ -62,7 +62,7 @@ class ConvBaseSpec(Spec):
             dim = self.dim
             assert len(in_shape) == dim + 1
         in_channels = in_shape[0]
-        window = F.to_shape(self.window, dim)
+        window = Z.to_shape(self.window, dim)
         kernel_shape = (out_channels, in_channels) + window
         kernel = self.kernel_init(kernel_shape, in_dtype)
         bias_shape = out_channels,
@@ -77,9 +77,8 @@ class ConvBaseSpec(Spec):
 class ConvLayer(ConvBaseLayer):
     def __init__(self, kernel, bias, padding, stride, dilation):
         super().__init__(kernel, bias, padding, stride, dilation)
-        dim = F.shape(kernel) - 2
-        func_name = 'conv%dd' % dim
-        self.conv = getattr(F, func_name)
+        dim = Z.shape(kernel) - 2
+        self.conv = Z.get('conv', dim)
 
     def forward(self, x, is_training):
         return self.conv(x, self.kernel, self.bias, self.padding, self.stride,
@@ -91,7 +90,7 @@ class ConvSpec(ConvBaseSpec):
         return ConvLayer(kernel, bias, padding, stride, dilation)
 
     def compute_out_shape(self, in_shape, window, padding, stride, dilation):
-        return F.conv_out_shape(in_shape, window, padding, stride, dilation)
+        return Z.conv_out_shape(in_shape, window, padding, stride, dilation)
 
 
 Conv = Sugar(ConvSpec)

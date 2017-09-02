@@ -1,5 +1,6 @@
 from torch.nn import functional as F
 
+from ..core.data import ndim
 from ..core.util import to_one
 from .pad import pad3d
 
@@ -52,7 +53,7 @@ def avg_pool(x, window, padding, stride):
     padding  dim or shape
     stride   dim or shape
     """
-    dim = F.ndim(x) - 2
+    dim = ndim(x) - 2
     return _DIM2AVG_POOL[dim](x, window, padding, stride)
 
 
@@ -103,5 +104,5 @@ def max_pool(x, window, padding, stride):
     padding  dim or shape
     stride   dim or shape
     """
-    dim = F.ndim(x) - 2
+    dim = ndim(x) - 2
     return _DIM2MAX_POOL[dim](x, window, padding, stride)

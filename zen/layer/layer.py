@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from .. import functional as F
+from .. import api as Z
 from ..model.model import Model
 
 
@@ -15,10 +15,10 @@ class Layer(Layerlike):
 
     def add_param(self, arr, trainable=True):
         if trainable:
-            param = F.variable(arr)
+            param = Z.variable(arr)
             self._params.append(param)
         else:
-            param = F.constant(arr)
+            param = Z.constant(arr)
         return param
 
     def get_params(self):

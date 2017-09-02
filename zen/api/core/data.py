@@ -2,6 +2,10 @@ import torch
 from torch.autograd import Variable
 
 
+def ndim(x):
+    return x.dim()
+
+
 def shape(x):
     return tuple(x.size())
 

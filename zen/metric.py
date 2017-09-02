@@ -1,7 +1,7 @@
 import sys
 
-from .functional.accuracy import *  # noqa
-from .functional.loss import *  # noqa
+from .api.accuracy import *  # noqa
+from .api.loss import *  # noqa
 
 
 def get(x):

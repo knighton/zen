@@ -1,4 +1,4 @@
-from .. import functional as F
+from .. import api as Z
 from .optimizer import Optimizer
 
 
@@ -13,4 +13,4 @@ class MVO(Optimizer):
 
     def step(self):
         for item in self.items:
-            F.update_grad(item.param, item.lr)
+            Z.update_grad(item.param, item.lr)

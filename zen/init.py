@@ -2,7 +2,7 @@ import numpy as np
 from scipy.stats import truncnorm
 import sys
 
-from . import functional as F
+from . import api as Z
 
 
 class Initializer(object):
@@ -15,7 +15,7 @@ class Orthogonal(Initializer):
         self.gain = gain
 
     def __call__(self, shape, dtype=None):
-        dtype = dtype or F.floatx()
+        dtype = dtype or Z.floatx()
         num_rows = 1
         for dim in shape[:-1]:
             num_rows *= dim
@@ -39,7 +39,7 @@ class Eye(Initializer):
     def __call__(self, shape, dtype=None):
         assert len(shape) == 2
         assert shape[0] == shape[1]
-        dtype = dtype or F.floatx()
+        dtype = dtype or Z.floatx()
         arr = self.gain * np.eye(shape[0])
         return arr.astype(dtype)
 
@@ -49,7 +49,7 @@ eye = Eye
 
 class Zero(Initializer):
     def __call__(self, shape, dtype=None):
-        dtype = dtype or F.floatx()
+        dtype = dtype or Z.floatx()
         return np.zeros(shape).astype(dtype)
 
 
@@ -58,7 +58,7 @@ zero = Zero
 
 class One(Initializer):
     def __call__(self, shape, dtype=None):
-        dtype = dtype or F.floatx()
+        dtype = dtype or Z.floatx()
         return np.ones(shape).astype(dtype)
 
 
@@ -70,7 +70,7 @@ class Full(Initializer):
         self.value = value
 
     def __call__(self, shape, dtype=None):
-        dtype = dtype or F.floatx()
+        dtype = dtype or Z.floatx()
         return np.full(shape, self.value).astype(dtype)
 
 
@@ -87,7 +87,7 @@ class Normal(Initializer):
         self.std = std
 
     def __call__(self, shape, dtype=None):
-        dtype = dtype or F.floatx()
+        dtype = dtype or Z.floatx()
         return _normal(self.mean, self.std, shape, dtype)
 
 
@@ -109,7 +109,7 @@ class TruncatedNormal(Initializer):
         self.max_stds = max_stds
 
     def __call__(self, shape, dtype=None):
-        dtype = dtype or F.floatx()
+        dtype = dtype or Z.floatx()
         return _truncated_normal(self.mean, self.std, self.min_stds,
                                  self.max_stds, shape, dtype)
 
@@ -127,7 +127,7 @@ class Uniform(Initializer):
         self.max = max_
 
     def __call__(self, shape, dtype=None):
-        dtype = dtype or F.floatx()
+        dtype = dtype or Z.floatx()
         return _uniform(self.min, self.max, shape, dtype)
 
 
@@ -184,7 +184,7 @@ class ScaledDistribution(Initializer):
         self.dist = dist
 
     def __call__(self, shape, dtype=None):
-        dtype = dtype or F.floatx()
+        dtype = dtype or Z.floatx()
         fan_in, fan_out = _compute_fans(shape)
         scale = self.scale / _compute_scale(self.mode, fan_in, fan_out)
         return _compute_distribution(self.dist, scale, shape, dtype)

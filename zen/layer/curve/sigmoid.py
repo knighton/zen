@@ -1,4 +1,4 @@
-from ... import functional as F
+from ... import api as Z
 from ..layer import Layer, Spec, Sugar
 
 

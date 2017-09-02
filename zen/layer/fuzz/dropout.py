@@ -1,11 +1,11 @@
-from ... import functional as F
+from ... import api as Z
 from ..layer import Layer, Spec, Sugar
 
 
 class DropoutLayer(Layer):
     def __init__(self, dim, rate):
         super().__init__()
-        self.dropout = F.get('dropout', dim)
+        self.dropout = Z.get('dropout', dim)
         self.rate = rate
 
     def forward(self, x, is_training):
@@ -22,7 +22,7 @@ class DropoutSpec(Spec):
 
     def build(self, in_shape, in_dtype):
         if self.dim is not None:
-            assert F.is_shape(in_shape, self.dim + 1)
+            assert Z.is_shape(in_shape, self.dim + 1)
             dim = len(in_shape) - 1
         else:
             dim = self.dim

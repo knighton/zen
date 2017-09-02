@@ -1,6 +1,6 @@
 import numpy as np
 
-from ... import functional as F
+from ... import api as Z
 from ..layer import Layer, Spec, Sugar
 
 
@@ -10,7 +10,7 @@ class ReshapeLayer(Layer):
         self.out_shape = out_shape
 
     def forward(self, x, is_training):
-        return F.reshape(x, self.out_shape)
+        return Z.reshape(x, self.out_shape)
 
 
 class ReshapeSpec(Spec):

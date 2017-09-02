@@ -1,7 +1,7 @@
 import numpy as np
 from time import time
 
-from .. import functional as F
+from .. import api as Z
 from .. import metric as metric_module
 from .. import optim
 
@@ -34,12 +34,12 @@ class Model(object):
         raise NotImplementedError
 
     def train_on_batch(self, x, y_true, metrics, opt):
-        x = F.constant(x)
-        y_true = F.constant(y_true)
+        x = Z.constant(x)
+        y_true = Z.constant(y_true)
         y_pred = self.forward(x, True)
         metric_values = []
         for i, metric in enumerate(metrics):
-            metric_var = F.mean(metric(y_true, y_pred))
+            metric_var = Z.mean(metric(y_true, y_pred))
             if not i:
                 metric_var.backward()
                 opt.step()
@@ -48,12 +48,12 @@ class Model(object):
         return metric_values
 
     def evaluate_on_batch(self, x, y_true, metrics):
-        x = F.constant(x)
-        y_true = F.constant(y_true)
+        x = Z.constant(x)
+        y_true = Z.constant(y_true)
         y_pred = self.forward(x, False)
         metric_values = []
         for metric in metrics:
-            metric_var = F.mean(metric(y_true, y_pred))
+            metric_var = Z.mean(metric(y_true, y_pred))
             metric_value = metric_var.data.cpu().numpy()[0]
             metric_values.append(metric_value)
         return metric_values

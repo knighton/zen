@@ -1,4 +1,4 @@
-from ... import functional as F
+from ... import api as Z
 from ..layer import Layer, Spec, Sugar
 
 
@@ -21,12 +21,12 @@ class PoolSpec(Spec):
         """
         super().__init__()
         assert dim in {None, 1, 2, 3}
-        assert F.is_shape_or_one(window, dim)
-        assert F.is_shape_or_one(padding, dim)
+        assert Z.is_shape_or_one(window, dim)
+        assert Z.is_shape_or_one(padding, dim)
         if stride is None:
             stride = window
         else:
-            assert F.is_shape_or_one(stride, dim)
+            assert Z.is_shape_or_one(stride, dim)
         self.window = window
         self.padding = padding
         self.stride = stride
@@ -39,16 +39,16 @@ class PoolSpec(Spec):
         if self.dim is None:
             dim = len(in_shape) - 1
         else:
-            assert F.is_shape(in_shape, self.dim + 1)
+            assert Z.is_shape(in_shape, self.dim + 1)
             dim = self.dim
-        out_shape = (in_shape[0],) + F.pool_out_shape(
+        out_shape = (in_shape[0],) + Z.pool_out_shape(
             in_shape[1:], self.window, self.padding, self.stride)
         return self.make_layer(dim), out_shape, in_dtype
 
 
 class AvgPoolLayer(PoolLayer):
     def __init__(self, dim):
-        self.avg_pool = F.get('avg_pool', dim)
+        self.avg_pool = Z.get('avg_pool', dim)
 
     def forward(self, x, is_training):
         return self.avg_pool(x, self.window, self.padding, self.stride)
@@ -67,7 +67,7 @@ AvgPool3D = Sugar(AvgPoolSpec, {'dim': 3})
 
 class MaxPoolLayer(PoolLayer):
     def __init__(self, dim):
-        self.max_pool = F.get('max_pool', dim)
+        self.max_pool = Z.get('max_pool', dim)
 
     def forward(self, x, is_training):
         return self.max_pool(x, self.window, self.padding, self.stride)
