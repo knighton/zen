@@ -1,39 +1,22 @@
 import numpy as np
-from torch.nn import functional as F
 
-from ..core.data import constant, shape
+from .. import backend as Z
+from .. import core as C
 
 
 def _my_spatial_dropout(x, is_training, rate):
     if not is_training:
         return x
-    x_shape = shape(x)
-    noise_shape = x_shape[:2] + (1,) * (len(x_shape) - 2)
+    shape = C.shape(x)
+    noise_shape = shape[:2] + (1,) * (len(shape) - 2)
     max_value = 1. / rate
     mask = np.random.uniform(0, max_value, noise_shape).astype('float32')
     mask = np.floor(mask.clip(0., 1.))
-    mask = constant(mask)
+    mask = C.constant(mask)
     return x * mask / (1. - rate)
 
 
-spatial_dropout1d = _my_spatial_dropout
-
-
-def spatial_dropout2d(x, is_training, rate):
-    return F.dropout2d(x, rate, is_training, False)
-
-
-def spatial_dropout3d(x, is_training, rate):
-    return F.dropout3d(x, rate, is_training, False)
-
-
-_DIM2SPATIAL_DROPOUT = {
-    1: spatial_dropout1d,
-    2: spatial_dropout2d,
-    3: spatial_dropout3d,
-}
-
-
-def spatial_dropout(x, is_training, rate):
-    dim = x.size() - 2
-    return _DIM2SPATIAL_DROPOUT[dim](x, is_training, rate)
+spatial_dropout = Z.get('spatial_dropout', _my_spatial_dropout)
+spatial_dropout1d = Z.get('spatial_dropout1d', _my_spatial_dropout)
+spatial_dropout2d = Z.get('spatial_dropout2d', _my_spatial_dropout)
+spatial_dropout3d = Z.get('spatial_dropout3d', _my_spatial_dropout)

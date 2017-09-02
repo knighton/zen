@@ -1,11 +1,8 @@
-from torch.nn import functional as F
+from . import backend as Z
 
 
-def dropout(x, is_training, rate):
-    return F.dropout(x, rate, is_training, False)
-
-
-dropout0d = dropout
-dropout1d = dropout
-dropout2d = dropout
-dropout3d = dropout
+dropout = Z.dropout
+dropout0d = Z.dropout0d
+dropout1d = Z.dropout1d
+dropout2d = Z.dropout2d
+dropout3d = Z.dropout3d

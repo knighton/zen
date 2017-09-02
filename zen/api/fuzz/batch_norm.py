@@ -1,19 +1,16 @@
-from torch.nn import functional as F
-
-from ..core.elemwise import sqrt, square
-from ..core.epsilon import epsilon
-from ..core.reduce import mean
+from .. import backend as Z
+from .. import core as C
 
 
 def _do_batch_norm(x, mean, variance, beta, gamma):
-    return gamma * ((x - mean) / sqrt(variance + epsilon())) + beta
+    return gamma * ((x - mean) / C.sqrt(variance + C.epsilon())) + beta
 
 
 def _moments(x, axes):
-    shift = mean(x, axes, True)
-    shifted_mean = mean(x - shift, axes, True)
-    variance_mean = mean(square(x - shift), axes, True)
-    variance = variance_mean - square(shifted_mean)
+    shift = C.mean(x, axes, True)
+    shifted_mean = C.mean(x - shift, axes, True)
+    variance_mean = C.mean(C.square(x - shift), axes, True)
+    variance = variance_mean - C.square(shifted_mean)
     mean_ = shifted_mean + shift
     return mean_, variance
 
@@ -34,17 +31,8 @@ def _my_batch_norm(x, is_training, reduction_axes, momentum, beta, gamma,
     return x
 
 
-def batch_norm(x, is_training, reduction_axes, momentum, beta, gamma,
-               running_mean, running_variance):
-    running_mean = running_mean.squeeze().data
-    running_variance = running_variance.squeeze().data
-    gamma = gamma.squeeze()
-    beta = beta.squeeze()
-    return F.batch_norm(x, running_mean, running_variance, gamma, beta,
-                        is_training, momentum, 1e-3)
-
-
-batch_norm0d = batch_norm
-batch_norm1d = batch_norm
-batch_norm2d = batch_norm
-batch_norm3d = batch_norm
+batch_norm = Z.get('batch_norm', _my_batch_norm)
+batch_norm0d = Z.get('batch_norm0d', _my_batch_norm)
+batch_norm1d = Z.get('batch_norm1d', _my_batch_norm)
+batch_norm2d = Z.get('batch_norm2d', _my_batch_norm)
+batch_norm3d = Z.get('batch_norm3d', _my_batch_norm)
