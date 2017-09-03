@@ -8,7 +8,4 @@ def argmax(x, axis=-1):
 def mean(x, axis=None, keepdims=False):
     if axis is None:
         axis = mx.base._Null
-    ret = mx.nd.mean(x, axis, keepdims)
-    if axis is mx.base._Null:
-        ret = ret.asnumpy()[0]
-    return ret
+    return mx.nd.mean(x, axis, keepdims)

@@ -36,15 +36,16 @@ class Model(object):
     def train_on_batch(self, x, y_true, metrics, opt):
         x = Z.constant(x)
         y_true = Z.constant(y_true)
-        y_pred = self.forward(x, True)
-        metric_values = []
-        for i, metric in enumerate(metrics):
+        with Z.autograd_record():
+            y_pred = self.forward(x, True)
+            loss_var = Z.mean(metrics[0](y_true, y_pred))
+        loss_var.backward()
+        opt.step()
+        metric_values = [Z.to_scalar(loss_var)]
+        for i in range(1, len(metrics)):
+            metric = metrics[i]
             metric_var = Z.mean(metric(y_true, y_pred))
-            if not i:
-                metric_var.backward()
-                opt.step()
-            metric_value = metric_var.data.cpu().numpy()[0]
-            metric_values.append(metric_value)
+            metric_values.append(Z.to_scalar(metric_var))
         return metric_values
 
     def evaluate_on_batch(self, x, y_true, metrics):
@@ -54,8 +55,7 @@ class Model(object):
         metric_values = []
         for metric in metrics:
             metric_var = Z.mean(metric(y_true, y_pred))
-            metric_value = metric_var.data.cpu().numpy()[0]
-            metric_values.append(metric_value)
+            metric_values.append(Z.to_scalar(metric_var))
         return metric_values
 
     def train_on_epoch(self, data, metrics, opt, batch_size, epoch):
