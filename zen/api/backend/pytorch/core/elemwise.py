@@ -9,6 +9,10 @@ def log(x):
     return x.log()
 
 
+def round(x):
+    return x.round()
+
+
 def sqrt(x):
     return x.sqrt()
 

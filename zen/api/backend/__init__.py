@@ -1,6 +1,7 @@
 import sys
 
-from .pytorch import *  # noqa
+from .mxnet import *  # noqa
+#from .pytorch import *  # noqa
 
 
 def get(name, fallback=None):
