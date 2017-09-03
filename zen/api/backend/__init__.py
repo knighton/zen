@@ -1,7 +1,16 @@
+import os
 import sys
 
-from .mxnet import *  # noqa
-#from .pytorch import *  # noqa
+
+backend = os.environ.get('ZEN_BACKEND')
+if not backend:
+    from .pytorch import *  # noqa
+if backend == 'mxnet':
+    from .mxnet import *  # noqa
+elif backend == 'pytorch':
+    from .pytorch import *  # noqa
+else:
+    assert False, 'Unsupported backend: %s.' % backend
 
 
 def get(name, fallback=None):
