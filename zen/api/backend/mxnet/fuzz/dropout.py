@@ -3,7 +3,7 @@ import mxnet as mx
 from ..core.device import _get_device_context
 
 
-def dropout(x, rate, is_training):
+def dropout(x, is_training, rate):
     data = mx.sym.Variable('data')
     dropout = mx.sym.Dropout(data, p=rate)
     executor = dropout.simple_bind(data=x.shape, ctx=_get_device_context())

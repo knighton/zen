@@ -1,3 +1,4 @@
+from ... import api as Z
 from ..layer import Layer, Spec, Sugar
 
 
@@ -6,7 +7,7 @@ class ReLULayer(Layer):
         return []
 
     def forward(self, x, is_training):
-        return x.clamp(min=0)
+        return Z.clip(x, min_value=0)
 
 
 class ReLUSpec(Spec):

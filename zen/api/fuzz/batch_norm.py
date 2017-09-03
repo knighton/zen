@@ -25,7 +25,7 @@ def _running_average_update(x_running, x_new, momentum):
     """
     Update a moving average.
     """
-    x_running.data = momentum * x_running.data + (1. - momentum) * x_new.data
+    x_running[:] = momentum * x_running + (1. - momentum) * x_new
 
 
 def _my_batch_norm(x, is_training, reduction_axes, momentum, beta, gamma,
