@@ -5,7 +5,7 @@ import sys
 backend = os.environ.get('ZEN_BACKEND')
 if not backend:
     from .pytorch import *  # noqa
-if backend == 'mxnet':
+elif backend == 'mxnet':
     from .mxnet import *  # noqa
 elif backend == 'pytorch':
     from .pytorch import *  # noqa
