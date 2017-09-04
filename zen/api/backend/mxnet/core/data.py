@@ -11,6 +11,23 @@ def get_shape(x):
     return x.shape
 
 
+def expand_dims(x, axis):
+    return mx.nd.expand_dims(x, axis)
+
+
+def concat(xx, axis):
+    return mx.nd.concat(*xx, dim=axis)
+
+
+def squeeze(x, axis):
+    shape = list(x.shape)
+    axis %= len(shape)
+    assert shape[axis] == 1, \
+        'Tried to squeeze axis %d of shape %s.' % (axis, x.shape)
+    new_shape = tuple(shape[:axis] + shape[axis + 1:])
+    return mx.nd.reshape(new_shape)
+
+
 def count_params(x):
     return x.size
 

@@ -15,6 +15,18 @@ def get_shape(x):
     return tuple(x.size())
 
 
+def expand_dims(x, axis):
+    return x.unsqueeze(axis)
+
+
+def squeeze(x, axis=None):
+    return x.squeeze(axis)
+
+
+def concat(xx, axis):
+    return torch.cat(xx, axis)
+
+
 def count_params(x):
     return x.numel()
 

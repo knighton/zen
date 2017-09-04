@@ -9,8 +9,6 @@ from zen.transform import *
 
 def parse_args():
     ap = ArgumentParser()
-    ap.add_argument('--dataset', type=int, default=10)
-    ap.add_argument('--cifar10_val_frac', type=float, default=0.2)
     ap.add_argument('--verbose', type=int, default=2)
     ap.add_argument('--model', type=str, default='cnn')
     ap.add_argument('--opt', type=str, default='adam')
@@ -24,10 +22,19 @@ def cnn(review_len, vocab_size):
     for n in [32] * 8:
         cnn.append(conv(n))
     cnn = SequenceSpec(*cnn)
-    input_shape = review_len,
+    in_shape = review_len,
     spec = SequenceSpec(
-        Input(input_shape, dtype='int64'), Embed(vocab_size, 64), cnn, Flatten,
+        Input(in_shape, dtype='int64'), Embed(vocab_size, 64), cnn, Flatten,
         Dense(1), Sigmoid)
+    model, out_shape, out_dtype = spec.build()
+    return model
+
+
+def eru(review_len, vocab_size):
+    in_shape = review_len,
+    spec = SequenceSpec(
+        Input(in_shape, dtype='int64'), Embed(vocab_size, 64), ERU(64),
+        Dropout(0.1), ERU(64, ret='last'), Dropout(0.1), Dense(1), Sigmoid)
     model, out_shape, out_dtype = spec.build()
     return model
 

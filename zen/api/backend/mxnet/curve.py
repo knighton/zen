@@ -1,9 +1,10 @@
 import mxnet as mx
 
 
-def sigmoid(x):
-    return mx.nd.sigmoid(x)
+sigmoid = mx.nd.sigmoid
 
 
-def softmax(x):
-    return mx.nd.softmax(x)
+softmax = mx.nd.softmax
+
+
+tanh = mx.nd.tanh

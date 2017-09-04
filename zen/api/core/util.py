@@ -37,9 +37,12 @@ def _is_dim(dim):
     return isinstance(dim, int) and 1 <= dim
 
 
-def _is_shape(shape):
+def _is_shape(shape, ndim):
     if not isinstance(shape, tuple):
         return False
+    if ndim is not None:
+        if len(shape) != ndim:
+            return False
     for dim in shape:
         if not _is_dim(dim):
             return False
@@ -62,7 +65,7 @@ def check_dim_or_shape(arg, ndim, name):
     if isinstance(arg, int):
         assert _is_dim(arg), _is_dim_or_shape_error(arg, ndim, name)
     elif hasattr(arg, '__getitem__'):
-        assert _is_shape(arg), _is_dim_or_shape_error(arg, ndim, name)
+        assert _is_shape(arg, ndim), _is_dim_or_shape_error(arg, ndim, name)
     else:
         assert False, _is_dim_or_shape_error(arg, ndim, name)
 

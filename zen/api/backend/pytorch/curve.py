@@ -13,3 +13,7 @@ def softmax(x):
     _2d = F.softmax(input_2d)
     nd = _2d.view(*tp_shape)
     return nd.transpose(1, len(x_shape) - 1)
+
+
+def tanh(x):
+    return F.tanh(x)
