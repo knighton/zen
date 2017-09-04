@@ -34,8 +34,17 @@ def eru(review_len, vocab_size, num_classes):
     in_shape = review_len,
     spec = SequenceSpec(
         Input(in_shape, dtype='int64'), Embed(vocab_size, 64), ERU(64),
-        Dropout(0.1), ERU(64, ret='last'), Dropout(0.1), Dense(num_classes),
+        Dropout(0.25), ERU(64, ret='last'), Dropout(0.25), Dense(num_classes),
         Softmax)
+    model, out_shape, out_dtype = spec.build()
+    return model
+
+
+def gru(review_len, vocab_size, num_classes):
+    in_shape = review_len,
+    spec = SequenceSpec(
+        Input(in_shape, dtype='int64'), Embed(vocab_size, 64),
+        GRU(64, ret='last'), Dense(num_classes), Softmax)
     model, out_shape, out_dtype = spec.build()
     return model
 
@@ -45,8 +54,7 @@ def transform(data, text_pipe, label_pipe):
     train_labels = label_pipe.fit_transform(data[0][1])
     val_texts = text_pipe.transform(data[1][0])
     val_labels = label_pipe.transform(data[1][1])
-    data = (train_texts, train_labels), (val_texts, val_labels)
-    return data
+    return (train_texts, train_labels), (val_texts, val_labels)
 
 
 def run(args):
