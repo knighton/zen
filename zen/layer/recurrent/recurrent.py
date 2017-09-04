@@ -6,10 +6,12 @@ from ..layer import Layer, Spec
 
 
 class RecurrentLayer(Layer):
-    def __init__(self, dim, ret):
+    def __init__(self, dim, go, ret):
         super().__init__()
         Z.check_dim(dim)
         self.out_dim = dim
+        assert go in {'backward', 'bidi', 'forward'}
+        self.go = go
         assert ret in {'all', 'last'}
         self.ret = ret
 
@@ -25,7 +27,7 @@ class RecurrentLayer(Layer):
         """
         raise NotImplementedError
 
-    def forward(self, x, is_training):
+    def forward_one_way(self, x, is_training, is_forward):
         num_samples, num_out_dim, num_timesteps = Z.get_shape(x)
         arr = np.zeros((num_samples, self.out_dim)).astype(Z.floatx())
         initial_state = Z.constant(arr)
@@ -33,7 +35,10 @@ class RecurrentLayer(Layer):
         initial_internal_state = self.make_initial_internal_state(
             num_samples, self.out_dim)
         internal_states = [initial_internal_state]
-        for timestep in range(num_timesteps):
+        timesteps = range(num_timesteps)
+        if not is_forward:
+            timesteps = reversed(timesteps)
+        for timestep in timesteps:
             x_step = x[:, :, timestep]
             next_state, next_internal_state = \
                 self.step(x_step, states[-1], internal_states[-1])
@@ -49,14 +54,28 @@ class RecurrentLayer(Layer):
         else:
             assert False
 
+    def forward(self, x, is_training):
+        if self.go == 'backward':
+            return self.forward_one_way(x, is_training, False)
+        elif self.go == 'bidi':
+            fwd = self.forward_one_way(x, is_training, True)
+            bwd = self.forward_one_way(x, is_training, False)
+            return Z.concat([fwd, bwd], 1)
+        elif self.go == 'forward':
+            return self.forward_one_way(x, is_training, True)
+        else:
+            assert False
+
 
 class RecurrentSpec(Spec):
-    def __init__(self, dim=None, ret='all'):
+    def __init__(self, dim=None, go='forward', ret='all'):
         super().__init__()
         if dim is not None:
             Z.check_dim(dim)
+        assert go in {'backward', 'bidi', 'forward'}
         assert ret in {'all', 'last'}
         self.out_dim = dim
+        self.go = go
         self.ret = ret
 
     def get_shapes(self, in_shape):
@@ -66,11 +85,15 @@ class RecurrentSpec(Spec):
             out_dim = in_dim
         else:
             out_dim = self.out_dim
+        if self.go == 'bidi':
+            ret_out_dim = out_dim * 2
+        else:
+            ret_out_dim = out_dim
         if self.ret == 'all':
             in_dim, num_timesteps = in_shape
-            out_shape = out_dim, num_timesteps
+            out_shape = ret_out_dim, num_timesteps
         elif self.ret == 'last':
-            out_shape = out_dim,
+            out_shape = ret_out_dim,
         else:
             assert False
         return in_dim, out_dim, out_shape

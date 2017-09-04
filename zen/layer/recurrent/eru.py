@@ -5,8 +5,8 @@ from .recurrent import RecurrentLayer, RecurrentSpec
 
 
 class ERULayer(RecurrentLayer):
-    def __init__(self, input_kernel, recurrent_kernel, bias, dim, ret):
-        super().__init__(dim, ret)
+    def __init__(self, input_kernel, recurrent_kernel, bias, dim, go, ret):
+        super().__init__(dim, go, ret)
         self.input_kernel = self.add_param(input_kernel)
         self.recurrent_kernel = self.add_param(recurrent_kernel)
         self.bias = self.add_param(bias)
@@ -19,9 +19,10 @@ class ERULayer(RecurrentLayer):
 
 
 class ERUSpec(RecurrentSpec):
-    def __init__(self, dim=None, ret='all', input_kernel_init='glorot_uniform',
+    def __init__(self, dim=None, go='forward', ret='all',
+                 input_kernel_init='glorot_uniform',
                  recurrent_kernel_init='orthogonal', bias_init='zero'):
-        super().__init__(dim, ret)
+        super().__init__(dim, go, ret)
         self.input_kernel_init = init.get(input_kernel_init)
         self.recurrent_kernel_init = init.get(recurrent_kernel_init)
         self.bias_init = init.get(bias_init)
@@ -34,9 +35,10 @@ class ERUSpec(RecurrentSpec):
         recurrent_kernel = self.recurrent_kernel_init(shape)
         shape = out_dim,
         bias = self.bias_init(shape)
-        layer = ERULayer(input_kernel, recurrent_kernel, bias, out_dim,
+        layer = ERULayer(input_kernel, recurrent_kernel, bias, out_dim, self.go,
                          self.ret)
         return layer, out_shape, in_dtype
 
 
 ERU = Sugar(ERUSpec)
+BiERU = Sugar(ERUSpec, {'go': 'bidi'})
