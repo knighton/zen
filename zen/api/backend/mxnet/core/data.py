@@ -15,16 +15,19 @@ def count_params(x):
     return x.size
 
 
-def constant(arr, dtype=None, device=None):
+def tensor(arr, dtype=None, device=None):
     dtype = dtype or arr.dtype.name
     ctx = _get_device_context(device)
     return mx.nd.array(arr, ctx, dtype)
 
 
+constant = tensor
+
+
 def variable(arr, dtype=None, device=None):
-    tensor = constant(arr, dtype, device)
-    tensor.attach_grad()
-    return tensor
+    ret = tensor(arr, dtype, device)
+    ret.attach_grad()
+    return ret
 
 
 def to_numpy(x):
@@ -38,5 +41,14 @@ def to_scalar(x):
 autograd_record = mx.autograd.record
 
 
-def update_grad(x, lr):
-    x[:] -= lr * x.grad
+def data(x):
+    return x
+
+
+def gradient(x):
+    return x.grad
+
+
+def update(x, new_value):
+    x = new_value
+    x.grad[:] = 0

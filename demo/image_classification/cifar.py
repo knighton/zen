@@ -13,6 +13,7 @@ def parse_args():
     ap.add_argument('--cifar10_val_frac', type=float, default=0.2)
     ap.add_argument('--verbose', type=int, default=2)
     ap.add_argument('--model', type=str, default='cnn')
+    ap.add_argument('--opt', type=str, default='adam')
     ap.add_argument('--stop', type=int, default=1000)
     return ap.parse_args()
 
@@ -50,7 +51,7 @@ def run(args):
             ss.append('%s (%d)' % (label, i))
         print('Classes: %s.' % ', '.join(ss))
     model = build(image_shape, num_classes)
-    model.train_classifier((train, val), stop=args.stop)
+    model.train_classifier((train, val), opt=args.opt, stop=args.stop)
 
 
 if __name__ == '__main__':

@@ -89,7 +89,7 @@ class Model(object):
         print('epoch %4d took %.3f sec train %s val %s' %
               (epoch, t, train_metric_values, val_metric_values))
 
-    def train(self, data, metrics, opt='mvo', batch_size=64, stop=1000):
+    def train(self, data, metrics, opt='adam', batch_size=64, stop=1000):
         y_sample_shape = data[0][1].shape[1:]
         metrics = _unpack_metrics(metrics, y_sample_shape)
         opt = optim.get(opt)
@@ -97,7 +97,7 @@ class Model(object):
         for epoch in range(stop):
             self.train_on_epoch(data, metrics, opt, batch_size, epoch)
 
-    def train_regressor(self, data, opt='mvo', batch_size=64, stop=1000):
+    def train_regressor(self, data, opt='adam', batch_size=64, stop=1000):
         """
         Train as a regressor.
 
@@ -107,7 +107,7 @@ class Model(object):
         metrics = 'mean_squared_error',
         return self.train(data, metrics, opt, batch_size, stop)
 
-    def train_classifier(self, data, opt='mvo', batch_size=64, stop=1000):
+    def train_classifier(self, data, opt='adam', batch_size=64, stop=1000):
         """
         Train as a classifier.
 

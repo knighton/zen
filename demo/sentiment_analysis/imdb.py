@@ -13,6 +13,7 @@ def parse_args():
     ap.add_argument('--cifar10_val_frac', type=float, default=0.2)
     ap.add_argument('--verbose', type=int, default=2)
     ap.add_argument('--model', type=str, default='cnn')
+    ap.add_argument('--opt', type=str, default='adam')
     ap.add_argument('--stop', type=int, default=1000)
     return ap.parse_args()
 
@@ -51,7 +52,7 @@ def run(args):
     review_len = data[0][0].shape[1]
     vocab_size = int(data[0][0].max() + 1)
     model = build(review_len, vocab_size)
-    model.train_classifier(data, stop=args.stop)
+    model.train_classifier(data, opt=args.opt, stop=args.stop)
 
 
 if __name__ == '__main__':

@@ -19,7 +19,7 @@ def count_params(x):
     return x.numel()
 
 
-def _tensor(arr, dtype=None, device=None):
+def tensor(arr, dtype=None, device=None):
     dtype = dtype or arr.dtype.name
     x = torch.from_numpy(arr)
     x = cast(x, dtype)
@@ -28,13 +28,13 @@ def _tensor(arr, dtype=None, device=None):
 
 
 def constant(arr, dtype=None, device=None):
-    tensor = _tensor(arr, dtype, device)
-    return Variable(tensor, requires_grad=False)
+    tensor_ = tensor(arr, dtype, device)
+    return Variable(tensor_, requires_grad=False)
 
 
 def variable(arr, dtype=None, device=None):
-    tensor = _tensor(arr, dtype, device)
-    return Variable(tensor, requires_grad=True)
+    tensor_ = tensor(arr, dtype, device)
+    return Variable(tensor_, requires_grad=True)
 
 
 def to_numpy(x):
@@ -57,8 +57,16 @@ def autograd_record():
     yield
 
 
-def update_grad(x, lr):
-    x.data -= lr * x.grad.data
+def data(x):
+    return x.data
+
+
+def gradient(x):
+    return x.grad.data
+
+
+def update(x, new_value):
+    x.data[:] = new_value
     if x.grad.volatile:
         x.grad.data.zero_()
     else:
