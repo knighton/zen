@@ -18,14 +18,14 @@ def to_shape(x, dim):
 def check_out_channels(out_channels, name):
     assert out_channels is None or _is_dim(out_channels), \
         ('The output channels (`%s`) must either be a dimension (int) or ' +
-         'None to match the input channels.  We got a %s: %s.') % \
+         'None to match the input channels.  We got a(n) %s: %s.') % \
         (name, _type(out_channels), out_channels)
 
 
 def check_input_ndim(ndim, possible_dims, name):
     assert ndim is None or ndim in possible_dims, \
         ('The data dimensionality (`%s`) must be either in %s or None to ' +
-         'infer from input (got a %s: %s).') % \
+         'infer from input (got a(n) %s: %s).') % \
         (name, possible_dims, _type(ndim), ndim)
 
 
@@ -34,7 +34,7 @@ def _type(x):
 
 
 def _is_dim(dim):
-    return isinstance(dim, int) and 0 < dim
+    return isinstance(dim, int) and 1 <= dim
 
 
 def _is_shape(shape):
@@ -49,11 +49,11 @@ def _is_shape(shape):
 def _is_dim_or_shape_error(arg, ndim, name):
     if ndim is None:
         msg = ('`%s` must be either a dimension (1 <= int) or a shape ' +
-               '(tuple of such ints).  We got a %s: %s.') % \
+               '(tuple of such ints).  We got a(n) %s: %s.') % \
               (name, _type(arg), arg)
     else:
         msg = ('`%s` must be either a dimension (1 <= int) or a %d-shape ' +
-               '(%d-tuple of such ints).  We got a %s: %s.') % \
+               '(%d-tuple of such ints).  We got a(n) %s: %s.') % \
               (name, ndim, ndim, _type(arg), arg)
     return msg
 

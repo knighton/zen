@@ -4,9 +4,9 @@ from .accuracy import *  # noqa
 from .core import *  # noqa
 from .curve import *  # noqa
 from .dot import *  # noqa
-from .embed import *  # noqa
 from .fuzz import *  # noqa
 from .loss import *  # noqa
+from .proj import *  # noqa
 from .shape import *  # noqa
 
 

@@ -16,15 +16,14 @@ class EmbedSpec(Spec):
     def __init__(self, vocab_size, channels, dtype=None,
                  embeddings_init='uniform'):
         super().__init__()
-        assert Z.is_dim(vocab_size)
-        assert Z.is_dim(channels)
+        Z.check_dim(vocab_size)
+        Z.check_dim(channels)
         self.vocab_size = vocab_size
         self.channels = channels
         self.dtype = dtype if dtype else Z.floatx()
         self.embeddings_init = init.get(embeddings_init)
 
     def build(self, in_shape, in_dtype):
-        assert Z.is_shape(in_shape, 1)
         assert in_dtype == 'int64'
         in_len, = in_shape
         embeddings_shape = self.vocab_size, self.channels

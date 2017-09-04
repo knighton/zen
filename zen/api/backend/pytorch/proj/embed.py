@@ -1,4 +1,4 @@
-def embed_pytorch(x, embeddings):
+def embed(x, embeddings):
     channels_last = embeddings.index_select(0, x.view(-1))
     channels_last = channels_last.view(x.size() + (-1,))
     axes = list(range(channels_last.dim()))
