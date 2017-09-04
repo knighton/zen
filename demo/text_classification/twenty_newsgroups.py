@@ -49,6 +49,15 @@ def gru(review_len, vocab_size, num_classes):
     return model
 
 
+def lstm(review_len, vocab_size, num_classes):
+    in_shape = review_len,
+    spec = SequenceSpec(
+        Input(in_shape, dtype='int64'), Embed(vocab_size, 64),
+        LSTM(64, ret='last'), Dense(num_classes), Softmax)
+    model, out_shape, out_dtype = spec.build()
+    return model
+
+
 def transform(data, text_pipe, label_pipe):
     train_texts = text_pipe.fit_transform(data[0][0])
     train_labels = label_pipe.fit_transform(data[0][1])
