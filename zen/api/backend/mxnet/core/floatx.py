@@ -1,5 +1,4 @@
 _POSSIBLE_FLOATX = {'float16', 'float32', 'float64'}
-_FLOATX = 'float32'
 
 
 def floatx():

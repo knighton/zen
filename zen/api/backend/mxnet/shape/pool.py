@@ -1,5 +1,7 @@
 import mxnet as mx
 
+from ..core.util import to_shape
+
 
 def avg_pool(x, window, padding, stride):
     ndim = Z.get_ndim(x)
