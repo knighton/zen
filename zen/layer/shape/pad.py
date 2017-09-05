@@ -25,16 +25,17 @@ class PadSpec(Spec):
     def build(self, in_shape, in_dtype):
         ndim = Z.verify_input_ndim(self.ndim, in_shape)
         out_shape = Z.pad_out_shape(in_shape, self.padding)
-        return self.make_layer(), out_shape, in_dtype
+        return self.make_layer(ndim), out_shape, in_dtype
 
 
 class ConstantPadLayer(PadLayer):
-    def __init__(self, padding, value):
+    def __init__(self, ndim, padding, value):
         super().__init__(padding)
         self.value = value
+        self.constant_pad = Z.get('constant_pad', ndim)
 
     def forward(self, x, is_training):
-        return Z.constant_pad(x, self.padding, self.value)
+        return self.constant_pad(x, self.padding, self.value)
 
 
 class ConstantPadSpec(PadSpec):
@@ -43,19 +44,19 @@ class ConstantPadSpec(PadSpec):
         padding  {dim, shape, pairs}  Int means repeat per dimension.
         value    {int, float}         Pad value (eg, zero).
         ndim     {None, 1, 2, 3}      Specifies dimensionality of input.
+                                      None means derive from input in build().
         """
         super().__init__(padding, ndim)
         self.value = value
 
-    def make_layer(self):
-        return ConstantPadLayer(self.padding, self.value)
+    def make_layer(self, ndim):
+        return ConstantPadLayer(ndim, self.padding, self.value)
 
 
 ConstantPad = Sugar(ConstantPadSpec)
 ConstantPad1D = Sugar(ConstantPadSpec, {'ndim': 1})
 ConstantPad2D = Sugar(ConstantPadSpec, {'ndim': 2})
 ConstantPad3D = Sugar(ConstantPadSpec, {'ndim': 3})
-
 
 ZeroPad = Sugar(ConstantPadSpec, {'value': 0})
 ZeroPad1D = Sugar(ConstantPadSpec, {'value': 0, 'ndim': 1})
@@ -64,13 +65,17 @@ ZeroPad3D = Sugar(ConstantPadSpec, {'value': 0, 'ndim': 3})
 
 
 class EdgePadLayer(PadLayer):
+    def __init__(self, ndim, padding):
+        super().__init__(padding)
+        self.edge_pad = Z.get('edge_pad', ndim)
+
     def forward(self, x, is_training):
-        return Z.edge_pad(x, self.padding)
+        return self.edge_pad(x, self.padding)
 
 
 class EdgePadSpec(PadSpec):
-    def make_layer(self):
-        return EdgePadLayer(self.padding)
+    def make_layer(self, ndim):
+        return EdgePadLayer(ndim, self.padding)
 
 
 EdgePad = Sugar(EdgePadSpec)
@@ -80,13 +85,17 @@ EdgePad3D = Sugar(EdgePadSpec, {'ndim': 3})
 
 
 class ReflectPadLayer(PadLayer):
+    def __init__(self, ndim, padding):
+        super().__init__(padding)
+        self.reflect_pad = Z.get('reflect_pad', ndim)
+
     def forward(self, x, is_training):
-        return Z.reflect_pad(x, self.padding)
+        return self.reflect_pad(x, self.padding)
 
 
 class ReflectPadSpec(PadSpec):
-    def make_layer(self):
-        return ReflectPadLayer(self.padding)
+    def make_layer(self, ndim):
+        return ReflectPadLayer(ndim, self.padding)
 
 
 ReflectPad = Sugar(ReflectPadSpec)
