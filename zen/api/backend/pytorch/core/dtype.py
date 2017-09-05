@@ -1,7 +1,7 @@
 from torch.autograd import Variable
 from torch import _TensorBase
 
-from ....core.floatx import floatx
+from .floatx import floatx
 
 
 class DataTypeConverter(object):

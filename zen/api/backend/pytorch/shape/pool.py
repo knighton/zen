@@ -1,8 +1,8 @@
 from torch.nn import functional as F
 
-from ..core.data import get_ndim
-from ..core.util import to_one
-from .pad import pad3d
+from ....core.util import to_one
+from .. import core as C
+from .pad import constant_pad3d
 
 
 def avg_pool1d(x, window, padding, stride):
@@ -17,7 +17,7 @@ def avg_pool2d(x, window, padding, stride):
 
 
 def avg_pool3d(x, window, padding, stride):
-    x = pad3d(x, padding)
+    x = constant_pad3d(x, padding, 0)
     return F.avg_pool3d(x, window, stride)
 
 
@@ -29,7 +29,7 @@ _DIM2AVG_POOL = {
 
 
 def avg_pool(x, window, padding, stride):
-    dim = get_ndim(x) - 2
+    dim = C.get_ndim(x) - 2
     return _DIM2AVG_POOL[dim](x, window, padding, stride)
 
 
@@ -56,5 +56,5 @@ _DIM2MAX_POOL = {
 
 
 def max_pool(x, window, padding, stride):
-    dim = get_ndim(x) - 2
+    dim = C.get_ndim(x) - 2
     return _DIM2MAX_POOL[dim](x, window, padding, stride)

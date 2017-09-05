@@ -1,6 +1,6 @@
 from torch.nn import functional as F
 
-from ..core.util import to_one
+from ....core.util import to_one
 
 
 def conv1d(x, kernel, bias, padding, stride, dilation):

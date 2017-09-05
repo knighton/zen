@@ -18,7 +18,7 @@ Input:
     stride   dim or shape  W    HW    DHW
 
 Output:
-    x        variable      NCW  NCHW  NCDHW
+    y        variable      NCW  NCHW  NCDHW
 """
 avg_pool = Z.avg_pool
 avg_pool1d = Z.avg_pool1d

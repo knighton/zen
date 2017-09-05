@@ -30,9 +30,10 @@ concat = Z.concat
 
 
 count_params = Z.count_params
+tensor = Z.tensor
 constant = Z.constant
 variable = Z.variable
-tensor = Z.tensor
+constant_or_variable = Z.constant_or_variable
 to_numpy = Z.to_numpy
 to_scalar = Z.to_scalar
 autograd_record = Z.autograd_record

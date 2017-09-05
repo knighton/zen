@@ -1,4 +1,4 @@
-from torch.nn import functional as F
+import mxnet as mx
 
 from .. import core as C
 
@@ -28,22 +28,24 @@ def _my_constant_pad(x, padding, value):
             arr = np.full(shape, value, dtype_)
             parts.append(load(arr))
         x = C.concat(parts, dim)
-    return x
+    return C.cast(x, C.get_dtype(dtype))
 
 
 constant_pad1d = _my_constant_pad
 
 
 def constant_pad2d(x, padding, value):
-    padding = C.normalize_int_padding(padding, 2, 'padding')
-    padding = padding[0] + padding[1]
-    return F.pad(x, padding, 'constant', value)
+    (top, bottom), (left, right) = padding
+    padding = 0, 0, 0, 0, top, bottom, left, right
+    ret = mx.nd.pad(x, mode='constant', pad_width=padding, constant_value=value)
+    return C.cast(ret, C.get_dtype(x))
 
 
 def constant_pad3d(x, padding, value):
-    padding = C.normalize_int_padding(padding, 3, 'padding')
-    padding = padding[0] + padding[1] + padding[2]
-    return F.pad(x, padding, 'constant', value)
+    (front, back), (top, bottom), (left, right) = padding
+    padding = 0, 0, 0, 0, front, back, top, bottom, left, right
+    ret = mx.nd.pad(x, mode='constant', pad_width=padding, constant_value=value)
+    return C.cast(ret, C.get_dtype(x))
 
 
 _NDIM2CONSTANT_PAD = {

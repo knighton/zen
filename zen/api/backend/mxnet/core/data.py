@@ -47,6 +47,11 @@ def variable(arr, dtype=None, device=None):
     return ret
 
 
+def constant_or_variable(x):
+    assert isinstance(x, mx.nd.NDArray)
+    return 'constant' if x.grad is None else 'variable'
+
+
 def to_numpy(x):
     return x.asnumpy()
 

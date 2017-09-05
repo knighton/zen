@@ -15,6 +15,10 @@ def to_shape(x, dim):
         assert False
 
 
+def to_one(x):
+    return to_shape(x, 1)[0]
+
+
 def check_out_channels(out_channels, name):
     assert out_channels is None or _is_dim(out_channels), \
         ('The output channels (`%s`) must either be a dimension (int) or ' +
@@ -112,3 +116,54 @@ def verify_input_ndim(required_ndim, in_shape):
          'match the actual number of input dimensions passed to build(): ' +
          '%s.') % (required_ndim, in_shape)
     return required_ndim
+
+
+def _nip_error_no_ndim(padding, name):
+    return ('Padding (`%s`) must be a coord, coords, or tuple of pairs of ' +
+            'coords (got a(n) %s: %s).') % (name, type(padding), padding)
+
+
+def _nip_error_with_ndim(padding, ndim, name):
+    return ('Padding (`%s`) must be a coord, %d coords, or %d-tuple of pairs ' +
+            'of coords (got a(n) %s: %s).') % (name, ndim, ndim, type(padding),
+            padding)
+
+
+def normalize_int_padding(padding, ndim, name):
+    """
+    Check padding and expand it to a tuple of coord pairs if we have ndim.
+
+    padding  {coord, coords, pairs of coords}
+    ndim     {None, 1, 2, 3}
+    name     str
+    """
+    if ndim is None:
+        if isinstance(padding, int):
+            pass
+        elif isinstance(tuple):
+            for val in padding:
+                if _is_coord(val):
+                    pass
+                elif _is_coords(val, 2):
+                    pass
+                else:
+                    assert False, _nip_error_no_ndim(padding, name)
+        else:
+            assert False, _nip_error_no_ndim(padding, name)
+    else:
+        assert ndim in {1, 2, 3}
+        if isinstance(padding, int):
+            padding = (padding,) * ndim
+        elif isinstance(padding, tuple):
+            padding = list(padding)
+            for i, val in enumerate(padding):
+                if _is_coord(val):
+                    padding[i] = val, val
+                elif _is_coords(val, 2):
+                    pass
+                else:
+                    assert False, _nip_error_with_ndim(padding, ndim, name)
+            padding = tuple(padding)
+        else:
+            assert False, _nip_error_with_ndim(padding, ndim, name)
+    return padding
