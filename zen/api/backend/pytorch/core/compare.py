@@ -22,11 +22,11 @@ def less(x, y):
 
 
 def maximum(x, y):
-    return torch.maximum(x, y)
+    return torch.max(x, y)
 
 
 def minimum(x, y):
-    return torch.minimum(x, y)
+    return torch.min(x, y)
 
 
 def not_equal(x, y):

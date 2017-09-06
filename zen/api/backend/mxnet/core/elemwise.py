@@ -2,8 +2,16 @@ import mxnet as mx
 import numpy as np
 
 
-def clip(x, min_value=-np.inf, max_value=np.inf):
-    return mx.nd.clip(x, min_value, max_value)
+def abs(x):
+    return mx.nd.abs(x)
+
+
+def clip(x, low=-np.inf, high=np.inf):
+    return mx.nd.clip(x, low, high)
+
+
+def exp(x):
+    return mx.nd.exp(x)
 
 
 def log(x):
@@ -12,6 +20,10 @@ def log(x):
 
 def round(x):
     return mx.nd.round(x)
+
+
+def sign(x):
+    return mx.nd.sign(x).astype('uint8')
 
 
 def sqrt(x):

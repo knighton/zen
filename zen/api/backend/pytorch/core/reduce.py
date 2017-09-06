@@ -42,3 +42,7 @@ def max(x, axis=None, keepdims=False):
 
 def mean(x, axis=None, keepdims=False):
     return _reduce_builtin('mean', x, axis, keepdims)
+
+
+def sum(x, axis=None, keepdims=False):
+    return _reduce_builtin('sum', x, axis, keepdims)

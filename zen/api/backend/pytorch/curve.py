@@ -1,6 +1,22 @@
 from torch.nn import functional as F
 
 
+def elu(x, alpha):
+    return F.elu(x, alpha)
+
+
+def hard_shrink(x, lambda_):
+    return F.hardshrink(x, lambda_)
+
+
+def leaky_relu(x, alpha):
+    return F.leaky_relu(x, alpha)
+
+
+def selu(x):
+    return F.selu(x)
+
+
 def sigmoid(x):
     return F.sigmoid(x)
 
@@ -15,5 +31,17 @@ def softmax(x):
     return nd.transpose(1, len(x_shape) - 1)
 
 
+def softshrink(x):
+    return F.softshrink(x)
+
+
+def softsign(x):
+    return F.softsign(x)
+
+
 def tanh(x):
     return F.tanh(x)
+
+
+def tanh_shrink(x):
+    return F.tanhshrink(x)
