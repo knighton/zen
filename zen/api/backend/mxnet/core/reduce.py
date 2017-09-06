@@ -9,25 +9,28 @@ def argmin(x, axis=-1):
     return mx.nd.argmin(x, axis)
 
 
-def _mx_axis(axis):
-    return mx.base._Null if axis is None else axis
+def _reduce(x, axis, keepdims, func_name):
+    mx_axis = mx.base._Null if axis is None else axis
+    func = getattr(mx.nd, func_name)
+    x = func(x, mx_axis, keepdims)
+    return x.asscalar() if axis is None else x
 
 
 def max(x, axis=None, keepdims=False):
-    return mx.nd.max(x, _mx_axis(axis), keepdims)
+    return _reduce(x, axis, keepdims, 'max')
 
 
 def mean(x, axis=None, keepdims=False):
-    return mx.nd.mean(x, _mx_axis(axis), keepdims)
+    return _reduce(x, axis, keepdims, 'mean')
 
 
 def min(x, axis=None, keepdims=False):
-    return mx.nd.max(x, _mx_axis(axis), keepdims)
+    return _reduce(x, axis, keepdims, 'min')
 
 
 def prod(x, axis=None, keepdims=False):
-    return mx.nd.prod(x, _mx_axis(axis), keepdims)
+    return _reduce(x, axis, keepdims, 'prod')
 
 
 def sum(x, axis=None, keepdims=False):
-    return mx.nd.sum(x, _mx_axis(axis), keepdims)
+    return _reduce(x, axis, keepdims, 'sum')
