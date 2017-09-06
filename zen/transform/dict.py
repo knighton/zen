@@ -1,5 +1,7 @@
 from collections import Counter
 import numpy as np
+from time import time
+from tqdm import tqdm
 
 from .transform import Transform
 
@@ -14,7 +16,7 @@ class Dict(Transform):
         self.token2index = None
         self.tokens = None
 
-    def fit(self, x):
+    def fit(self, x, verbose=0, depth=0):
         token2usage = Counter()
         for line in x:
             for token in line:
@@ -34,15 +36,21 @@ class Dict(Transform):
             self.token2index[token] = i + 1
             self.tokens.append(token)
 
-    def transform(self, x):
+    def transform(self, x, verbose=0, depth=0):
+        t0 = time()
         rrr = []
+        if verbose == 2:
+            x = tqdm(x, leave=False)
         for line in x:
             rr = []
             for token in line:
                 r = self.token2index.get(token, self.oov_index)
                 rr.append(r)
             rrr.append(rr)
-        return np.array(rrr)
+        ret = np.array(rrr)
+        t = time() - t0
+        self.done(t, verbose, depth)
+        return ret
 
     def inverse_transform(self, x):
         rrr = []

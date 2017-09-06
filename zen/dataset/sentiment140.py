@@ -19,7 +19,7 @@ _NEG_BASENAME = 'neg.txt'
 def _write_tweets(tweets, filename, verbose):
     with open(filename, 'wb') as out:
         if verbose == 2:
-            tweets = tqdm(tweets)
+            tweets = tqdm(tweets, leave=False)
         for tweet in tweets:
             assert '\n' not in tweet
             line = (tweet + '\n').encode('utf-8')
@@ -31,7 +31,7 @@ def _process(local, processed_dir, verbose):
     zip_file = ZipFile(local)
     lines = zip_file.open(_ZIP_PATH).readlines()
     if verbose == 2:
-        lines = tqdm(lines)
+        lines = tqdm(lines, leave=False)
     pos = []
     neg = []
     for line in lines:
@@ -61,7 +61,7 @@ def _read_tweets(filename, verbose):
     tweets = []
     lines = open(filename)
     if verbose == 2:
-        lines = tqdm(lines)
+        lines = tqdm(lines, leave=False)
     tweets = []
     for line in lines:
         tweet = line[:-1]

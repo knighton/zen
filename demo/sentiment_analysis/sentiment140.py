@@ -40,11 +40,11 @@ def eru(review_len, vocab_size):
     return model
 
 
-def transform(data, text_pipe, label_pipe):
-    train_texts = text_pipe.fit_transform(data[0][0])
-    train_labels = label_pipe.fit_transform(data[0][1])
-    val_texts = text_pipe.transform(data[1][0])
-    val_labels = label_pipe.transform(data[1][1])
+def transform(data, text_pipe, label_pipe, verbose):
+    train_texts = text_pipe.fit_transform(data[0][0], verbose)
+    train_labels = label_pipe.fit_transform(data[0][1], verbose)
+    val_texts = text_pipe.transform(data[1][0], verbose)
+    val_labels = label_pipe.transform(data[1][1], verbose)
     return (train_texts, train_labels), (val_texts, val_labels)
 
 
@@ -55,7 +55,7 @@ def run(args):
     text_pipe = Pipe(Lower, Filter(string.ascii_lowercase + ' '), Split,
                      Length(32), Dict, NDArray('int64'))
     label_pipe = Pipe(NDArray('float32'))
-    data = transform(data, text_pipe, label_pipe)
+    data = transform(data, text_pipe, label_pipe, args.verbose)
     review_len = data[0][0].shape[1]
     vocab_size = int(data[0][0].max() + 1)
     model = build(review_len, vocab_size)

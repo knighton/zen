@@ -1,10 +1,12 @@
 import numpy as np
+from time import time
 
 from .transform import Transform
 
 
 class YesNo(Transform):
-    def transform(self, x):
+    def transform(self, x, verbose=0, depth=0):
+        t0 = time()
         nn = []
         for s in x:
             n = {
@@ -12,7 +14,10 @@ class YesNo(Transform):
                 'no': 0,
             }[s]
             nn.append(n)
-        return np.array(nn)
+        ret = np.array(nn)
+        t = time() - t0
+        self.done(t, verbose, depth)
+        return ret
 
     def inverse_transform(self, x):
         ss = []

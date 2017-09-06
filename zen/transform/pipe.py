@@ -1,4 +1,5 @@
 import inspect
+from time import time
 
 from .transform import Transform
 
@@ -15,18 +16,30 @@ class Pipe(Transform):
                 assert False
             self.steps.append(step)
 
-    def fit(self, x):
+    def fit(self, x, verbose=0, depth=0):
+        self.start_pipe(verbose, depth)
+        t0 = time()
         for step in self.steps:
-            x = step.fit_transform(x)
+            x = step.fit_transform(x, verbose, depth + 1)
+        t = time() - t0
+        self.done(t, verbose, depth)
 
-    def transform(self, x):
+    def transform(self, x, verbose=0, depth=0):
+        self.start_pipe(verbose, depth)
+        t0 = time()
         for step in self.steps:
-            x = step.transform(x)
+            x = step.transform(x, verbose, depth + 1)
+        t = time() - t0
+        self.done(t, verbose, depth)
         return x
 
-    def fit_transform(self, x):
+    def fit_transform(self, x, verbose=0, depth=0):
+        self.start_pipe(verbose, depth)
+        t0 = time()
         for step in self.steps:
-            x = step.fit_transform(x)
+            x = step.fit_transform(x, verbose, depth + 1)
+        t = time() - t0
+        self.done(t, verbose, depth)
         return x
 
     def inverse_transform(self, x):

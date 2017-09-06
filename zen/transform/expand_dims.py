@@ -7,7 +7,7 @@ class ExpandDims(Transform):
     def __init__(self, axis):
         self.axis = axis
 
-    def transform(self, x):
+    def transform(self, x, verbose=0, depth=0):
         return np.expand_dims(x, self.axis)
 
     def inverse_transform(self, x):

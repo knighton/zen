@@ -4,7 +4,7 @@ from .transform import Transform
 
 
 class TrueFalse(Transform):
-    def transform(self, x):
+    def transform(self, x, verbose=0, depth=0):
         nn = []
         for s in x:
             n = {

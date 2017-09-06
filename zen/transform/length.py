@@ -1,3 +1,6 @@
+from time import time
+from tqdm import tqdm
+
 from .transform import Transform
 
 
@@ -7,9 +10,12 @@ class Length(Transform):
     def __init__(self, length):
         self.length = length
 
-    def transform(self, x):
+    def transform(self, x, verbose=0, depth=0):
+        t0 = time()
         rrr = []
         pre = []
+        if verbose == 2:
+            x = tqdm(x, leave=False)
         for line in x:
             if isinstance(line, str):
                 line = list(line)
@@ -27,6 +33,8 @@ class Length(Transform):
                 x -= 1
             tiles.append(pre[x])
         print('Length percentiles: %s' % tiles)
+        t = time() - t0
+        self.done(t, verbose, depth)
         return rrr
 
     def inverse_transform(self, x):
