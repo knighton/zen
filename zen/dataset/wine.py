@@ -58,8 +58,8 @@ def _blend(red_samples, white_samples, val_frac, scale):
     y_val = y[:split]
     if scale:
         means, stds = _observe(x_train)
-        x_train = _do_scale(x_train, means, stds)
-        x_val = _do_scale(x_val, means, stds)
+        _do_scale(x_train, means, stds)
+        _do_scale(x_val, means, stds)
     return (x_train, y_train), (x_val, y_val)
 
 

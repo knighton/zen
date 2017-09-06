@@ -30,6 +30,7 @@ concat = Z.concat
 
 
 size = Z.size
+clone = Z.clone
 tensor = Z.tensor
 constant = Z.constant
 variable = Z.variable

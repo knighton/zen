@@ -31,6 +31,10 @@ def size(x):
     return x.numel()
 
 
+def clone(x):
+    return x.clone()
+
+
 def tensor(arr, dtype=None, device=None):
     dtype = dtype or arr.dtype.name
     x = torch.from_numpy(arr)

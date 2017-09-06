@@ -58,7 +58,7 @@ def rsqrt(x):
 
 
 def square(x):
-    return x.square()
+    return x.pow(2)
 
 
 # Rounding.

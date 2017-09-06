@@ -32,6 +32,10 @@ def size(x):
     return x.size
 
 
+def clone(x):
+    return x.copy()
+
+
 def tensor(arr, dtype=None, device=None):
     dtype = dtype or arr.dtype.name
     ctx = _get_device_context(device)
