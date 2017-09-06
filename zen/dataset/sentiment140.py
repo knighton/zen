@@ -1,6 +1,7 @@
 import numpy as np
 import os
 from random import shuffle
+from time import time
 from tqdm import tqdm
 from zipfile import ZipFile
 
@@ -76,7 +77,12 @@ def _load(processed_dir, val_frac, verbose):
     neg = _read_tweets(filename, verbose)
     samples = list(map(lambda tweet: (tweet, 1), pos)) + \
               list(map(lambda tweet: (tweet, 0), neg))
+    if verbose:
+        t0 = time()
     shuffle(samples)
+    if verbose:
+        t = time() - t0
+        print('Shuffling %d items took %.3f sec.' % (len(samples), t))
     x, y = list(zip(*samples))
     split = int(len(x) * val_frac)
     x_train = x[split:]
