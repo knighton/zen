@@ -8,7 +8,6 @@ cumsum = Z.get('cumsum', None)
 exp = Z.exp
 log = Z.log
 pow = Z.pow
-round = Z.round
 sign = Z.sign
 sqrt = Z.sqrt
 square = Z.square

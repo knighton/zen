@@ -29,10 +29,6 @@ def pow(x, a):
     return x.pow(a)
 
 
-def round(x):
-    return x.round()
-
-
 def sign(x):
     return x.sign()
 
