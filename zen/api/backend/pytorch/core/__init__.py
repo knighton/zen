@@ -6,5 +6,3 @@ from .elemwise import *  # noqa
 from .floatx import *  # noqa
 from .linalg import *  # noqa
 from .reduce import *  # noqa
-from .round import *  # noqa
-from .trig import *  # noqa
