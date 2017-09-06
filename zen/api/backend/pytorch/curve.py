@@ -39,9 +39,5 @@ def softsign(x):
     return F.softsign(x)
 
 
-def tanh(x):
-    return F.tanh(x)
-
-
 def tanh_shrink(x):
     return F.tanhshrink(x)

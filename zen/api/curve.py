@@ -142,5 +142,5 @@ softmax = Z.get('softmax', _my_softmax)
 softplus = Z.get('softplus', _my_softplus)
 softshrink = Z.get('softshrink', _my_softshrink)
 softsign = Z.get('softsign', _my_softsign)
-tanh = Z.tanh
+tanh = C.tanh
 tanh_shrink = Z.get('tanh_shrink', _my_tanh_shrink)

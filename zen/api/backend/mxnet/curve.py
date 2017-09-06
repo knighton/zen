@@ -19,7 +19,3 @@ def softmax(x):
 
 def softplus(x):
     return mx.nd.Activation(x, 'softrelu')
-
-
-def tanh(x):
-    return mx.nd.tanh(x)

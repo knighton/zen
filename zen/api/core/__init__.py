@@ -7,4 +7,5 @@ from .epsilon import *  # noqa
 from .floatx import *  # noqa
 from .linalg import *  # noqa
 from .reduce import *  # noqa
+from .trig import *  # noqa
 from .util import *  # noqa

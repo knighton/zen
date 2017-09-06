@@ -9,10 +9,6 @@ def clip(x, low=-np.inf, high=np.inf):
     return x.clamp(low, high)
 
 
-def cos(x):
-    return x.cos()
-
-
 def cumprod(x, axis=0):
     return x.cumprod(axis)
 
@@ -39,10 +35,6 @@ def round(x):
 
 def sign(x):
     return x.sign()
-
-
-def sin(x):
-    return x.sin()
 
 
 def sqrt(x):
