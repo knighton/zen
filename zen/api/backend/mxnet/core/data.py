@@ -28,7 +28,7 @@ def squeeze(x, axis):
     return mx.nd.reshape(new_shape)
 
 
-def count_params(x):
+def size(x):
     return x.size
 
 

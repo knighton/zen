@@ -29,7 +29,7 @@ Concatenate variables.
 concat = Z.concat
 
 
-count_params = Z.count_params
+size = Z.size
 tensor = Z.tensor
 constant = Z.constant
 variable = Z.variable

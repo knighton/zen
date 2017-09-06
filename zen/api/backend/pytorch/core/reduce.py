@@ -32,8 +32,11 @@ def _reduce_builtin(reduce_func_name, x, axis=None, keep_dims=False):
 
 
 def argmax(x, axis=-1):
-    _, indices = x.max(axis)
-    return indices
+    return x.max(axis)[1]
+
+
+def argmin(x, axis=-1):
+    return x.min(axis)[1]
 
 
 def max(x, axis=None, keepdims=False):
@@ -42,6 +45,14 @@ def max(x, axis=None, keepdims=False):
 
 def mean(x, axis=None, keepdims=False):
     return _reduce_builtin('mean', x, axis, keepdims)
+
+
+def min(x, axis=None, keepdims=False):
+    return _reduce_builtin('min', x, axis, keepdims)
+
+
+def prod(x, axis=None, keepdims=False):
+    return _reduce_builtin('prod', x, axis, keepdims)
 
 
 def sum(x, axis=None, keepdims=False):

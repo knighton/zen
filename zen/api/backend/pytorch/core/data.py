@@ -27,7 +27,7 @@ def concat(xx, axis):
     return torch.cat(xx, axis)
 
 
-def count_params(x):
+def size(x):
     return x.numel()
 
 
