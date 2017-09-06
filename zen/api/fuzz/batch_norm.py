@@ -28,7 +28,7 @@ def _running_average_update(x_running, x_new, momentum):
     x_running[:] = momentum * x_running + (1. - momentum) * x_new
 
 
-def _my_batch_norm(x, is_training, reduction_axes, momentum, beta, gamma,
+def _batch_norm(x, is_training, reduction_axes, momentum, beta, gamma,
                    running_mean, running_variance):
     """
     Non-built-in batch normalization.
@@ -68,8 +68,8 @@ The variables beta, gamma, running_mean, and running_variance are the same shape
 as `x` but with a length of 1 on every reduced axis.  Reduction axes is going to
 be everything but the channels axis.
 """
-batch_norm = Z.get('batch_norm', _my_batch_norm)
-batch_norm0d = Z.get('batch_norm0d', _my_batch_norm)
-batch_norm1d = Z.get('batch_norm1d', _my_batch_norm)
-batch_norm2d = Z.get('batch_norm2d', _my_batch_norm)
-batch_norm3d = Z.get('batch_norm3d', _my_batch_norm)
+batch_norm = Z.get('batch_norm', _batch_norm)
+batch_norm0d = Z.get('batch_norm0d', _batch_norm)
+batch_norm1d = Z.get('batch_norm1d', _batch_norm)
+batch_norm2d = Z.get('batch_norm2d', _batch_norm)
+batch_norm3d = Z.get('batch_norm3d', _batch_norm)

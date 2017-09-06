@@ -4,21 +4,21 @@ from . import backend as Z
 from . import core as C
 
 
-def _my_elu(x, alpha=1.):
+def _elu(x, alpha=1.):
     """
     Exponential linear unit (ELU).
     """
     return C.maximum(0, x) + C.minimum(0, alpha * (C.exp(x) - 1.))
 
 
-def _my_hard_shrink(x, lambda_=0.5):
+def _hard_shrink(x, lambda_=0.5):
     """
     Hard shrink.
     """
     return C.clip(x + lambda_, -np.inf, 0.) + C.clip(x - 0.5, 0., np.inf)
 
 
-def _my_hard_sigmoid(x):
+def _hard_sigmoid(x):
     """
     Hard sigmoid.
     """
@@ -26,14 +26,14 @@ def _my_hard_sigmoid(x):
     return C.clip(x, 0, 1)
 
 
-def _my_hard_tanh(x):
+def _hard_tanh(x):
     """
     Hard tanh.
     """
     return C.clip(x, -1, 1)
 
 
-def _my_leaky_relu(x, alpha=0.1):
+def _leaky_relu(x, alpha=0.1):
     """
     Leaky rectified linear unit.
     """
@@ -43,21 +43,21 @@ def _my_leaky_relu(x, alpha=0.1):
     return x
 
 
-def _my_linear(x):
+def _linear(x):
     """
     Linear activation (identity).
     """
     return x
 
 
-def _my_relu(x, low=0., high=np.inf):
+def _relu(x, low=0., high=np.inf):
     """
     Rectified linear unit (ReLU).
     """
     return C.clip(x, low, high)
 
 
-def _my_selu(x):
+def _selu(x):
     """
     Scaled exponential linear unit (SELU).
     """
@@ -66,7 +66,7 @@ def _my_selu(x):
     return scale * elu(x, alpha)
 
 
-def _my_sigmoid(x):
+def _sigmoid(x):
     """
     Sigmoid.
     """
@@ -74,7 +74,7 @@ def _my_sigmoid(x):
     return e_x / (e_x + 1.)
 
 
-def _my_softmax(x):
+def _softmax(x):
     """
     Softmax (2D).
     """
@@ -82,28 +82,28 @@ def _my_softmax(x):
     return e_x / C.sum(e_x, 1, True)
 
 
-def _my_softplus(x):
+def _softplus(x):
     """
     Softplus.
     """
     return C.log(1. + C.exp(x))
 
 
-def _my_softshrink(x, lambda_=0.5):
+def _softshrink(x, lambda_=0.5):
     """
     Softshrink.
     """
     return C.sign(x) * C.maximum(C.abs(x) - lambda_, 0)
 
 
-def _my_softsign(x):
+def _softsign(x):
     """
     Softsign.
     """
     return x / (1. + C.abs(x))
 
 
-def _my_tanh_shrink(x):
+def _tanh_shrink(x):
     """
     TanH shrink.
     """
@@ -129,18 +129,18 @@ Activation functions.
     tanh          (x)
     tanh_shrink   (x)
 """
-elu = Z.get('elu', _my_elu)
-hard_shrink = Z.get('hard_shrink', _my_hard_shrink)
-hard_sigmoid = Z.get('hard_sigmoid', _my_hard_sigmoid)
-hard_tanh = Z.get('hard_tanh', _my_hard_tanh)
-leaky_relu = Z.get('leaky_relu', _my_leaky_relu)
-linear = _my_linear
-relu = _my_relu
-selu = Z.get('selu', _my_selu)
-sigmoid = Z.get('sigmoid', _my_sigmoid)
-softmax = Z.get('softmax', _my_softmax)
-softplus = Z.get('softplus', _my_softplus)
-softshrink = Z.get('softshrink', _my_softshrink)
-softsign = Z.get('softsign', _my_softsign)
+elu = Z.get('elu', _elu)
+hard_shrink = Z.get('hard_shrink', _hard_shrink)
+hard_sigmoid = Z.get('hard_sigmoid', _hard_sigmoid)
+hard_tanh = Z.get('hard_tanh', _hard_tanh)
+leaky_relu = Z.get('leaky_relu', _leaky_relu)
+linear = _linear
+relu = _relu
+selu = Z.get('selu', _selu)
+sigmoid = Z.get('sigmoid', _sigmoid)
+softmax = Z.get('softmax', _softmax)
+softplus = Z.get('softplus', _softplus)
+softshrink = Z.get('softshrink', _softshrink)
+softsign = Z.get('softsign', _softsign)
 tanh = C.tanh
-tanh_shrink = Z.get('tanh_shrink', _my_tanh_shrink)
+tanh_shrink = Z.get('tanh_shrink', _tanh_shrink)

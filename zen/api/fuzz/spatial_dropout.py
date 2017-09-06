@@ -4,7 +4,7 @@ from .. import backend as Z
 from .. import core as C
 
 
-def _my_spatial_dropout(x, is_training, rate):
+def _spatial_dropout(x, is_training, rate):
     if not is_training:
         return x
     shape = C.get_shape(x)
@@ -31,7 +31,7 @@ Input:
 Output:
     y            variable  NC  NCW  NCHW  NCDHW
 """
-spatial_dropout = Z.get('spatial_dropout', _my_spatial_dropout)
-spatial_dropout1d = Z.get('spatial_dropout1d', _my_spatial_dropout)
-spatial_dropout2d = Z.get('spatial_dropout2d', _my_spatial_dropout)
-spatial_dropout3d = Z.get('spatial_dropout3d', _my_spatial_dropout)
+spatial_dropout = Z.get('spatial_dropout', _spatial_dropout)
+spatial_dropout1d = Z.get('spatial_dropout1d', _spatial_dropout)
+spatial_dropout2d = Z.get('spatial_dropout2d', _spatial_dropout)
+spatial_dropout3d = Z.get('spatial_dropout3d', _spatial_dropout)
