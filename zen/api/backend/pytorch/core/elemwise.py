@@ -8,12 +8,8 @@ def abs(x):
     return x.abs()
 
 
-def clip(x, min_value=None, max_value=None):
-    if min_value is None:
-        min_value = -np.inf
-    if max_value is None:
-        max_value = np.inf
-    return x.clamp(min_value, max_value)
+def clip(x, low=-np.inf, high=np.inf):
+    return x.clamp(low, high)
 
 
 def neg(x):
@@ -46,11 +42,11 @@ def log1p(x):
     return x.log1p()
 
 
+# Power.
+
+
 def pow(x, a):
     return x.pow(a)
-
-
-# Power.
 
 
 def sqrt(x):
