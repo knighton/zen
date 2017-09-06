@@ -14,7 +14,7 @@ sign = Z.sign
 # Cumulative.
 
 
-def _my_cumprod(x, axis):
+def _cumprod(x, axis):
     prev_slices = [slice(None) for _ in range(x.ndim)]
     cur_slices = [slice(None) for _ in range(x.ndim)]
     out = clone(x)
@@ -25,7 +25,7 @@ def _my_cumprod(x, axis):
     return out
 
 
-def _my_cumsum(x, axis):
+def _cumsum(x, axis):
     prev_slices = [slice(None) for _ in range(x.ndim)]
     cur_slices = [slice(None) for _ in range(x.ndim)]
     out = clone(x)
@@ -36,48 +36,61 @@ def _my_cumsum(x, axis):
     return out
 
 
-cumprod = Z.get('cumprod', _my_cumprod)
-cumsum = Z.get('cumsum', _my_cumsum)
+cumprod = Z.get('cumprod', _cumprod)
+cumsum = Z.get('cumsum', _cumsum)
+
 
 # Exponentiation.
 
 
-def _my_expm1(x):
+def _expm1(x):
     return exp(x) - 1.
 
 
 exp = Z.exp
-expm1 = Z.get('expm1', _my_expm1)  # = exp(x) - 1
+expm1 = Z.get('expm1', _expm1)  # = exp(x) - 1
 
 
 # Logarithms.
 
 
-def _my_log10(x):
+def _log10(x):
     return log(x) / log(10.)
 
 
-def _my_log2(x):
+def _log2(x):
     return log(x) / log(2.)
 
 
-def _my_log1p(x):
+def _log1p(x):
     return log(1. + x)
 
 
 log = Z.log
-log10 = Z.get('log10', _my_log10)
-log2 = Z.get('log2', _my_log2)
-log1p = Z.get('log1p', _my_log1p)  # = log(1 + x)
+log10 = Z.get('log10', _log10)
+log2 = Z.get('log2', _log2)
+log1p = Z.get('log1p', _log1p)  # = log(1 + x)
 
 
 # Power.
 
 
+def _rsqrt(x):
+    return 1. / sqrt(x)
+
+
+def _sqrt(x):
+    return pow(x, 0.5)
+
+
+def _square(x):
+    return pow(x, 2.)
+
+
 pow = Z.pow
-sqrt = Z.sqrt
-rsqrt = Z.rsqrt
-square = Z.square
+rsqrt = Z.get('rsqrt', _rsqrt)
+sqrt = Z.get('sqrt', _sqrt)
+square = Z.get('square', _square)
 
 
 # Rounding.
@@ -92,15 +105,29 @@ trunc = Z.trunc  # Toward zero.
 # Trigonometry.
 
 
-def _my_arcsinh(x):
-    return log(x + sqrt(square(x) + 1))
+def _sinh(x):
+    return (exp(x) - exp(-x)) / 2.
 
 
-def _my_arccosh(x):
-    return log(x + sqrt(square(x) - 1))
+def _cosh(x):
+    return (exp(x) + exp(-x)) / 2.
 
 
-def _my_arctanh(x):
+def _tanh(x):
+    e_x = exp(x)
+    e_nx = exp(-x)
+    return (e_x - e_nx) / (e_x + e_nx)
+
+
+def _arcsinh(x):
+    return log(x + sqrt(square(x) + 1.))
+
+
+def _arccosh(x):
+    return log(x + sqrt(square(x) - 1.))
+
+
+def _arctanh(x):
     return 0.5 * log((1. + x) / (1. - x))
 
 
@@ -110,9 +137,9 @@ tan = Z.tan
 arcsin = Z.arcsin
 arccos = Z.arccos
 arctan = Z.arctan
-sinh = Z.sinh
-cosh = Z.cosh
-tanh = Z.tanh
-arcsinh = Z.get('arcsinh', _my_arcsinh)
-arccosh = Z.get('arccosh', _my_arccosh)
-arctanh = Z.get('arctanh', _my_arctanh)
+sinh = Z.get('sinh', _sinh)
+cosh = Z.get('cosh', _cosh)
+tanh = Z.get('tanh', _tanh)
+arcsinh = Z.get('arcsinh', _arcsinh)
+arccosh = Z.get('arccosh', _arccosh)
+arctanh = Z.get('arctanh', _arctanh)
