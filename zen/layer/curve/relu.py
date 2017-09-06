@@ -3,16 +3,25 @@ from ..layer import Layer, Spec, Sugar
 
 
 class ReLULayer(Layer):
-    def get_params(self):
-        return []
+    def __init__(self, low, high):
+        super().__init__()
+        self.low = low
+        self.high = high
 
     def forward(self, x, is_training):
-        return Z.clip(x, min_value=0)
+        return Z.relu(x, self.low, self.high)
 
 
 class ReLUSpec(Spec):
-    def build(self, in_shape=None, in_dtype=None):
-        return ReLULayer(), in_shape, in_dtype
+    def __init__(self, low=0., high=None):
+        super().__init__()
+        self.low = low
+        self.high = high
+
+    def build(self, in_shape, in_dtype):
+        return ReLULayer(self.low, self.high), in_shape, in_dtype
 
 
 ReLU = Sugar(ReLUSpec)
+ReLU6 = Sugar(ReLUSpec, {'high': 6.})
+Threshold = Sugar(ReLUSpec, {'low': -1.})
