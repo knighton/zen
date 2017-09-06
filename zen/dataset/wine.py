@@ -1,3 +1,4 @@
+from collections import Counter
 import numpy as np
 import os
 from random import shuffle
@@ -84,7 +85,15 @@ def _load_quality(remote, verbose):
 def load_wine_color(val_frac=0.2, scale=True, verbose=2):
     red = _load_color(_RED, 1, verbose)
     white = _load_color(_WHITE, 0, verbose)
-    return _blend(red, white, val_frac, scale)
+    data = _blend(red, white, val_frac, scale)
+    if verbose:
+        print('Train: %d samples.' % len(data[0][0]))
+        d = Counter(data[0][1])
+        print('       %d red, %d white.' % (d[1.], d[0.]))
+        print('Val:   %d samples.' % len(data[1][0]))
+        d = dict(Counter(data[1][1]))
+        print('       %d red, %d white.' % (d[1.], d[0.]))
+    return data
 
 
 def load_wine_quality(val_frac=0.2, scale=True, verbose=2):
