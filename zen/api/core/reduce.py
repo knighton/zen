@@ -1,4 +1,5 @@
 from .. import backend as Z
+from .data import size
 from .dtype import cast
 from .elemwise import abs, ceil, clip, sqrt, square
 
@@ -9,7 +10,7 @@ def _any_all_common(x, axis=None, keepdims=False):
     x = clip(x, 0, 1)
     x = cast(x, 'int64')
     x = sum(x, axis, keepdims)
-    return cilp(x, 0, 1)
+    return clip(x, 0, 1)
 
 
 def _my_all(x, axis=None, keepdims=False):

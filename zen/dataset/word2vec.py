@@ -11,7 +11,7 @@ _REMOTE = 'https://s3.amazonaws.com/dl4j-distribution/' + \
           'GoogleNews-vectors-negative300.bin.gz'
 
 
-def _fetch(remote):
+def _fetch(remote, verbose):
     dataset_dir = get_dataset_dir(_DATASET_NAME)
     basename_gz = os.path.basename(_REMOTE)
     local_gz = os.path.join(dataset_dir, basename_gz)
@@ -52,5 +52,5 @@ def _read_binary(bin_filename, max_vocab_size, verbose):
 
 
 def load_word2vec(max_vocab_size=None, verbose=2):
-    bin_filename = _fetch(_REMOTE)
+    bin_filename = _fetch(_REMOTE, verbose)
     return _read_binary(bin_filename, max_vocab_size, verbose)

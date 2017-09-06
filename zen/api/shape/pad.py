@@ -1,5 +1,3 @@
-import numpy as np
-
 from .. import backend as Z
 from .. import core as C
 

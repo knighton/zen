@@ -126,7 +126,7 @@ def _nip_error_no_ndim(padding, name):
 def _nip_error_with_ndim(padding, ndim, name):
     return ('Padding (`%s`) must be a coord, %d coords, or %d-tuple of pairs ' +
             'of coords (got a(n) %s: %s).') % (name, ndim, ndim, type(padding),
-            padding)
+                                               padding)
 
 
 def normalize_int_padding(padding, ndim, name):

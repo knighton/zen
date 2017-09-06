@@ -44,4 +44,4 @@ def global_max_pool(x):
 
 global_max_pool1d = global_max_pool
 global_max_pool2d = global_max_pool
-global_max_pool3d = global_mxa_pool
+global_max_pool3d = global_max_pool

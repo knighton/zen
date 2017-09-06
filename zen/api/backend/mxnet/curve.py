@@ -5,7 +5,7 @@ def elu(x, alpha=1.):
     return mx.nd.LeakyReLU(x, 'elu', alpha)
 
 
-def leaky_relu(xi, alpha=0.1):
+def leaky_relu(x, alpha=0.1):
     return mx.nd.LeakyReLU(x, 'leaky', alpha)
 
 

@@ -1,7 +1,6 @@
 import numpy as np
 
 from ... import api as Z
-from ... import init
 from ..layer import Layer, Spec
 
 
