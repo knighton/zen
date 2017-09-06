@@ -49,12 +49,12 @@ def pow(x, a):
     return x.pow(a)
 
 
-def sqrt(x):
-    return x.sqrt()
-
-
 def rsqrt(x):
     return x.rsqrt()
+
+
+def sqrt(x):
+    return x.sqrt()
 
 
 def square(x):

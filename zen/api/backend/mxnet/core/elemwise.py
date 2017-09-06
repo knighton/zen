@@ -58,12 +58,12 @@ def pow(x, a):
     return mx.nd.power(x, a)
 
 
-def sqrt(x):
-    return mx.nd.sqrt(x)
-
-
 def rsqrt(x):
     return mx.nd.rsqrt(x)
+
+
+def sqrt(x):
+    return mx.nd.sqrt(x)
 
 
 def square(x):
