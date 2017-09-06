@@ -30,42 +30,64 @@ def _scale_samples(rows):
     return list(zip(*columns))
 
 
-def _blend(red_samples, white_samples):
+def _observe(rows):
+    means = []
+    stds = []
+    for i in range(rows.shape[1]):
+        means.append(rows[:, i].mean())
+        stds.append(rows[:, i].std())
+    return means, stds
+
+
+def _do_scale(rows, means, stds):
+    for i in range(rows.shape[1]):
+        rows[:, i] -= means[i]
+        rows[:, i] /= stds[i]
+
+
+def _blend(red_samples, white_samples, val_frac, scale):
     samples = red_samples + white_samples
     shuffle(samples)
     x, y = zip(*samples)
-    return np.array(x, dtype='float32'), np.array(y, dtype='float32')
+    x = np.array(x, dtype='float32')
+    y = np.array(y, dtype='float32')
+    split = int(len(x) * val_frac)
+    x_train = x[split:]
+    x_val = x[:split]
+    y_train = y[split:]
+    y_val = y[:split]
+    if scale:
+        means, stds = _observe(x_train)
+        x_train = _do_scale(x_train, means, stds)
+        x_val = _do_scale(x_val, means, stds)
+    return (x_train, y_train), (x_val, y_val)
 
 
-def _load_color(remote, y, scale, verbose):
+def _load_color(remote, y, verbose):
     x = []
     for line in _get(remote, verbose):
         values = list(map(float, line.split(';')))
         x.append(values)
-    if scale:
-        x = _scale_samples(x)
     return list(zip(x, [y] * len(x)))
 
 
-def _load_quality(remote, scale, verbose):
+def _load_quality(remote, verbose):
     x = []
     y = []
     for line in _get(remote, verbose):
         values = list(map(float, line.split(';')))
         x.append(values[:-1])
-        y.append(values[-1])
-    if scale:
-        x = _scale_samples(x)
+        y.append(values[-1] / 10.)
     return list(zip(x, y))
 
 
-def load_wine_color(scale=True, verbose=2):
-    red = _load_color(_RED, 1, scale, verbose)
-    white = _load_color(_WHITE, 0, scale, verbose)
-    return _blend(red, white)
+def load_wine_color(val_frac=0.2, scale=True, verbose=2):
+    red = _load_color(_RED, 1, verbose)
+    white = _load_color(_WHITE, 0, verbose)
+    return _blend(red, white, val_frac, scale)
 
 
-def load_wine_quality(scale=True, verbose=2):
-    red = _load_quality(_RED, scale, verbose)
-    white = _load_quality(_WHITE, scale, verbose)
-    return _blend(red, white)
+def load_wine_quality(val_frac=0.2, scale=True, verbose=2):
+    red = _load_quality(_RED, verbose)
+    white = _load_quality(_WHITE, verbose)
+    return _blend(red, white, val_frac, scale)
