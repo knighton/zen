@@ -50,20 +50,17 @@ def mlp_graph(image_shape, num_classes):
 
 
 def cnn(image_shape, num_classes):
-    layer = lambda n: Sequence(
-        Conv(n), BatchNorm, ReLU, SpatialDropout(0.25), MaxPool)
-    cnn = Sequence(layer(16), layer(32), layer(64), layer(128))
-    return Sequence(
-        Input(image_shape), cnn, Flatten, Dense(num_classes), Softmax)
+    block = lambda n: Conv(n) > BatchNorm > ReLU > SpatialDropout(0.25) > \
+        MaxPool > Z
+    cnn = block(16) > block(32) > block(64) > block(128) > Z
+    return Input(image_shape) > cnn > Flatten > Dense(num_classes) > Softmax > Z
 
 
 def cnn_big(image_shape, num_classes):
-    layer = lambda n: Sequence(
-        Conv(n), BatchNorm, ReLU, SpatialDropout(0.25))
-    block = lambda n: Sequence(layer(n), layer(n), MaxPool)
-    cnn = Sequence(block(16), block(32), block(64), block(128))
-    return Sequence(
-        Input(image_shape), cnn, Flatten, Dense(num_classes), Softmax)
+    layer = lambda n: Conv(n) > BatchNorm > ReLU > SpatialDropout(0.25) > Z
+    block = lambda n: layer(n) > layer(n) > MaxPool > Z
+    cnn = block(16) > block(32) > block(64) > block(128) > Z
+    return Input(image_shape) > cnn > Flatten > Dense(num_classes) > Softmax > Z
 
 
 def run(args):
