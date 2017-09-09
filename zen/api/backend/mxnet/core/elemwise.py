@@ -10,6 +10,10 @@ def abs(x):
 
 
 def clip(x, low=-np.inf, high=np.inf):
+    if low is None:
+        low = -np.inf
+    if high is None:
+        high = np.inf
     return mx.nd.clip(x, low, high)
 
 
