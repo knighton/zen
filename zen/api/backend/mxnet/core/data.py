@@ -81,4 +81,5 @@ def gradient(x):
 
 def update(x, new_value):
     x = new_value
-    x.grad[:] = 0
+    if x.grad is not None:
+        x.grad[:] = 0

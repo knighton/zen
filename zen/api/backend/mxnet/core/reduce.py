@@ -12,8 +12,7 @@ def argmin(x, axis=-1):
 def _reduce(x, axis, keepdims, func_name):
     mx_axis = mx.base._Null if axis is None else axis
     func = getattr(mx.nd, func_name)
-    x = func(x, mx_axis, keepdims)
-    return x.asscalar() if axis is None else x
+    return func(x, mx_axis, keepdims)
 
 
 def max(x, axis=None, keepdims=False):
