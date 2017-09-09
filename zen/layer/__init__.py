@@ -1,4 +1,4 @@
-from .base.node import Input
+from .arch import *  # noqa
 from .curve import *  # noqa
 from .dot import *  # noqa
 from .merge import *  # noqa
