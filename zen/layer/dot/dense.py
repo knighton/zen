@@ -1,9 +1,9 @@
 from ... import api as Z
 from ... import init
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class DenseLayer(Layer):
+class DenseLayer(Transform):
     def __init__(self, kernel, bias):
         super().__init__()
         self.kernel = self.add_param(kernel)
@@ -13,7 +13,7 @@ class DenseLayer(Layer):
         return Z.matmul(x, self.kernel) + self.bias
 
 
-class DenseSpec(Spec):
+class DenseSpec(TransformSpec):
     def __init__(self, channels=None, kernel_init='glorot_uniform',
                  bias_init='zero'):
         super().__init__()

@@ -1,14 +1,14 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class PadLayer(Layer):
+class PadLayer(Transform):
     def __init__(self, padding):
         super().__init__()
         self.padding = padding
 
 
-class PadSpec(Spec):
+class PadSpec(TransformSpec):
     def __init__(self, padding, ndim=None):
         """
         padding  {dim, shape, pairs}  Int means repeat per dimension.

@@ -1,13 +1,13 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class SoftSignLayer(Layer):
+class SoftSignLayer(Transform):
     def forward(self, x, is_training):
         return Z.softsign(x)
 
 
-class SoftSignSpec(Spec):
+class SoftSignSpec(TransformSpec):
     def build(self, in_shape, in_dtype):
         return SoftSignLayer(), in_shape, in_dtype
 

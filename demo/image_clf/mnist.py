@@ -15,7 +15,7 @@ def parse_args():
 def run(args):
     (x_train, y_train), (x_val, y_val) = load_mnist(args.verbose)
     image_shape = x_train.shape[1:]
-    num_classes = y_train.max() + 1
+    num_classes = int(y_train.max() + 1)
     y_train = one_hot(y_train, num_classes)
     y_val = one_hot(y_val, num_classes)
     data = (x_train, y_train), (x_val, y_val)

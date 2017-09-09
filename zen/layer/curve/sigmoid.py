@@ -1,13 +1,13 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class SigmoidLayer(Layer):
+class SigmoidLayer(Transform):
     def forward(self, x, is_training):
         return Z.sigmoid(x)
 
 
-class SigmoidSpec(Spec):
+class SigmoidSpec(TransformSpec):
     def build(self, in_shape, in_dtype):
         return SigmoidLayer(), in_shape, in_dtype
 

@@ -1,13 +1,13 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class HardTanhLayer(Layer):
+class HardTanhLayer(Transform):
     def forward(self, x, is_training):
         return Z.hard_tanh(x)
 
 
-class HardTanhSpec(Spec):
+class HardTanhSpec(TransformSpec):
     def build(self, in_shape, in_dtype):
         return HardTanhLayer(), in_shape, in_dtype
 

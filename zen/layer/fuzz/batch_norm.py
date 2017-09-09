@@ -1,9 +1,9 @@
 from ... import api as Z
 from ... import init
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class BatchNormLayer(Layer):
+class BatchNormLayer(Transform):
     def __init__(self, ndim, momentum, beta, gamma, running_mean,
                  running_variance, reduction_axes):
         super().__init__()
@@ -22,7 +22,7 @@ class BatchNormLayer(Layer):
                                self.running_mean, self.running_variance)
 
 
-class BatchNormSpec(Spec):
+class BatchNormSpec(TransformSpec):
     def __init__(self, momentum=0.99, beta_init='zero', gamma_init='one',
                  running_mean_init='zero', running_variance_init='one',
                  ndim=None):

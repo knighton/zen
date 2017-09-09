@@ -6,6 +6,7 @@ from .curve import *  # noqa
 from .dot import *  # noqa
 from .fuzz import *  # noqa
 from .loss import *  # noqa
+from .merge import *  # noqa
 from .optim import *  # noqa
 from .proj import *  # noqa
 from .shape import *  # noqa

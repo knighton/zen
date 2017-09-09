@@ -1,10 +1,10 @@
 import numpy as np
 
 from ... import api as Z
-from ..layer import Layer, Spec
+from ..base import Transform, TransformSpec
 
 
-class RecurrentLayer(Layer):
+class RecurrentLayer(Transform):
     def __init__(self, dim, go, ret):
         super().__init__()
         Z.check_dim(dim)
@@ -66,7 +66,7 @@ class RecurrentLayer(Layer):
             assert False
 
 
-class RecurrentSpec(Spec):
+class RecurrentSpec(TransformSpec):
     def __init__(self, dim=None, go='forward', ret='all'):
         super().__init__()
         if dim is not None:

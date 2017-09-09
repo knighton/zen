@@ -1,8 +1,8 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class ReLULayer(Layer):
+class ReLULayer(Transform):
     def __init__(self, low, high):
         super().__init__()
         self.low = low
@@ -12,7 +12,7 @@ class ReLULayer(Layer):
         return Z.relu(x, self.low, self.high)
 
 
-class ReLUSpec(Spec):
+class ReLUSpec(TransformSpec):
     def __init__(self, low=0., high=None):
         super().__init__()
         self.low = low

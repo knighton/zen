@@ -1,8 +1,8 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class SoftShrinkLayer(Layer):
+class SoftShrinkLayer(Transform):
     def __init__(self, lambda_):
         super().__init__()
         self.lambda_ = lambda_
@@ -11,7 +11,7 @@ class SoftShrinkLayer(Layer):
         return Z.softshrink(x, self.lambda_)
 
 
-class SoftShrinkSpec(Spec):
+class SoftShrinkSpec(TransformSpec):
     def __init__(self, lambda_=0.5):
         super().__init__()
         self.lambda_ = lambda_

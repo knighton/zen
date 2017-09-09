@@ -4,6 +4,7 @@ import sys
 
 from zen.dataset.cifar import load_cifar
 from zen.layer import *
+from zen.model import Graph
 from zen.transform.one_hot import one_hot
 
 
@@ -16,6 +17,23 @@ def parse_args():
     ap.add_argument('--opt', type=str, default='adam')
     ap.add_argument('--stop', type=int, default=1000)
     return ap.parse_args()
+
+
+def mlp_g(image_shape, num_classes):
+    def layer(x, n):
+        x = Dense(n)(x)
+        x = BatchNorm()(x)
+        x = ReLU()(x)
+        x = Dropout(0.5)(x)
+        return x
+
+    image = Input(image_shape)
+    x = Flatten()(image)
+    x = layer(x, 256)
+    x = layer(x, 64)
+    x = Dense(num_classes)(x)
+    x = Softmax()(x)
+    return Graph(image, x)
 
 
 def mlp(image_shape, num_classes):
@@ -31,6 +49,17 @@ def cnn(image_shape, num_classes):
     layer = lambda n: SequenceSpec(
         Conv(n), BatchNorm, ReLU, SpatialDropout(0.25), MaxPool)
     cnn = SequenceSpec(layer(16), layer(32), layer(64), layer(128))
+    spec = SequenceSpec(
+        Input(image_shape), cnn, Flatten, Dense(num_classes), Softmax)
+    model, out_shape, out_dtype = spec.build()
+    return model
+
+
+def cnn_big(image_shape, num_classes):
+    layer = lambda n: SequenceSpec(
+        Conv(n), BatchNorm, ReLU, SpatialDropout(0.25))
+    block = lambda n: SequenceSpec(layer(n), layer(n), MaxPool)
+    cnn = SequenceSpec(block(16), block(32), block(64), block(128))
     spec = SequenceSpec(
         Input(image_shape), cnn, Flatten, Dense(num_classes), Softmax)
     model, out_shape, out_dtype = spec.build()

@@ -1,8 +1,8 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class SpatialDropoutLayer(Layer):
+class SpatialDropoutLayer(Transform):
     def __init__(self, ndim, rate):
         super().__init__()
         self.spatial_dropout = Z.get('spatial_dropout', ndim)
@@ -12,7 +12,7 @@ class SpatialDropoutLayer(Layer):
         return self.spatial_dropout(x, is_training, self.rate)
 
 
-class SpatialDropoutSpec(Spec):
+class SpatialDropoutSpec(TransformSpec):
     def __init__(self, rate, ndim=None):
         super().__init__()
         assert 0. < rate < 1.

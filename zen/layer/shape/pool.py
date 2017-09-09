@@ -1,8 +1,8 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class PoolLayer(Layer):
+class PoolLayer(Transform):
     def __init__(self, window, padding, stride):
         super().__init__()
         self.window = window
@@ -10,7 +10,7 @@ class PoolLayer(Layer):
         self.stride = stride
 
 
-class PoolSpec(Spec):
+class PoolSpec(TransformSpec):
     """
     Pooling spec abstract base class.
     """

@@ -1,8 +1,8 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class HardShrinkLayer(Layer):
+class HardShrinkLayer(Transform):
     def __init__(self, lambda_):
         super().__init__()
         self.lambda_ = lambda_
@@ -11,7 +11,7 @@ class HardShrinkLayer(Layer):
         return Z.hard_shrink(x)
 
 
-class HardShrinkSpec(Spec):
+class HardShrinkSpec(TransformSpec):
     def __init__(self, lambda_=0.5):
         super().__init__()
         self.lambda_ = lambda_

@@ -2,7 +2,7 @@ import numpy as np
 
 from ... import api as Z
 from ... import init
-from ..layer import Sugar
+from ..base import Sugar
 from .recurrent import RecurrentLayer, RecurrentSpec
 
 

@@ -1,13 +1,13 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class TanhShrinkLayer(Layer):
+class TanhShrinkLayer(Transform):
     def forward(self, x, is_training):
         return Z.tanh_shrink(x)
 
 
-class TanhShrinkSpec(Spec):
+class TanhShrinkSpec(TransformSpec):
     def build(self, in_shape, in_dtype):
         return TanhShrinkLayer(), in_shape, in_dtype
 

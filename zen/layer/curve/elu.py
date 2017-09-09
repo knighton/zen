@@ -1,8 +1,8 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class ELULayer(Layer):
+class ELULayer(Transform):
     def __init__(self, alpha):
         super().__init__()
         self.alpha = alpha
@@ -11,7 +11,7 @@ class ELULayer(Layer):
         return Z.elu(x, self.alpha)
 
 
-class ELUSpec(Spec):
+class ELUSpec(TransformSpec):
     def __init__(self, alpha=1.):
         super().__init__()
         self.alpha = alpha

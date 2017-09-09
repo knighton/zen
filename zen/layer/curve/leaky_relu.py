@@ -1,8 +1,8 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class LeakyReLULayer(Layer):
+class LeakyReLULayer(Transform):
     def __init__(self, alpha):
         super().__init__()
         self.alpha = alpha
@@ -11,7 +11,7 @@ class LeakyReLULayer(Layer):
         return Z.leaky_relu(x, self.alpha)
 
 
-class LeakyReLUSpec(Spec):
+class LeakyReLUSpec(TransformSpec):
     def __init__(self, alpha=0.1):
         super().__init__()
         self.alpha = alpha

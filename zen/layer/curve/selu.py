@@ -1,13 +1,13 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class SELULayer(Layer):
+class SELULayer(Transform):
     def forward(self, x, is_training):
         return Z.selu(x)
 
 
-class SELUSpec(Spec):
+class SELUSpec(TransformSpec):
     def build(self, in_shape, in_dtype):
         return SELULayer(), in_shape, in_dtype
 

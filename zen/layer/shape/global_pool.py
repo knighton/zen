@@ -1,12 +1,12 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class GlobalPoolLayer(Layer):
+class GlobalPoolLayer(Transform):
     pass
 
 
-class GlobalPoolSpec(Spec):
+class GlobalPoolSpec(TransformSpec):
     def __init__(self, ndim=None):
         """
         ndim  {None, 1, 2, 3}  None means infer from input.

@@ -1,9 +1,9 @@
 from ... import api as Z
 from ... import init
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class EmbedLayer(Layer):
+class EmbedLayer(Transform):
     def __init__(self, embeddings):
         super().__init__()
         self.embeddings = self.add_param(embeddings)
@@ -12,7 +12,7 @@ class EmbedLayer(Layer):
         return Z.embed(x, self.embeddings)
 
 
-class EmbedSpec(Spec):
+class EmbedSpec(TransformSpec):
     def __init__(self, vocab_size, channels, dtype=None,
                  embeddings_init='uniform'):
         super().__init__()

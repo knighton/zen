@@ -1,10 +1,10 @@
 import numpy as np
 
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class ReshapeLayer(Layer):
+class ReshapeLayer(Transform):
     def __init__(self, out_shape):
         super().__init__()
         self.out_shape = out_shape
@@ -13,7 +13,7 @@ class ReshapeLayer(Layer):
         return Z.reshape(x, self.out_shape)
 
 
-class ReshapeSpec(Spec):
+class ReshapeSpec(TransformSpec):
     def __init__(self, out_shape):
         super().__init__()
         wildcard_count = 0

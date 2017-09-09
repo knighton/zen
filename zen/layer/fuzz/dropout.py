@@ -1,8 +1,8 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class DropoutLayer(Layer):
+class DropoutLayer(Transform):
     def __init__(self, ndim, rate):
         super().__init__()
         self.dropout = Z.get('dropout', ndim)
@@ -12,7 +12,7 @@ class DropoutLayer(Layer):
         return self.dropout(x, is_training, self.rate)
 
 
-class DropoutSpec(Spec):
+class DropoutSpec(TransformSpec):
     def __init__(self, rate, ndim=None):
         super().__init__()
         assert 0. < rate < 1.

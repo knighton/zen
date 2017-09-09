@@ -1,13 +1,13 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class HardSigmoidLayer(Layer):
+class HardSigmoidLayer(Transform):
     def forward(self, x, is_training):
         return Z.hard_sigmoid(x)
 
 
-class HardSigmoidSpec(Spec):
+class HardSigmoidSpec(TransformSpec):
     def build(self, in_shape, in_dtype):
         return HardSigmoidLayer(), in_shape, in_dtype
 

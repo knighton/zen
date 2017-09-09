@@ -1,9 +1,9 @@
 from ... import api as Z
 from ... import init
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class ConvBaseLayer(Layer):
+class ConvBaseLayer(Transform):
     def __init__(self, kernel, bias, padding, stride, dilation):
         super().__init__()
         self.kernel = self.add_param(kernel)
@@ -13,7 +13,7 @@ class ConvBaseLayer(Layer):
         self.dilation = dilation
 
 
-class ConvBaseSpec(Spec):
+class ConvBaseSpec(TransformSpec):
     def __init__(self, channels=None, window=3, padding=1, stride=1, dilation=1,
                  kernel_init='glorot_uniform', bias_init='zero', ndim=None):
         """

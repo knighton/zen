@@ -1,13 +1,13 @@
 from ... import api as Z
-from ..layer import Layer, Spec, Sugar
+from ..base import Transform, TransformSpec, Sugar
 
 
-class SoftPlusLayer(Layer):
+class SoftPlusLayer(Transform):
     def forward(self, x, is_training):
         return Z.softplus(x)
 
 
-class SoftPlusSpec(Spec):
+class SoftPlusSpec(TransformSpec):
     def build(self, in_shape, in_dtype):
         return SoftPlusLayer(), in_shape, in_dtype
 
