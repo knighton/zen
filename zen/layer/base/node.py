@@ -53,12 +53,44 @@ class Node(object):
         raise NotImplementedError
 
     def params(self):
+      raise NotImplementedError
+
+
+class InteriorNode(Node):
+    """
+    A non-input node (the normal case).
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._in_nodes = None
+        self._num_ready_in_nodes = 0
+
+    def _gather_shapes_dtypes_for_build(self):
+        assert self._in_nodes, 'Tried to build an internal node with no inputs.'
+        in_shapes = []
+        in_dtypes = []
+        for node in self._in_nodes:
+            shape = node.out_shape()
+            if shape is None:
+                return False, None, None
+            in_shapes.append(shape)
+            dtype = node.out_dtype()
+            if dtype is None:
+                return False, None, None
+            in_dtypes.append(dtype)
+        return True, in_shapes, in_dtypes
+
+    def in_nodes(self):
+        return self._in_nodes
+
+    def to_spec_or_specs(self):
         raise NotImplementedError
 
 
-class LayerNode(Node):
+class LayerNode(InteriorNode):
     """
-    Neural network non-input node (this is the normal case).
+    Neural network node wrapping a single layer.
     """
 
     def __init__(self, spec, in_nodes=None):
@@ -67,7 +99,6 @@ class LayerNode(Node):
             for node in in_nodes:
                 node.add_out_node(self)
         self._in_nodes = in_nodes
-        self._num_ready_in_nodes = 0
         self._spec = spec
         self._layer = None
 
@@ -87,18 +118,9 @@ class LayerNode(Node):
         Returns true if this node could be built (output nodes will fail if not
         all inputs are built yet during graph building).
         """
-        assert self._in_nodes, 'Tried to build an internal node with no inputs.'
-        in_shapes = []
-        in_dtypes = []
-        for node in self._in_nodes:
-            shape = node.out_shape()
-            if shape is None:
-                return False
-            in_shapes.append(shape)
-            dtype = node.out_dtype()
-            if dtype is None:
-                return False
-            in_dtypes.append(dtype)
+        can_build, in_shapes, in_dtypes = self._gather_shapes_dtypes_for_build()
+        if not can_build:
+            return False
         self._layer, self._out_shape, self._out_dtype = \
             self._spec.build_multi_input(in_shapes, in_dtypes)
         for node in self._out_nodes:
@@ -143,3 +165,6 @@ class LayerNode(Node):
         for node in self._out_nodes:
             node.in_node_is_ready(is_training)
         self._num_ready_in_nodes = 0
+
+    def to_spec_or_specs(self):
+        return self._spec

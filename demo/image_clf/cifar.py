@@ -19,7 +19,7 @@ def parse_args():
     return ap.parse_args()
 
 
-def mlp_g(image_shape, num_classes):
+def mlp_graph(image_shape, num_classes):
     def layer(x, n):
         x = Dense(n)(x)
         x = BatchNorm()(x)
@@ -36,34 +36,28 @@ def mlp_g(image_shape, num_classes):
     return Graph(image, x)
 
 
-def mlp(image_shape, num_classes):
-    layer = lambda n: SequenceSpec(Dense(n), BatchNorm, ReLU, Dropout(0.5))
-    mlp = SequenceSpec(layer(256), layer(64))
-    spec = SequenceSpec(
+def mlp_sequence(image_shape, num_classes):
+    layer = lambda n: Sequence(Dense(n), BatchNorm, ReLU, Dropout(0.5))
+    mlp = Sequence(layer(256), layer(64))
+    return Sequence(
         Input(image_shape), Flatten, mlp, Dense(num_classes), Softmax)
-    model, out_shape, out_dtype = spec.build()
-    return model
 
 
 def cnn(image_shape, num_classes):
-    layer = lambda n: SequenceSpec(
+    layer = lambda n: Sequence(
         Conv(n), BatchNorm, ReLU, SpatialDropout(0.25), MaxPool)
-    cnn = SequenceSpec(layer(16), layer(32), layer(64), layer(128))
-    spec = SequenceSpec(
+    cnn = Sequence(layer(16), layer(32), layer(64), layer(128))
+    return Sequence(
         Input(image_shape), cnn, Flatten, Dense(num_classes), Softmax)
-    model, out_shape, out_dtype = spec.build()
-    return model
 
 
 def cnn_big(image_shape, num_classes):
-    layer = lambda n: SequenceSpec(
+    layer = lambda n: Sequence(
         Conv(n), BatchNorm, ReLU, SpatialDropout(0.25))
-    block = lambda n: SequenceSpec(layer(n), layer(n), MaxPool)
-    cnn = SequenceSpec(block(16), block(32), block(64), block(128))
-    spec = SequenceSpec(
+    block = lambda n: Sequence(layer(n), layer(n), MaxPool)
+    cnn = Sequence(block(16), block(32), block(64), block(128))
+    return Sequence(
         Input(image_shape), cnn, Flatten, Dense(num_classes), Softmax)
-    model, out_shape, out_dtype = spec.build()
-    return model
 
 
 def run(args):

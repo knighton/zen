@@ -27,17 +27,17 @@ def _unpack_metrics(metrics, y_sample_shape):
 
 
 class Model(object):
-    def params(self):
+    def model_params(self):
         raise NotImplementedError
 
-    def forward(self, xx, is_training):
+    def model_forward(self, xx, is_training):
         raise NotImplementedError
 
     def train_on_batch(self, x, y_true, metrics, opt):
         x = Z.constant(x)
         y_true = Z.constant(y_true)
         with Z.autograd_record():
-            y_pred = self.forward([x], True)[0]
+            y_pred = self.model_forward([x], True)[0]
             loss_var = Z.mean(metrics[0](y_true, y_pred))
         loss_var.backward()
         opt.step()
@@ -51,7 +51,7 @@ class Model(object):
     def evaluate_on_batch(self, x, y_true, metrics):
         x = Z.constant(x)
         y_true = Z.constant(y_true)
-        y_pred = self.forward([x], False)[0]
+        y_pred = self.model_forward([x], False)[0]
         metric_values = []
         for metric in metrics:
             metric_var = Z.mean(metric(y_true, y_pred))
@@ -93,7 +93,7 @@ class Model(object):
         y_sample_shape = data[0][1].shape[1:]
         metrics = _unpack_metrics(metrics, y_sample_shape)
         opt = optim.get(opt)
-        opt.set_params(self.params())
+        opt.set_params(self.model_params())
         for epoch in range(stop):
             self.train_on_epoch(data, metrics, opt, batch_size, epoch)
 

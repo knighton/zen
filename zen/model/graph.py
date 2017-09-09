@@ -15,8 +15,7 @@ class Graph(Model):
         if self._is_built:
             return
         for node in self._in_nodes:
-            assert node.try_to_build(), \
-                'You are missing an input or inputs.'
+            assert node.try_to_build(), 'You are missing an input or inputs.'
         for node in self._out_nodes:
             assert node.is_built(), \
                 'Your inputs and outputs are not all connected.'
@@ -30,7 +29,7 @@ class Graph(Model):
         for out_node in node.out_nodes():
             self.params_from(out_node, param_lists)
 
-    def params(self):
+    def model_params(self):
         self.ensure_built()
         param_lists = {}
         for node in self._in_nodes:
@@ -40,7 +39,7 @@ class Graph(Model):
             ret += params
         return ret
 
-    def forward(self, xx, is_training):
+    def model_forward(self, xx, is_training):
         self.ensure_built()
         assert len(xx) == len(self._in_nodes)
         for node, x in zip(self._in_nodes, xx):

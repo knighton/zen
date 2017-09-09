@@ -19,8 +19,7 @@ def run(args):
     y_train = one_hot(y_train, num_classes)
     y_val = one_hot(y_val, num_classes)
     data = (x_train, y_train), (x_val, y_val)
-
-    spec = SequenceSpec(
+    model = Sequence(
         Input(image_shape),
         Flatten,
         Dense(256),
@@ -30,9 +29,6 @@ def run(args):
         Dense(num_classes),
         Softmax
     )
-
-    model, out_shape, out_dtype = spec.build()
-
     model.train_classifier(data, stop=args.stop)
 
 
