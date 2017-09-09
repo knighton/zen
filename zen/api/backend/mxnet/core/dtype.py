@@ -1,4 +1,4 @@
-from ....core.floatx import floatx
+from .floatx import floatx
 
 
 def cast(x, dtype=None):

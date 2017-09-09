@@ -67,6 +67,10 @@ def to_scalar(x):
 autograd_record = mx.autograd.record
 
 
+def backward(loss_variables, grad_tensors):
+    mx.autograd.backward(loss_variables, grad_tensors)
+
+
 def data(x):
     return x
 

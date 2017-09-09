@@ -38,6 +38,7 @@ constant_or_variable = Z.constant_or_variable
 to_numpy = Z.to_numpy
 to_scalar = Z.to_scalar
 autograd_record = Z.autograd_record
+backward = Z.backward
 
 """
 Get the data of a variable.

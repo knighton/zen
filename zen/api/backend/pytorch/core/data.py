@@ -78,6 +78,10 @@ def autograd_record():
     yield
 
 
+def backward(loss_variables, grad_tensors):
+    torch.autograd.backward(loss_variables, grad_tensors)
+
+
 def data(x):
     return x.data
 

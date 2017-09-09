@@ -1,6 +1,5 @@
 import numpy as np
 from time import time
-import torch
 
 from .. import api as Z
 from .. import metric as metric_module
@@ -99,7 +98,7 @@ class Model(object):
         for y_pred in yy_pred:
             grad_tensor = Z.tensor(np.ones(1).astype(Z.floatx()))
             grad_tensors.append(grad_tensor)
-        torch.autograd.backward(loss_vars, grad_tensors)
+        Z.backward(loss_vars, grad_tensors)
         opt.step()
 
         results = []
