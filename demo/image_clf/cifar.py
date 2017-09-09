@@ -19,6 +19,19 @@ def parse_args():
     return ap.parse_args()
 
 
+def mlp_vee(image_shape, num_classes):
+    layer = lambda n: Dense(n) > BatchNorm > ReLU > Dropout(0.5) > Z
+    mlp = layer(256) > layer(64) > Z
+    return Input(image_shape) > Flatten > mlp > Dense(num_classes) > Softmax > Z
+
+
+def mlp_sequence(image_shape, num_classes):
+    layer = lambda n: Sequence(Dense(n), BatchNorm, ReLU, Dropout(0.5))
+    mlp = Sequence(layer(256), layer(64))
+    return Sequence(
+        Input(image_shape), Flatten, mlp, Dense(num_classes), Softmax)
+
+
 def mlp_graph(image_shape, num_classes):
     def layer(x, n):
         x = Dense(n)(x)
@@ -34,13 +47,6 @@ def mlp_graph(image_shape, num_classes):
     x = Dense(num_classes)(x)
     x = Softmax()(x)
     return Graph(image, x)
-
-
-def mlp_sequence(image_shape, num_classes):
-    layer = lambda n: Sequence(Dense(n), BatchNorm, ReLU, Dropout(0.5))
-    mlp = Sequence(layer(256), layer(64))
-    return Sequence(
-        Input(image_shape), Flatten, mlp, Dense(num_classes), Softmax)
 
 
 def cnn(image_shape, num_classes):

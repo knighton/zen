@@ -1,10 +1,11 @@
 from copy import deepcopy
 
+from ..arch.vee import Vee
 from .node import LayerNode
 from .spec import Spec
 
 
-class Sugar(object):
+class Sugar(Vee):
     """
     A spec factory with default arguments.  Returns orphan layer nodes.
     """

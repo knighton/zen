@@ -1,9 +1,10 @@
 from copy import deepcopy
 
 from ... import api as Z
+from ..arch.vee import Vee
 
 
-class Node(object):
+class Node(Vee):
     """
     A node of a neural network.
 
