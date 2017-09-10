@@ -1,13 +1,19 @@
 from types import ModuleType
 
 
+class UnterminatedVeeSequence(object):
+    def __getattr__(self, key):
+        assert False, ('Called `%s` on an unterminated > sequence.  Add a '
+                       '`Z` at the end.') % key
+
+
 """
 Magic non-zero value returned for every interior > comparison in sequence
 creation.  This can be checked for to tell if the user forgot to terminate a >
 sequence with a `Z` (which is necessary so the > cache can know when to
 pop its internal stack).
 """
-_UNTERMINATED_VEE_SEQUENCE = object()
+_UNTERMINATED_VEE_SEQUENCE = UnterminatedVeeSequence()
 
 
 def unterminated_vee_sequence():
