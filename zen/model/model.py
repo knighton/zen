@@ -173,16 +173,18 @@ class Model(object):
                _sss(results['val'])))
 
     def train(self, data, metrics, opt='adam', val=None, batch_size=64,
-              stop=1000):
+              start=0, stop=1000):
         data = _unpack_training_data(data, val)
         metrics = _unpack_metrics(metrics, data.get_sample_shapes()[1])
         opt = optim.get(opt)
         opt.set_params(self.model_params())
-        for epoch in range(stop):
+        assert isinstance(start, int)
+        assert 0 <= start
+        for epoch in range(start, stop):
             self.train_on_epoch(data, metrics, opt, batch_size, epoch)
 
     def train_regressor(self, data, opt='adam', val=None, batch_size=64,
-                        stop=1000):
+                        start=0, stop=1000):
         """
         Train as a regressor.
 
@@ -190,10 +192,10 @@ class Model(object):
         Single output only.
         """
         metrics = 'mean_squared_error',
-        return self.train(data, metrics, opt, val, batch_size, stop)
+        return self.train(data, metrics, opt, val, batch_size, start, stop)
 
     def train_classifier(self, data, opt='adam', val=None, batch_size=64,
-                         stop=1000):
+                         start=0, stop=1000):
         """
         Train as a classifier.
 
@@ -201,4 +203,4 @@ class Model(object):
         adds accuracy as a metric.  Single output only.
         """
         metrics = 'cross_entropy', 'accuracy'
-        return self.train(data, [metrics], opt, val, batch_size, stop)
+        return self.train(data, [metrics], opt, val, batch_size, start, stop)
