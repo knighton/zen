@@ -2,7 +2,7 @@ from copy import deepcopy
 
 from ...model.model import Model
 from ..base import InteriorNode, Layer, Node, Spec, Sugar
-from .input import Input
+from .feed import Input
 
 
 def _desugar(node):

@@ -115,9 +115,9 @@ class Model(object):
 
         Predict on a single batch.
         """
-        in_tensors = list(map(Z.to_constant, xx))
-        out_tensors = self.model_forward(in_tensors, False)
-        return list(map(Z.to_numpy, out_tensors))
+        xx = list(map(Z.constant, xx))
+        yy = self.model_forward(xx, False)
+        return list(map(Z.to_numpy, yy))
 
     def predict(self, xx, batch_size=64):
         """

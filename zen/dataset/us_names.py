@@ -63,7 +63,7 @@ class USNameGenderDataset(Dataset):
 
     def name_to_tokens(self, name):
         nn = list(map(ord, name))
-        nn = list(filter(lambda n: n if n < 128 else 0, nn))
+        nn = list(map(lambda n: n if n < 128 else 1, nn))
         nn = nn[:self.max_name_len]
         z = self.max_name_len - len(nn)
         return np.array(nn + [0] * z).astype('int64')
