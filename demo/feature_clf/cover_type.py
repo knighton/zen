@@ -15,12 +15,10 @@ def parse_args():
 
 
 def mlp(num_features, num_classes):
-    layer = lambda n: SequenceSpec(Dense(n), BatchNorm, ReLU, Dropout(0.5))
-    mlp = SequenceSpec(layer(64), layer(64), layer(64), layer(64))
+    layer = lambda n: Dense(n) > BatchNorm > ReLU > Dropout(0.5) > Z
+    mlp = layer(64) > layer(64) > layer(64) > layer(64) > Z
     in_shape = num_features,
-    spec = SequenceSpec(Input(in_shape), mlp, Dense(num_classes), Softmax)
-    model, out_shape, out_dtype = spec.build()
-    return model
+    return Input(in_shape) > mlp > Dense(num_classes) > Softmax > Z
 
 
 def observe(x_train, column_index):
