@@ -60,7 +60,7 @@ def show_name(xx, yy_pred, yy_true):
         print('* %5.2f%% %s %s %s' % (pct_male, mf, is_correct, name))
 
 
-def show_example(model, data):
+def show_examples(model, data):
     i = 0
     for xx, yy_true, is_training in data.each_batch(32):
         if i == 5:
@@ -95,9 +95,7 @@ def run(args):
     model = build(text_len, 128)
     model.train_classifier(data, opt=args.opt, stop=args.stop,
                            verbose=args.verbose)
-
     show_examples(model, data)
-
     demo(model, args.max_name_len)
 
 
