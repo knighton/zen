@@ -6,6 +6,7 @@ from tqdm import tqdm
 from zipfile import ZipFile
 
 from ..model.data.dataset import Dataset
+from ..model.data.training_data import TrainingData
 from .util import download, get_dataset_dir
 
 
@@ -62,6 +63,7 @@ class USNameGenderDataset(Dataset):
 
     def name_to_tokens(self, name):
         nn = list(map(ord, name))
+        nn = list(filter(lambda n: n if n < 128 else 0, nn))
         nn = nn[:self.max_name_len]
         z = self.max_name_len - len(nn)
         return np.array(nn + [0] * z).astype('int64')
@@ -96,5 +98,6 @@ def load_us_name_gender(max_name_len=16, samples_per_epoch=64 * 1024,
         segment = name, gender, total_population
         segments.append(segment)
         total_population += name_gender2count[(name, gender)]
-    return USNameGenderDataset(segments, total_population, max_name_len,
-                               samples_per_epoch)
+    dataset = USNameGenderDataset(segments, total_population, max_name_len,
+                                  samples_per_epoch)
+    return TrainingData(dataset, dataset)
