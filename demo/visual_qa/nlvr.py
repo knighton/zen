@@ -24,15 +24,15 @@ dense = lambda n: Dense(n) > BatchNorm > ReLU > Dropout(0.5) > Z
 
 def cnn_cnn_mlp(image_shape, text_len, vocab_size):
     image = Input(image_shape)
-    image_embedding = image > conv(16) > conv(16) > conv(16) > conv(16) > \
-                      conv(16) > Flatten > Z
+    image_embedding = image > conv(32) > conv(32) > conv(32) > conv(32) > \
+                      conv(32) > Flatten > Z
 
     text = Input((text_len,), dtype='int64')
-    text_embedding = text > Embed(vocab_size, 64) > conv(32) > conv(32) > \
-                     Flatten > Z
+    text_embedding = text > Embed(vocab_size, 64) > conv(64) > conv(64) > \
+                     conv(64) > conv(64) > Flatten > Z
 
-    label = Concat()(image_embedding, text_embedding) > dense(256) > \
-            dense(64) > dense(1) > Sigmoid > Z
+    label = Concat()(image_embedding, text_embedding) > Dropout(0.5) > \
+            dense(512) > dense(32) > Dense(1) > Sigmoid > Z
     return Graph([image, text], label)
 
 
