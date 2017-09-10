@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+from collections import Counter
 import random
 import string
 import sys
@@ -23,10 +24,10 @@ def parse_args():
 
 def cnn(question_len, vocab_size):
     conv = lambda n: Conv(n) > BatchNorm > ReLU > MaxPool > Z
-    cnn = conv(16) > conv(16) > conv(16) > conv(16) > Z
+    cnn = conv(8) > conv(8) > conv(8) > conv(8) > Z
     q1 = Input((question_len,), dtype='int64')
     q2 = Input((question_len,), dtype='int64')
-    label = Concat()(q1, q2) > Embed(vocab_size, 16) > cnn > Flatten > \
+    label = Concat()(q1, q2) > Embed(vocab_size, 8) > cnn > Flatten > \
             Dense(1) > Sigmoid > Z
     return Graph([q1, q2], label)
 
@@ -58,6 +59,20 @@ def transform(data, shuffle, val_frac, question_pipe, label_pipe, verbose):
     return train, val
 
 
+def show(data, split):
+    train_counter = Counter(data[1])
+    dupe = train_counter[1]
+    dupe_pct = dupe / len(data[1]) * 100.
+    not_dupe = train_counter[0]
+    not_dupe_pct = not_dupe / len(data[1]) * 100.
+    spacing = ' ' * len(split)
+    print('%s: question 1 %s' % (split, data[0][0].shape))
+    print('%s  question 2 %s' % (spacing, data[0][1].shape))
+    print('%s  label      %s' % (spacing, data[1].shape))
+    print('%s  * dupe     %d (%5.2f%%)' % (spacing, dupe, dupe_pct))
+    print('%s  * not dupe %d (%5.2f%%)' % (spacing, not_dupe, not_dupe_pct))
+
+
 def run(args):
     module = sys.modules[__name__]
     build = getattr(module, args.model)
@@ -70,12 +85,8 @@ def run(args):
     question_len = data[0][0][0].shape[1]
     vocab_size = int(max(data[0][0][0].max(), data[0][0][1].max())) + 1
     if args.train_verbose:
-        print('Train: question 1 %s' % (data[0][0][0].shape,))
-        print('       question 2 %s' % (data[0][0][1].shape,))
-        print('       label      %s' % (data[0][1].shape,))
-        print('Val: question 1 %s' % (data[1][0][0].shape,))
-        print('     question 2 %s' % (data[1][0][1].shape,))
-        print('     label      %s' % (data[1][1].shape,))
+        show(data[0], 'Train')
+        show(data[1], 'Val')
         print('Vocab size: %d' % vocab_size)
     model = build(question_len, vocab_size)
     model.train_classifier(data, opt=args.opt, stop=args.stop,
