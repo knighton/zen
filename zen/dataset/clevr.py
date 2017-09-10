@@ -47,10 +47,15 @@ def _extract_image(zip_file, path):
     image = image.convert('RGB')
     assert image.size == (480, 320)
     _240 = image.resize((240, 160))
+    _240 = np.array(_240)
+    _240 = np.rollaxis(_240, 2)
     _120 = image.resize((120, 80))
+    _120 = np.array(_120)
+    _120 = np.rollaxis(_120, 2)
     _60 = image.resize((60, 40))
-    return np.array(_240).tobytes(), np.array(_120).tobytes(), \
-           np.array(_60).tobytes()
+    _60 = np.array(_60)
+    _60 = np.rollaxis(_60, 2)
+    return _240.tobytes(), _120.tobytes(), _60.tobytes()
 
 
 def _extract_images(zip_file, zip_paths, split, processed_dir, verbose):
@@ -112,7 +117,7 @@ def _extract_main_split(zip_file, zip_paths, split, processed_dir, verbose):
 def _extract(zip_filename, processed_dir, splits, verbose):
     os.mkdir(processed_dir)
     if verbose:
-        print('Loading archive at %s...' % zip_filename)
+        print('Loading archive at %s' % zip_filename)
         t0 = time()
     zip_file = ZipFile(zip_filename)
     zip_paths = zip_file.namelist()
@@ -121,6 +126,17 @@ def _extract(zip_filename, processed_dir, splits, verbose):
         print('...took %.3f sec.' % t)
     for split in splits:
         _extract_main_split(zip_file, zip_paths, split, processed_dir, verbose)
+
+
+def _process(dataset_name, processed_subdir, url, all_splits, verbose):
+    dataset_dir = get_dataset_dir(dataset_name)
+    processed_dir = os.path.join(dataset_dir, processed_subdir)
+    if not os.path.exists(processed_dir):
+        filename = os.path.join(dataset_dir, os.path.basename(url))
+        if not os.path.exists(filename):
+            download(url, filename, verbose)
+        _extract(filename, processed_dir, all_splits, verbose)
+    return processed_dir
 
 
 class RamClevrDataset(Dataset):
@@ -141,12 +157,17 @@ class RamClevrDataset(Dataset):
         return (image, question), answer
 
 
-def _load_split(processed_dir, split, size, storage, verbose):
+def _load_split(question_pipe, answer_pipe, processed_dir, split,
+                is_train_split, size, storage, verbose):
     assert storage == 'ram'  # XXX
     assert len(size) == 2
     filename = os.path.join(
         processed_dir, 'images_%dx%d_%s.bin' % (size[0], size[1], split))
-    images = np.load(filename).astype('float32')
+    print('Reading %s...' % filename)
+    data = open(filename, 'rb').read()
+    images = np.fromstring(data, dtype='uint8')
+    images = images.astype('float32')
+    images = images.reshape(-1, 3, size[0], size[1])
     filename = os.path.join(processed_dir, 'questions_%s.txt' % split)
     answers = []
     image_ids = []
@@ -159,49 +180,51 @@ def _load_split(processed_dir, split, size, storage, verbose):
         image_ids.append(image_id)
         question = x['question']
         questions.append(question)
+    image_ids = np.array(image_ids, dtype='int32')
+    if is_train_split:
+        questions = question_pipe.fit_transform(questions)
+        answers = answer_pipe.fit_transform(answers)
+    else:
+        questions = question_pipe.transform(questions)
+        answers = answer_pipe.transform(answers)
     return RamClevrDataset(images, image_ids, questions, answers)
 
 
-def _load(processed_dir, splits, size, storage, verbose):
+def _load(question_pipe, answer_pipe, processed_dir, splits, size, storage,
+          verbose):
     assert len(splits) == 3
-    train = _load_split(processed_dir, splits[0], size, storage, verbose)
-    val = _load_split(processed_dir, splits[1], size, storage, verbose)
+    train = _load_split(question_pipe, answer_pipe, processed_dir, splits[0],
+                        True, size, storage, verbose)
+    val = _load_split(question_pipe, answer_pipe, processed_dir, splits[1],
+                      False, size, storage, verbose)
     return TrainingData(train, val)
 
 
-def _load_clevr_cogent_process(verbose=2):
-    dataset_dir = get_dataset_dir(_DATASET_NAME)
-    processed_dir = os.path.join(dataset_dir, _COGENT_PROCESSED_SUBDIR)
-    if not os.path.exists(processed_dir):
-        zip_filename = os.path.join(dataset_dir, os.path.basename(_COGENT_URL))
-        if not os.path.exists(zip_filename):
-            download(_COGENT_URL, zip_filename, verbose)
-        _extract(zip_filename, processed_dir, _COGENT_ALL_SPLITS, verbose)
-    return processed_dir
-
-
-def load_clevr_main(verbose=2, storage='ram', size=None):
+def load_clevr_main(question_pipe, answer_pipe, storage='ram', size=None,
+                    verbose=2):
     assert storage in {'ram', 'disk'}
     size = _normalize_size(size)
-    dataset_dir = get_dataset_dir(_DATASET_NAME)
-    processed_dir = os.path.join(dataset_dir, _MAIN_PROCESSED_SUBDIR)
-    if not os.path.exists(processed_dir):
-        zip_filename = os.path.join(dataset_dir, os.path.basename(_MAIN_URL))
-        if not os.path.exists(zip_filename):
-            download(_MAIN_URL, zip_filename, verbose)
-        _extract(zip_filename, processed_dir, _MAIN_SPLITS, verbose)
-    return _load(processed_dir, _MAIN_SPLITS, size, storage, verbose)
+    processed_dir = _process(_DATASET_NAME, _MAIN_PROCESSED_SUBDIR, _MAIN_URL,
+                             _MAIN_SPLITS, verbose)
+    return _load(question_pipe, answer_pipe, processed_dir, _MAIN_SPLITS, size,
+                 storage, verbose)
 
 
-def load_clevr_cogent_same(verbose=2, storage='ram', size=None):
+def load_clevr_cogent_same(question_pipe, answer_pipe, storage='ram', size=None,
+                           verbose=2):
     assert storage in {'ram', 'disk'}
     size = _normalize_size(size)
-    processed_dir = _load_clevr_cogent_process(verbose)
-    return _load(processed_dir, _COGENT_SAME_SPLITS, size, storage, verbose)
+    processed_dir = _process(_DATASET_NAME, _COGENT_PROCESSED_SUBDIR,
+                             _COGENT_URL, _COGENT_ALL_SPLITS, verbose)
+    return _load(question_pipe, answer_pipe, processed_dir, _COGENT_SAME_SPLITS,
+                 size, storage, verbose)
 
 
-def load_clevr_cogent_diff(verbose=2, storage='ram', size=None):
+def load_clevr_cogent_diff(question_pipe, answer_pipe, storage='ram', size=None,
+                           verbose=2):
     assert storage in {'ram', 'disk'}
     size = _normalize_size(size)
-    processed_dir = _load_clevr_cogent_process(verbose)
-    return _load(processed_dir, _COGENT_DIFF_SPLITS, size, storage, verbose)
+    processed_dir = _process(_DATASET_NAME, _COGENT_PROCESSED_SUBDIR,
+                             _COGENT_URL, _COGENT_ALL_SPLITS, verbose)
+    return _load(question_pipe, answer_pipe, processed_dir, _COGENT_DIFF_SPLITS,
+                 size, storage, verbose)
