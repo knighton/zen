@@ -1,3 +1,4 @@
+import numpy as np
 import os
 
 from .util import download, get_dataset_dir
@@ -31,7 +32,7 @@ def _load(filename, verbose):
     return question_1s, question_2s, np.array(is_dupes, dtype='int64')
 
 
-def load_quora_question_pairs(verbose=2):
+def load_quora_duplicate_questions(verbose=2):
     dataset_dir = get_dataset_dir(_DATASET_NAME)
     local = os.path.join(dataset_dir, os.path.basename(_URL))
     download(_URL, local, verbose)
