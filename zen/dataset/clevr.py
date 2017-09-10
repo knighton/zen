@@ -14,14 +14,17 @@ from .util import download, get_dataset_dir
 
 
 _DATASET_NAME = 'clevr'
+
 _MAIN_URL = 'https://s3-us-west-1.amazonaws.com/clevr/CLEVR_v1.0.zip'
 _MAIN_PROCESSED_SUBDIR = 'main_processed'
 _MAIN_SPLITS = ['train', 'val', 'test']
+
 _COGENT_URL = 'https://s3-us-west-1.amazonaws.com/clevr/CLEVR_CoGenT_v1.0.zip'
 _COGENT_PROCESSED_SUBDIR = 'cogent_processed'
 _COGENT_ALL_SPLITS = ['trainA', 'valA', 'valB', 'testA', 'testB']
 _COGENT_SAME_SPLITS = ['trainA', 'valA', 'testA']
 _COGENT_DIFF_SPLITS = ['trainA', 'valB', 'testB']
+
 _IMAGE_RE = re.compile('.+/images/.+.png')
 _QUESTIONS_RE = re.compile('.+/questions/.+.json')
 _IMAGE_SHAPES = [
@@ -155,6 +158,12 @@ class RamClevrDataset(Dataset):
         question = self.questions[index]
         answer = self.answers[index]
         return (image, question), answer
+
+    def get_question_vocab_size(self):
+        return int(self.questions.max() + 1)
+
+    def get_answer_vocab_size(self):
+        return self.answers.shape[1]
 
 
 def _load_split(question_pipe, answer_pipe, processed_dir, split,
