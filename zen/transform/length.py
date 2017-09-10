@@ -25,14 +25,15 @@ class Length(Transform):
             else:
                 rr = line[:self.length]
             rrr.append(rr)
-        pre.sort()
-        tiles = []
-        for f in [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.]:
-            x = int(len(pre) * f)
-            if x == len(pre):
-                x -= 1
-            tiles.append(pre[x])
-        print('Length percentiles: %s' % tiles)
+        if verbose:
+            pre.sort()
+            tiles = []
+            for f in [0., 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.]:
+                x = int(len(pre) * f)
+                if x == len(pre):
+                    x -= 1
+                tiles.append(pre[x])
+            print('Length percentiles: %s' % tiles)
         t = time() - t0
         self.done(t, verbose, depth)
         return rrr
