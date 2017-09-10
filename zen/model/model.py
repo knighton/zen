@@ -109,6 +109,46 @@ class Model(object):
     def model_forward(self, xx, is_training):
         raise NotImplementedError
 
+    def predict_on_batch(self, xx):
+        """
+        list of np.ndarray -> list of np.ndarray
+
+        Predict on a single batch.
+        """
+        in_tensors = list(map(Z.to_constant, xx))
+        out_tensors = self.model_forward(in_tensors, False)
+        return list(map(Z.to_numpy, out_tensors))
+
+    def predict(self, xx, batch_size=64):
+        """
+        list of np.ndarray -> list of np.ndarray
+
+        Predict.
+        """
+        lens = set()
+        for x in xx:
+            assert isinstance(x, np.ndarray)
+            lens.add(len(x))
+        assert len(lens) == 1
+        assert isinstance(batch_size, int)
+        assert 0 < batch_size
+        num_samples = list(lens)[0]
+        num_batches = num_samples // batch_size
+        yy = None
+        for i in range(num_batches):
+            a = i * batch_size
+            z = (i + 1) * batch_size
+            ins = []
+            for x in xx:
+                ins.append(x[a:z])
+            outs = self.predict_on_batch(ins)
+            if yy is None:
+                yy = outs
+            else:
+                for i, out in enumerate(outs):
+                    yy[i] += out[i]
+        return yy
+
     def train_on_batch(self, xx, yy_true, metrics, opt, hooks=None,
                        progress=None):
         """
