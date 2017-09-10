@@ -1,7 +1,6 @@
 import gzip
 import numpy as np
 import os
-from random import shuffle
 from tqdm import tqdm
 
 from .util import download, get_dataset_dir
