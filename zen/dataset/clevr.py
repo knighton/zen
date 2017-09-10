@@ -41,7 +41,7 @@ def _normalize_image_shape(shape, possible_image_shapes):
 
 
 def _get_processed_images_filename(processed_dir, split, shape):
-    basename = 'images_%dx%d_%s.bin' % (shape[0], shape[1], split))
+    basename = 'images_%dx%d_%s.bin' % (shape[0], shape[1], split)
     return os.path.join(processed_dir, basename)
 
 
@@ -49,7 +49,7 @@ def _process_image(zip_file, path, to_shapes, files):
     data = zip_file.open(path).read()
     image = Image.open(BytesIO(data))
     image = image.convert('RGB')
-    assert image.shape == (480, 320)
+    assert image.size == (480, 320)
     for to_shape, file_ in zip(to_shapes, files):
         x = image.resize(to_shape)
         x = np.array(x)
