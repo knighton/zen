@@ -157,7 +157,7 @@ class RamClevrDataset(Dataset):
         image = self.images[image_id].astype('float32')
         question = self.questions[index]
         answer = self.answers[index]
-        return (image, question), answer
+        return (image, question), (answer,)
 
     def get_question_vocab_size(self):
         return int(self.questions.max() + 1)
