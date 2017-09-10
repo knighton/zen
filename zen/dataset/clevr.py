@@ -151,7 +151,7 @@ class RamClevrDataset(Dataset):
 
     def get_sample(self, index):
         image_id = self.image_ids[index]
-        image = self.images[image_id]
+        image = self.images[image_id].astype('float32')
         question = self.questions[index]
         answer = self.answers[index]
         return (image, question), answer
@@ -161,17 +161,36 @@ def _load_split(question_pipe, answer_pipe, processed_dir, split,
                 is_train_split, image_shape, storage, verbose):
     assert storage == 'ram'  # XXX
     assert len(image_shape) == 2
+
     filename = _get_processed_images_filename(processed_dir, split, image_shape)
-    print('Reading %s...' % filename)
+    if verbose:
+        print('Loading binary data from %s ...' % filename)
+        t0 = time()
     data = open(filename, 'rb').read()
+    if verbose:
+        t = time() - t0
+        print('...took %.3f sec.' % t)
+
+    if verbose:
+        print('Constructing the np.ndarray...')
+        t0 = time()
     images = np.fromstring(data, dtype='uint8')
-    images = images.astype('float32')
     images = images.reshape(-1, 3, image_shape[0], image_shape[1])
+    if verbose:
+        t = time() - t0
+        print('...took %.3f sec.' % t)
+
     filename = os.path.join(processed_dir, 'questions_%s.txt' % split)
+    if verbose:
+        print('Reading questions from %s ...' % filename)
+        t0 = time()
     answers = []
     image_ids = []
     questions = []
-    for line in open(filename):
+    lines = open(filename)
+    if verbose == 2:
+        lines = tqdm(lines, leave=False)
+    for line in lines:
         x = json.loads(line)
         answer = x['answer']
         answers.append(answer)
@@ -179,13 +198,24 @@ def _load_split(question_pipe, answer_pipe, processed_dir, split,
         image_ids.append(image_id)
         question = x['question']
         questions.append(question)
+    if verbose:
+        t = time() - t0
+        print('...took %.3f sec.' % t)
+
+    if verbose:
+        print('Transforming...')
+        t0 = time()
     image_ids = np.array(image_ids, dtype='int32')
     if is_train_split:
-        questions = question_pipe.fit_transform(questions)
-        answers = answer_pipe.fit_transform(answers)
+        questions = question_pipe.fit_transform(questions, verbose)
+        answers = answer_pipe.fit_transform(answers, verbose)
     else:
-        questions = question_pipe.transform(questions)
-        answers = answer_pipe.transform(answers)
+        questions = question_pipe.transform(questions, verbose)
+        answers = answer_pipe.transform(answers, verbose)
+    if verbose:
+        t = time() - t0
+        print('...took %.3f sec.' % t)
+
     return RamClevrDataset(images, image_ids, questions, answers)
 
 
@@ -227,3 +257,16 @@ def load_clevr_cogent_diff(question_pipe, answer_pipe, storage='ram',
                            _COGENT_ALL_SPLITS, _IMAGE_SHAPES, verbose)
     return _load(question_pipe, answer_pipe, processed_dir, _COGENT_DIFF_SPLITS,
                  image_shape, storage, verbose)
+
+
+_DATASET2LOAD_CLEVR = {
+    'main': load_clevr_main,
+    'cogent_same': load_clevr_cogent_same,
+    'cogent_diff': load_clevr_cogent_diff,
+}
+
+
+def load_clevr(dataset, question_pipe, answer_pipe, storage='ram',
+               image_shape=None, verbose=2):
+    return _DATASET2LOAD_CLEVR[dataset](
+        question_pipe, answer_pipe, storage, image_shape, verbose)
