@@ -29,7 +29,7 @@ def _running_average_update(x_running, x_new, momentum):
 
 
 def _batch_norm(x, is_training, reduction_axes, momentum, beta, gamma,
-                   running_mean, running_variance):
+                running_mean, running_variance):
     """
     Non-built-in batch normalization.
     """

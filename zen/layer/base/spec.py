@@ -1,6 +1,3 @@
-from copy import deepcopy
-
-
 class Spec(object):
     """
     Thing that constructs Operations.

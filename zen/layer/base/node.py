@@ -1,6 +1,5 @@
 from copy import deepcopy
 
-from ... import api as Z
 from ..arch.vee import Vee
 
 
@@ -54,7 +53,7 @@ class Node(Vee):
         raise NotImplementedError
 
     def params(self):
-      raise NotImplementedError
+        raise NotImplementedError
 
 
 class InteriorNode(Node):

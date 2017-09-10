@@ -57,11 +57,11 @@ def check_shape(shape, ndim, name):
     if ndim is None:
         assert _is_shape(shape, ndim), \
             '`%s` must be a shape.  We got a(n) %s: %s.' % \
-                (name, type(shape), shape)
+            (name, type(shape), shape)
     else:
         assert _is_shape(shape, ndim), \
             '`%s` must be a %d-shape.  We got a(n) %s: %s.' % \
-                (name, ndim, type(shape), shape)
+            (name, ndim, type(shape), shape)
 
 
 def _is_dim_or_shape_error(arg, ndim, name):

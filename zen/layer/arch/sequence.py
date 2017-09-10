@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from ...model.model import Model
 from ..base import InteriorNode, Layer, Node, Spec, Sugar
 from .input import Input
@@ -36,7 +38,7 @@ def _find_model_input_nodes_sub(arg):
     else:
         assert False, 'Not a Node.'
 
-        
+
 def _find_model_input_nodes(in_nodes):
     inputs = []
     ids_seen = set()
@@ -61,7 +63,7 @@ def _show_recursive(arg):
     else:
         assert False, \
             'Not a Spec or list of Specs (got a(n) %s: %s).' % \
-                (arg.__class__.__name__, arg)
+            (arg.__class__.__name__, arg)
 
 
 def _show(arg):
@@ -87,7 +89,7 @@ def _build_recursive(arg, in_shapes, in_dtypes):
     else:
         assert False, \
             'Not a Spec or list of Specs (got a(n) %s: %s).' % \
-                (arg.__class__.__name__, arg)
+            (arg.__class__.__name__, arg)
 
 
 def _params_recursive(arg):
@@ -100,7 +102,7 @@ def _params_recursive(arg):
     else:
         assert False, \
             'Not a Layer or list of Layers (got a(n) %s: %s).' % \
-                (arg.__class__.__name__, arg)
+            (arg.__class__.__name__, arg)
     return params
 
 
@@ -114,7 +116,7 @@ def _forward_recursive(arg, xx, is_training):
     else:
         assert False, \
             'Not a Layer or list of Layers (got a(n) %s: %s).' % \
-                (arg.__class__.__name__, arg)
+            (arg.__class__.__name__, arg)
     return x
 
 
