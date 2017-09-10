@@ -3,6 +3,7 @@ import string
 import sys
 
 from zen.dataset.subjectivity import load_subjectivity
+from zen.model import Graph
 from zen.layer import *
 from zen.transform import *
 
@@ -26,6 +27,27 @@ def cnn(review_len, vocab_size):
     in_shape = review_len,
     return Input(in_shape, dtype='int64') > Embed(vocab_size, 64) > cnn > \
            Flatten > Dense(1) > Sigmoid > Z
+
+
+def rnn(review_len, vocab_size):
+    rnn = lambda n: BiLSTM(n, ret='last') > Dropout(0.5) > Z
+    in_shape = review_len,
+    return Input(in_shape, dtype='int64') > Embed(vocab_size, 32) > rnn(64) > \
+           Flatten > Dense(1) > Sigmoid > Z
+
+
+def cnn_rnn(review_len, vocab_size):
+    in_ = Input((review_len,), dtype='int64')
+    x = in_ > Embed(vocab_size, 64) > Z
+
+    conv = lambda n: Conv(n) > BatchNorm > ReLU > MaxPool > Z
+    cnn = x > conv(32) > conv(32) > conv(32) > conv(32) > Flatten > Z
+
+    rnn = x > ERU(64) > Dropout(0.5) > ERU(64, ret='last') > Dropout(0.5) > Z
+
+    dense = lambda n: Dense(n) > BatchNorm > ReLU > Dropout(0.75) > Z
+    out = Concat(1)(cnn, rnn) > dense(256) > dense(32) > Dense(1) > Sigmoid > Z
+    return Graph(in_, out)
 
 
 def transform(data, text_pipe, label_pipe):
