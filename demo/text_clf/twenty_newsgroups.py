@@ -65,6 +65,12 @@ def run(args):
     review_len = data[0][0].shape[1]
     vocab_size = int(data[0][0].max() + 1)
     num_classes = data[0][1].shape[1]
+    if args.verbose:
+        print('Train texts:  %s' % (data[0][0].shape,))
+        print('      labels: %s' % (data[0][1].shape,))
+        print('Val texts:  %s' % (data[1][0].shape,))
+        print('    labels: %s' % (data[1][1].shape,))
+        print('Text vocab size: %d' % vocab_size)
     model = build(review_len, vocab_size, num_classes)
     model.train_classifier(data, opt=args.opt, stop=args.stop)
 
