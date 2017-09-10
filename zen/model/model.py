@@ -194,7 +194,7 @@ class Model(object):
             loss_value = Z.to_scalar(loss_vars[i])
             values = [loss_value]
             for metric in funcs[1:]:
-                value = Z.to_scalar(metric(y_true, y_pred))
+                value = Z.to_scalar(Z.mean(metric(y_true, y_pred)))
                 values.append(value)
             results.append(values)
 
