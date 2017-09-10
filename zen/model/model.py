@@ -7,6 +7,8 @@ from .. import optim
 from .data.dataset import Dataset
 from .data.ram_dataset import RamDataset
 from .data.training_data import TrainingData
+from . import hook as hook_module
+from .hook import Hook
 
 
 def _unpack_training_data(data, val=None):
@@ -72,14 +74,59 @@ def _unpack_metrics(metrics, out_shapes):
     return rrr
 
 
+def _unpack_hook(key, value):
+    if value is None or value is False:
+        hook = None
+    elif value is True:
+        hook = getattr(hook_module, key)()
+    elif isinstance(value, Hook):
+        hook = value
+    else:
+        hook = getattr(hook_module, key)(value)
+    return hook
+
+
+def _unpack_hooks(defaults, kwargs):
+    d = dict(defaults)
+    d.update(kwargs)
+    ret = []
+    for key, value in d.items():
+        hook = _unpack_hook(key, value)
+        if hook:
+            ret.append(hook)
+    return ret
+
+
 class Model(object):
+    default_hooks = {
+        'stop': 25,
+        'verbose': 2,
+    }
+
     def model_params(self):
         raise NotImplementedError
 
     def model_forward(self, xx, is_training):
         raise NotImplementedError
 
-    def train_on_batch(self, xx, yy_true, metrics, opt):
+    def train_on_batch(self, xx, yy_true, metrics, opt, hooks=None,
+                       progress=None):
+        """
+        Train on a single batch.
+        """
+        if hooks is None:
+            hooks = []
+        if progress is None:
+            progress = {}
+
+        stop = False
+        for hook in hooks:
+            if hook.on_train_batch_begin(progress, xx, yy_true):
+                stop = True
+        if stop:
+            results = None
+            return results, None
+
         for i, x in enumerate(xx):
             xx[i] = Z.constant(x)
         for i, y_true in enumerate(yy_true):
@@ -110,9 +157,32 @@ class Model(object):
                 value = Z.to_scalar(metric(y_true, y_pred))
                 values.append(value)
             results.append(values)
-        return results
 
-    def evaluate_on_batch(self, xx, yy_true, metrics):
+        stop = False
+        for hook in hooks:
+            if hook.on_train_batch_end(progress, results):
+                stop = True
+
+        return results, stop
+
+    def evaluate_on_batch(self, xx, yy_true, metrics, hooks=None,
+                          progress=None):
+        """
+        Evaluate on a single batch.
+        """
+        if hooks is None:
+            hooks = []
+        if progress is None:
+            progress = {}
+
+        stop = False
+        for hook in hooks:
+            if hook.on_eval_batch_begin(progress, xx, yy_true):
+                stop = True
+        if stop:
+            results = None
+            return results, None
+
         for i, x in enumerate(xx):
             xx[i] = Z.constant(x)
         for i, y_true in enumerate(yy_true):
@@ -128,30 +198,71 @@ class Model(object):
                 var = Z.mean(metric(y_true, y_pred))
                 values.append(Z.to_scalar(var))
             results.append(values)
-        return results
 
-    def train_on_epoch(self, data, metrics, opt, batch_size, epoch):
-        t0 = time()
+        stop = False
+        for hook in hooks:
+            if hook.on_eval_batch_end(progress, results):
+                stop = True
+
+        return results, stop
+
+    def train_on_epoch(self, data, metrics, opt, batch_size=64, hooks=None,
+                       progress=None):
+        """
+        Train over a single epoch.
+
+        Users should call `train(..., stop=1)` to train for one epoch, not use
+        this method directly.  This is called by do_train().
+        """
+        if hooks is None:
+            hooks = []
+        if progress is None:
+            progress = {}
+
+        stop = False
+        for hook in hooks:
+            if hook.on_epoch_begin(progress, data):
+                stop = True
+        if stop:
+            results = None
+            return results, stop
+
         num_batches = data.get_num_batches(batch_size)
         train_metrics_per_output = \
             list(map(lambda funcs: [[] for _ in funcs], metrics))
         val_metrics_per_output = \
             list(map(lambda funcs: [[] for _ in funcs], metrics))
+        t0 = time()
         for batch, (xx, yy, is_training) in \
                 enumerate(data.each_batch(batch_size)):
+            sub_progress = dict(progress)
+            sub_progress.update({
+                'batch': batch,
+                'num_batches': num_batches,
+            })
+
             if is_training:
-                results = self.train_on_batch(xx, yy, metrics, opt)
-                split = train_metrics_per_output
+                results, stop = self.train_on_batch(
+                    xx, yy, metrics, opt, hooks, sub_progress)
+                split_results = train_metrics_per_output
             else:
-                results = self.evaluate_on_batch(xx, yy, metrics)
-                split = val_metrics_per_output
-            for i, values in enumerate(results):
-                for j, value in enumerate(values):
-                    split[i][j].append(value)
+                results, stop = self.evaluate_on_batch(
+                    xx, yy, metrics, hooks, sub_progress)
+                split_results = val_metrics_per_output
+
+            if results is not None:
+                for i, values in enumerate(results):
+                    for j, value in enumerate(values):
+                        split_results[i][j].append(value)
+
+            if stop:
+                results = None
+                return results, stop
         t = time() - t0
-        results = {}
-        results['epoch'] = epoch
-        results['time'] = t
+
+        results = {'time': t}
+        if progress:
+            results['progress'] = progress
         mean = lambda ff: sum(ff) / len(ff)
         results['train'] = []
         for i, metric_value_lists in enumerate(train_metrics_per_output):
@@ -166,25 +277,63 @@ class Model(object):
                 for values in metric_value_lists:
                     means.append(mean(values))
                 results['val'].append(means)
-        _ss = lambda ff: ' '.join(map(lambda f: '%.3f' % f, ff))
-        _sss = lambda fff: '|'.join(map(_ss, fff))
-        print('epoch %4d  %.3f sec  train %s  val %s' %
-              (results['epoch'], results['time'], _sss(results['train']),
-               _sss(results['val'])))
+
+        stop = False
+        for hook in hooks:
+            if hook.on_epoch_end(progress, results):
+                stop = True
+
+        return results, stop
 
     def train(self, data, metrics, opt='adam', val=None, batch_size=64,
-              start=0, stop=1000):
+              start=0, **hooks):
         data = _unpack_training_data(data, val)
         metrics = _unpack_metrics(metrics, data.get_sample_shapes()[1])
         opt = optim.get(opt)
-        opt.set_params(self.model_params())
         assert isinstance(start, int)
         assert 0 <= start
-        for epoch in range(start, stop):
-            self.train_on_epoch(data, metrics, opt, batch_size, epoch)
+        hooks = _unpack_hooks(self.default_hooks, hooks)
+
+        opt.set_params(self.model_params())
+
+        train_kwargs = {
+            'data': data,
+            'metrics': metrics,
+            'opt': opt,
+            'epoch_begin': start,
+            'hooks': hooks,
+        }
+        epoch_end_excl = None
+        for hook in hooks:
+            z = hook.on_train_begin(self, train_kwargs)
+            if z is None:
+                continue
+            if epoch_end_excl is None or z < epoch_end_excl:
+                epoch_end_excl = z
+
+        epoch = start
+        history = []
+        while True:
+            progress = {
+                'epoch_begin': start,
+                'epoch': epoch,
+                'epoch_end_excl': epoch_end_excl,
+            }
+            results, stop = self.train_on_epoch(
+                data, metrics, opt, batch_size, hooks, progress)
+            if results is not None:
+                history.append(results)
+            if stop:
+                break
+            epoch += 1
+
+        for hook in hooks:
+            hook.on_train_end(history)
+
+        return history
 
     def train_regressor(self, data, opt='adam', val=None, batch_size=64,
-                        start=0, stop=1000):
+                        start=0, **hooks):
         """
         Train as a regressor.
 
@@ -192,10 +341,10 @@ class Model(object):
         Single output only.
         """
         metrics = 'mean_squared_error',
-        return self.train(data, metrics, opt, val, batch_size, start, stop)
+        return self.train(data, metrics, opt, val, batch_size, start, **hooks)
 
     def train_classifier(self, data, opt='adam', val=None, batch_size=64,
-                         start=0, stop=1000):
+                         start=0, **hooks):
         """
         Train as a classifier.
 
@@ -203,4 +352,4 @@ class Model(object):
         adds accuracy as a metric.  Single output only.
         """
         metrics = 'cross_entropy', 'accuracy'
-        return self.train(data, [metrics], opt, val, batch_size, start, stop)
+        return self.train(data, [metrics], opt, val, batch_size, start, **hooks)
