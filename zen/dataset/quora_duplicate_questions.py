@@ -15,7 +15,7 @@ def _load(filename, verbose):
     lines = open(filename).read().strip().split('\n')[1:]
     for i, line in enumerate(lines):
         try:
-            id_ = int(line.split()[0])
+            int(line.split()[0])
         except:
             lines[i - 1] += lines[i]
             lines[i] = None
