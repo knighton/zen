@@ -13,7 +13,8 @@ def parse_args():
     ap.add_argument('--verbose', type=int, default=2)
     ap.add_argument('--model', type=str, default='cnn')
     ap.add_argument('--opt', type=str, default='adam')
-    ap.add_argument('--stop', type=int, default=20)
+    ap.add_argument('--stop', type=int, default=10)
+    ap.add_argument('--demo', type=int, default=1)
     return ap.parse_args()
 
 
@@ -96,7 +97,8 @@ def run(args):
     model.train_classifier(data, opt=args.opt, stop=args.stop,
                            verbose=args.verbose)
     show_examples(model, data)
-    demo(model, args.max_name_len)
+    if args.demo:
+        demo(model, args.max_name_len)
 
 
 if __name__ == '__main__':
