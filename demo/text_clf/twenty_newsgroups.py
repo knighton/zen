@@ -17,45 +17,33 @@ def parse_args():
 
 
 def cnn(review_len, vocab_size, num_classes):
-    conv = lambda n: SequenceSpec(Conv(n), BatchNorm, ReLU, MaxPool)
+    conv = lambda n: Conv(n) > BatchNorm > ReLU > MaxPool > Z
     cnn = []
     for n in [32] * 8:
         cnn.append(conv(n))
-    cnn = SequenceSpec(*cnn)
+    cnn = Sequence(*cnn)
     in_shape = review_len,
-    spec = SequenceSpec(
-        Input(in_shape, dtype='int64'), Embed(vocab_size, 64), cnn, Flatten,
-        Dense(num_classes), Softmax)
-    model, out_shape, out_dtype = spec.build()
-    return model
+    return Input(in_shape, dtype='int64') > Embed(vocab_size, 32) > cnn > \
+           Flatten > Dense(num_classes) > Softmax > Z
 
 
 def eru(review_len, vocab_size, num_classes):
     in_shape = review_len,
-    spec = SequenceSpec(
-        Input(in_shape, dtype='int64'), Embed(vocab_size, 64), ERU(64),
-        Dropout(0.25), ERU(64, ret='last'), Dropout(0.25), Dense(num_classes),
-        Softmax)
-    model, out_shape, out_dtype = spec.build()
-    return model
+    return Input(in_shape, dtype='int64') > Embed(vocab_size, 64) > ERU(64) > \
+           Dropout(0.25) > ERU(64, ret='last') > Dropout(0.25) > \
+           Dense(num_classes) > Softmax > Z
 
 
 def gru(review_len, vocab_size, num_classes):
     in_shape = review_len,
-    spec = SequenceSpec(
-        Input(in_shape, dtype='int64'), Embed(vocab_size, 64),
-        GRU(64, ret='last'), Dense(num_classes), Softmax)
-    model, out_shape, out_dtype = spec.build()
-    return model
+    return Input(in_shape, dtype='int64') > Embed(vocab_size, 64) > \
+           GRU(64, ret='last') > Dense(num_classes) > Softmax > Z
 
 
 def lstm(review_len, vocab_size, num_classes):
     in_shape = review_len,
-    spec = SequenceSpec(
-        Input(in_shape, dtype='int64'), Embed(vocab_size, 64),
-        LSTM(64, ret='last'), Dense(num_classes), Softmax)
-    model, out_shape, out_dtype = spec.build()
-    return model
+    return Input(in_shape, dtype='int64') > Embed(vocab_size, 64) > \
+           LSTM(64, ret='last') > Dense(num_classes) > Softmax > Z
 
 
 def transform(data, text_pipe, label_pipe):
