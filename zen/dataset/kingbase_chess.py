@@ -26,7 +26,9 @@ def _pgn_load_move_to(text):
     a, b = text
     assert 'a' <= text[0] <= 'h'
     assert '1' <= text[1] <= '8'
-    return ord(text[0]) - ord('a'), ord(text[1]) - ord('1')
+    x = ord(text[0]) - ord('a')
+    y = ord(text[1]) - ord('1')
+    return y, x
 
 
 def _pgn_load_move(text):
@@ -76,10 +78,12 @@ def _pgn_load_move(text):
     elif len(c) == 2:
         if c[0].isupper() and c[1].islower():
             piece = c[0]
-            move_from = ord(c[1]) - ord('a'), None
+            x = ord(c[1]) - ord('a')
+            move_from = None, x
         elif c[0].isupper() and c[1].isdigit():
             piece = c[0]
-            move_from = None, ord(c[1]) - ord('1')
+            y = ord(c[1]) - orl('1')
+            move_from = y, None
         else:
             assert False
     else:
@@ -123,9 +127,10 @@ def _pgn_load(text):
             continue
         game = _pgn_load_moves(blocks[i])
         board = Board.initial()
-        for i, move in enumerate(game):
+        for i, move in enumerate(game[:-1]):
             is_white = not i % 2
-            board.apply_pgn_move(move, is_white)
+            sample = board.apply_pgn_move(move, is_white)
+            print(sample)
     return games
 
 
@@ -178,8 +183,275 @@ class Board(object):
             rnbqkbnr
         """)
 
+    def flip_color(self, n):
+        if not n:
+            return 0
+        elif 1 <= n <= 6:
+            return n + 6
+        elif 7 <= n <= 12:
+            return n - 6
+        else:
+            assert False
+
+    def rotate(self):
+        self.arr = np.rot90(np.rot90(self.arr))
+        for i in range(self.arr.shape[0]):
+            for j in range(self.arr.shape[1]):
+                self.arr[i, j] = self.flip_color(self.arr[i, j])
+
+    def rotate_coords(self, coords):
+        if coords is None:
+            return None
+        x, y = coords
+        if x is not None:
+            x = 8 - x - 1
+        if y is not None:
+            y = 8 - y - 1
+        return x, y
+
+    def whose_piece(self, n):
+        if not n:
+            return 'space'
+        elif 1 <= n <= 6:
+            return 'mine'
+        elif 7 <= n <= 12:
+            return 'theirs'
+        else:
+            assert False
+
+    def find_pieces(self, n, restrict):
+        yy = restrict[0] if restrict[0] is not None else \
+            range(self.arr.shape[0])
+        xx = restrict[1] if restrict[1] is not None else \
+            range(self.arr.shape[1])
+        ret = []
+        for i in yy:
+            for j in xx:
+                if self.arr[i, j] == n:
+                    ret.append((i, j))
+        return ret
+
+    def find_origin_pawn(self, restrict, to):
+        restrict_y, restrict_x = restrict
+        to_y, to_x = to
+        ret = []
+        if self.arr[to] == self.space:
+            y = to_y - 1
+            x = to_x
+            if 0 <= y < 8 and 0 <= x < 8:
+                if self.arr[y, x] == self.my_pawn:
+                    ret.append((y, x))
+                elif to_y == 3 and self.arr[y, x] == self.space:
+                    y = 1
+                    x = to_x
+                    if 0 <= y < 8 and 0 <= x < 8:
+                        if self.arr[y, x] == self.my_pawn:
+                            ret.append((y, x))
+        else:
+            y = to_y - 1
+            x = to_x - 1
+            if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn:
+                ret.append((y, x))
+            y = to_y - 1
+            x = to_x + 1
+            if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn:
+                ret.append((y, x))
+        return ret
+
+    def find_origin_rook(self, restrict, to):
+        restrict_y, restrict_x = restrict
+        to_y, to_x = to
+
+        ret = []
+
+        if restrict_y is None:
+            for y in range(to_y - 1, -1, -1):
+                n = self.arr[y, to_x]
+                if n == self.space:
+                    pass
+                elif n == self.my_rook:
+                    ret.append((y, to_x))
+                    break
+                else:
+                    break
+
+            for y in range(to_y + 1, 8):
+                n = self.arr[y, to_x]
+                if n == self.space:
+                    pass
+                elif n == self.my_rook:
+                    ret.append((y, to_x))
+                    break
+                else:
+                    break
+
+        if restrict_x is None:
+            for x in range(to_x - 1, -1, -1):
+                n = self.arr[to_y, x]
+                if n == self.space:
+                    pass
+                elif n == self.my_rook:
+                    ret.append((to_y, x))
+                    break
+                else:
+                    break
+
+            for x in range(to_x + 1, 8):
+                n = self.arr[to_y, x]
+                if n == self.space:
+                    pass
+                elif n == self.my_rook:
+                    ret.append((to_y, x))
+                    break
+                else:
+                    break
+
+        return ret
+
+    def find_origin_knight(self, restrict, to):
+        restrict_y, restrict_x = restrict
+        to_y, to_x = to
+
+        offsets = [
+            (1, 2),
+            (2, 1),
+            (2, -1),
+            (1, -2),
+            (-1, -2),
+            (-2, -1),
+            (-2, 1),
+            (-1, 2),
+        ]
+
+        ret = []
+
+        for off_y, off_x in offsets:
+            y = to_y + off_y
+            if not 0 <= y < 8:
+                continue
+            x = to_x + off_x
+            if not 0 <= x < 8:
+                continue
+            n = self.arr[y, x]
+            if n == self.my_knight:
+                ret.append((y, x))
+
+        if restrict_y is not None:
+            ret = list(filter(lambda y, x: y == restrict_y, ret))
+
+        if restrict_x is not None:
+            ret = list(filter(lambda y, x: x == restrict_x, ret))
+
+        return ret
+
+    def find_origin_bishop(self, restrict, to):
+        restrict_y, restrict_x = restrict
+        to_y, to_x = to
+
+        ret = []
+
+        for off_y, off_x in [(-1, -1), (-1, 1), (1, 1), (1, -1)]:
+            for i in range(8):
+                y = to_y + i * off_y
+                x = to_x + i * off_x
+                if y == restrict_y or x == restrict_x:
+                    continue
+                if not 0 <= y < 8 or not 0 <= x < 8:
+                    continue
+                n = self.arr[y, x]
+                if n == self.my_bishop:
+                    ret.append((y, x))
+
+        return ret
+
+    def find_origin_queen(restrict, to):
+        return self.find_origin_rook(restrict, to) + \
+            self.find_origin_bishop(restrict, to)
+
+    def find_origin_king(restrict, to):
+        restrict_y, restrict_x = restrict
+        to_y, to_x = to
+
+        for off_y in [-1, 0, 1]:
+            for off_x in [-1, 0, 1]:
+                if off_y == off_x == 0:
+                    continue
+                y = to_y + off_y
+                if not 0 <= y < 8:
+                    continue
+                x = to_x + off_x
+                if not 0 <= x < 8:
+                    continue
+                n = self.arr[y, x]
+                if n == self.my_king:
+                    ret.append((y, x))
+
+        if restrict_y is not None:
+            ret = list(filter(lambda y, x: y == restrict_y, ret))
+
+        if restrict_x is not None:
+            ret = list(filter(lambda y, x: x == restrict_x, ret))
+
+        return ret
+
+    PIECE_CHR2FIND_ORIGIN = {
+        'p': find_origin_pawn,
+        'r': find_origin_rook,
+        'n': find_origin_knight,
+        'b': find_origin_bishop,
+        'q': find_origin_queen,
+        'k': find_origin_king,
+    }
+
+    def find_origin(self, piece_chr, maybe_from, to):
+        if maybe_from is None:
+            maybe_from = None, None
+        elif maybe_from[0] is not None and maybe_from[1] is not None:
+            return maybe_from
+        return self.PIECE_CHR2FIND_ORIGIN[piece_chr](self, maybe_from, to)
+
+    def to_pgn_coords(self, y_x):
+        y, x = y_x
+        return 'abcdefgh'[x] + '12345678'[y]
+
     def apply_pgn_move(self, move, is_white):
-        print('apply_pgn_move', move, is_white)
+        assert move not in {'0-1', '1-0', '1/2-1/2'}
+
+        if move in {'kingside_castle', 'queenside_castle'}:
+            raise NotImplementedError  # XXX
+
+        piece, maybe_from, to, capture, promote_to = move
+        piece = piece.lower()
+
+        if promote_to is not None:
+            raise NotImplementedError  # XXX
+
+        if not is_white:
+            maybe_from = self.rotate_coords(maybe_from)
+            to = self.rotate_coords(to)
+
+        piece_at_target = self.arr[to[0], to[1]]
+        whose = self.whose_piece(piece_at_target)
+        if capture:
+            assert whose == 'theirs'
+        else:
+            assert whose == 'space'
+
+        froms = self.find_origin(piece, maybe_from, to)
+        assert len(froms) == 1, str(froms)
+        from_ = froms[0]
+
+        from_pgn = self.to_pgn_coords(from_)
+        to_pgn = self.to_pgn_coords(to)
+        top_line = '%s %s\n' % (from_pgn, to_pgn)
+        ret = top_line + self.to_text()
+
+        self.arr[to[0], to[1]] = self.arr[from_[0], from_[1]]
+        self.arr[from_[0], from_[1]] = self.space
+
+        self.rotate()
+
+        return ret
 
 
 def _process(zip_filename, processed_dir, verbose):
