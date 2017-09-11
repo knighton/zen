@@ -1,3 +1,4 @@
+import numpy as np
 import os
 from tqdm import tqdm
 from zipfile import ZipFile
@@ -8,9 +9,10 @@ from .util import download, get_dataset_dir
 _DATASET_NAME = 'kingbase_chess'
 _URL = 'http://kingbase-chess.net/download/484'
 _URL_BASENAME = 'KingBase2017-pgn.zip'
+_PROCESSED_SUBDIR = 'processed'
 
 
-def _without_comments(text):
+def _pgn_load_without_comments(text):
     while '{' in text:
         a = text.find('{')
         z = text.find('}')
@@ -19,7 +21,7 @@ def _without_comments(text):
     return text
 
 
-def _load_move_to(text):
+def _pgn_load_move_to(text):
     assert len(text) == 2
     a, b = text
     assert 'a' <= text[0] <= 'h'
@@ -27,7 +29,7 @@ def _load_move_to(text):
     return ord(text[0]) - ord('a'), ord(text[1]) - ord('1')
 
 
-def _load_move(text):
+def _pgn_load_move(text):
     if text.endswith('+') or text.endswith('#'):
         text = text[:-1]
 
@@ -54,7 +56,7 @@ def _load_move(text):
         promote_to = None
 
     try:
-        move_to = _load_move_to(text[-2:])
+        move_to = _pgn_load_move_to(text[-2:])
     except:
         print(text)
         raise
@@ -86,8 +88,8 @@ def _load_move(text):
     return piece, move_from, move_to, capture, promote_to
 
 
-def _load_moves(text):
-    text = _without_comments(text)
+def _pgn_load_moves(text):
+    text = _pgn_load_without_comments(text)
     if '...' in text:
         return None
     text = text.replace('.', ' . ')
@@ -102,34 +104,103 @@ def _load_moves(text):
     for i in range(len(ss) // 4):
         assert int(ss[i * 4]) == i + 1
         assert ss[i * 4 + 1] == '.'
-        white = _load_move(ss[i * 4 + 2])
+        white = _pgn_load_move(ss[i * 4 + 2])
         if white == '*':
             return None
         moves.append(white)
-        black = _load_move(ss[i * 4 + 3])
+        black = _pgn_load_move(ss[i * 4 + 3])
         if black == '*':
             return None
         moves.append(black)
     return moves
 
 
-def _load(filename, val_frac, verbose):
-    zip_ = ZipFile(filename)
+def _pgn_load(text):
+    blocks = text.strip().split('\r\n\r\n')
+    games = []
+    for i in range(len(blocks)):
+        if not i % 2:
+            continue
+        game = _pgn_load_moves(blocks[i])
+        board = Board.initial()
+        for i, move in enumerate(game):
+            is_white = not i % 2
+            board.apply_pgn_move(move, is_white)
+    return games
+
+
+class Board(object):
+    int2chr = '.prnbqkPRNBQK'
+
+    chr2int = {}
+    for i, c in enumerate(int2chr):
+        chr2int[c] = i
+
+    space, my_pawn, my_rook, my_knight, my_bishop, my_queen, my_king, \
+    their_pawn, their_rook, their_knight, their_bishop, their_queen, \
+    their_king = range(13)
+
+    def __init__(self, arr):
+        self.arr = arr
+
+    def to_text(self):
+        lines = []
+        for y in reversed(range(8)):
+            line = []
+            for x in range(8):
+                n = self.arr[y, x]
+                c = self.int2chr[n]
+                line.append(c)
+            lines.append(''.join(line))
+        return ''.join(map(lambda line: line + '\n', lines))
+
+    @classmethod
+    def from_text(cls, text):
+        lines = text.strip().split()
+        assert len(lines) == 8
+        arr = np.zeros((8, 8), dtype='int8')
+        for y, line in enumerate(lines):
+            assert len(line) == 8
+            for x, c in enumerate(line):
+                arr[8 - y - 1, x] = cls.chr2int[c]
+        return cls(arr)
+
+    @classmethod
+    def initial(cls):
+        return cls.from_text("""
+            RNBQKBNR
+            PPPPPPPP
+            ........
+            ........
+            ........
+            ........
+            pppppppp
+            rnbqkbnr
+        """)
+
+    def apply_pgn_move(self, move, is_white):
+        print('apply_pgn_move', move, is_white)
+
+
+def _process(zip_filename, processed_dir, verbose):
+    zip_ = ZipFile(zip_filename)
     paths = zip_.namelist()
     if verbose == 2:
         paths = tqdm(paths, leave=False)
-    games = []
     for path in paths:
         text = zip_.open(path).read().decode('latin-1')
-        blocks = text.strip().split('\r\n\r\n')
-        for i in range(len(blocks)):
-            if not i % 2:
-                continue
-            game = _load_moves(blocks[i])
+        games = _pgn_load(text)
+
+
+def _load(processed_dir, val_frac, verbose):
+    raise NotImplementedError # XXX
 
 
 def load_kingbase_chess(val_frac=0.2, verbose=2):
     dataset_dir = get_dataset_dir(_DATASET_NAME)
-    local = os.path.join(dataset_dir, _URL_BASENAME)
-    download(_URL, local, verbose)
-    return _load(local, val_frac, verbose)
+    processed_dir = os.path.join(dataset_dir, _PROCESSED_SUBDIR)
+    if not os.path.exists(processed_dir):
+        zip_filename = os.path.join(dataset_dir, _URL_BASENAME)
+        download(_URL, zip_filename, verbose)
+        _process(zip_filename, processed_dir, verbose)
+    return _load(processed_dir, val_frac, verbose)
