@@ -52,8 +52,8 @@ def _pgn_load_move(text):
 
     if '=' in text:
         eq = text.find('=')
-        text = text[:eq]
         promote_to = text[eq + 1:]
+        text = text[:eq]
     else:
         promote_to = None
 
@@ -131,7 +131,11 @@ def _pgn_load(text):
         board = Board.initial()
         for j, move in enumerate(game[:-1]):
             is_white = not j % 2
-            sample = board.apply_pgn_move(move, is_white)
+            try:
+                sample = board.apply_pgn_move(move, is_white)
+            except:
+                print('Ambiguity at game %d, move %d, gave up.' % (i, j))
+                break
             samples.append(sample)
     return samples
 
@@ -508,12 +512,15 @@ class Board(object):
             else:
                 assert False
 
-    def move(self, from_, to, is_white, en_passant):
+    def move(self, from_, to, is_white, en_passant, promote_to):
         if self.arr[from_[0], from_[1]] == self.my_king and \
                 abs(from_[1] - to[1]) == 2:
             self.castle(from_, to, is_white)
         else:
-            self.arr[to[0], to[1]] = self.arr[from_[0], from_[1]]
+            if promote_to is None:
+                self.arr[to[0], to[1]] = self.arr[from_[0], from_[1]]
+            else:
+                self.arr[to[0], to[1]] = self.chr2int[promote_to]
             self.arr[from_[0], from_[1]] = self.space
             if en_passant:
                 self.arr[to[0] - 1, to[1]] = self.space
@@ -526,18 +533,19 @@ class Board(object):
             else:
                 from_, to = (0, 3), (0, 1)
             en_passant = False
+            promote_to = None
         elif move == 'queenside_castle':
             if is_white:
                 from_, to = (0, 4), (0, 2)
             else:
                 from_, to = (0, 3), (0, 5)
             en_passant = False
+            promote_to = None
         else:
             piece, maybe_from, to, capture, promote_to = move
             piece = piece.lower()
-
             if promote_to is not None:
-                raise NotImplementedError  # XXX
+                promote_to = promote_to.lower()
 
             if not is_white:
                 maybe_from = self.rotate_coords(maybe_from)
@@ -560,7 +568,7 @@ class Board(object):
         top_line = '%s %s\n' % (from_pgn, to_pgn)
         ret = top_line + self.to_text()
 
-        self.move(from_, to, is_white, en_passant)
+        self.move(from_, to, is_white, en_passant, promote_to)
 
         self.rotate()
 
