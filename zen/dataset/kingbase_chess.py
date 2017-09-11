@@ -82,7 +82,7 @@ def _pgn_load_move(text):
             move_from = None, x
         elif c[0].isupper() and c[1].isdigit():
             piece = c[0]
-            y = ord(c[1]) - orl('1')
+            y = ord(c[1]) - ord('1')
             move_from = y, None
         else:
             assert False
@@ -129,7 +129,11 @@ def _pgn_load(text):
         board = Board.initial()
         for i, move in enumerate(game[:-1]):
             is_white = not i % 2
-            sample = board.apply_pgn_move(move, is_white)
+            try:
+                sample = board.apply_pgn_move(move, is_white)
+            except:
+                print('*' * 80)
+                break
             print(sample)
     return games
 
@@ -337,10 +341,10 @@ class Board(object):
                 ret.append((y, x))
 
         if restrict_y is not None:
-            ret = list(filter(lambda y, x: y == restrict_y, ret))
+            ret = list(filter(lambda y_x: y_x[0] == restrict_y, ret))
 
         if restrict_x is not None:
-            ret = list(filter(lambda y, x: x == restrict_x, ret))
+            ret = list(filter(lambda y_x: y_x[1] == restrict_x, ret))
 
         return ret
 
@@ -364,11 +368,11 @@ class Board(object):
 
         return ret
 
-    def find_origin_queen(restrict, to):
+    def find_origin_queen(self, restrict, to):
         return self.find_origin_rook(restrict, to) + \
             self.find_origin_bishop(restrict, to)
 
-    def find_origin_king(restrict, to):
+    def find_origin_king(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
 
@@ -414,40 +418,96 @@ class Board(object):
         y, x = y_x
         return 'abcdefgh'[x] + '12345678'[y]
 
+    def white_queenside_castle(self):
+        assert tuple(self.arr[0, :5]) == \
+            (self.my_rook, self.space, self.space, self.space, self.my_king)
+        self.arr[0, :5] = (self.space, self.space, self.my_king,
+                           self.my_rook, self.space)
+
+    def white_kingside_castle(self):
+        assert tuple(self.arr[0, 4:]) == \
+            (self.my_king, self.space, self.space, self.my_rook)
+        self.arr[0, 4:] == (self.space, self.my_rook, self.my_king,
+                            self.space)
+
+    def black_kingside_castle(self):
+        assert tuple(self.arr[0, :4]) == \
+            (self.my_rook, self.space, self.space, self.my_king)
+        self.arr[0, :4] = (self.space, self.my_rook, self.my_king,
+                           self.space)
+
+    def black_queenside_castle(self):
+        assert tuple(self.arr[0, 3:]) == \
+            (self.my_king, self.space, self.space, self.space, self.my_rook)
+        self.arr[0, 3:] = (self.space, self.my_rook, self.my_king,
+                           self.space)
+
+    def castle(self, from_, to, is_white):
+        if is_white:
+            assert from_ == (0, 4)
+            if to == (0, 2):
+                self.white_queenside_castle()
+            elif to == (0, 6):
+                self.white_kingside_castle()
+            else:
+                assert False
+        else:
+            assert from_ == (0, 3)
+            if to == (0, 1):
+                self.black_kingside_castle()
+            elif to == (0, 5):
+                self.black_queenside_castle()
+            else:
+                assert False
+
+    def move(self, from_, to, is_white):
+        if self.arr[from_[0], from_[1]] == self.my_king and \
+                abs(from_[1] - to[1]) == 2:
+            self.castle(from_, to, is_white)
+        else:
+            self.arr[to[0], to[1]] = self.arr[from_[0], from_[1]]
+            self.arr[from_[0], from_[1]] = self.space
+
     def apply_pgn_move(self, move, is_white):
         assert move not in {'0-1', '1-0', '1/2-1/2'}
-
-        if move in {'kingside_castle', 'queenside_castle'}:
-            raise NotImplementedError  # XXX
-
-        piece, maybe_from, to, capture, promote_to = move
-        piece = piece.lower()
-
-        if promote_to is not None:
-            raise NotImplementedError  # XXX
-
-        if not is_white:
-            maybe_from = self.rotate_coords(maybe_from)
-            to = self.rotate_coords(to)
-
-        piece_at_target = self.arr[to[0], to[1]]
-        whose = self.whose_piece(piece_at_target)
-        if capture:
-            assert whose == 'theirs'
+        if move == 'kingside_castle':
+            if is_white:
+                from_, to = (0, 4), (0, 6)
+            else:
+                from_, to = (0, 3), (0, 1)
+        elif move == 'queenside_castle':
+            if is_white:
+                from_, to = (0, 4), (0, 2)
+            else:
+                from_, to = (0, 3), (0, 5)
         else:
-            assert whose == 'space'
+            piece, maybe_from, to, capture, promote_to = move
+            piece = piece.lower()
 
-        froms = self.find_origin(piece, maybe_from, to)
-        assert len(froms) == 1, str(froms)
-        from_ = froms[0]
+            if promote_to is not None:
+                raise NotImplementedError  # XXX
+
+            if not is_white:
+                maybe_from = self.rotate_coords(maybe_from)
+                to = self.rotate_coords(to)
+
+            piece_at_target = self.arr[to[0], to[1]]
+            whose = self.whose_piece(piece_at_target)
+            if capture:
+                assert whose == 'theirs'
+            else:
+                assert whose == 'space'
+
+            froms = self.find_origin(piece, maybe_from, to)
+            assert len(froms) == 1, str(froms)
+            from_ = froms[0]
 
         from_pgn = self.to_pgn_coords(from_)
         to_pgn = self.to_pgn_coords(to)
         top_line = '%s %s\n' % (from_pgn, to_pgn)
         ret = top_line + self.to_text()
 
-        self.arr[to[0], to[1]] = self.arr[from_[0], from_[1]]
-        self.arr[from_[0], from_[1]] = self.space
+        self.move(from_, to, is_white)
 
         self.rotate()
 
