@@ -233,101 +233,106 @@ class Board(object):
                     ret.append((i, j))
         return ret
 
+    def find_origin_pawn_forward(self, restrict, to):
+        restrict_y, restrict_x = restrict
+        to_y, to_x = to
+
+        if restrict_x not in {None, to_x}:
+            return []
+
+        y = to_y - 1
+        x = to_x
+        if self.arr[y, x] == self.my_pawn and restrict_y in {None, y}:
+            return [(y, x)]
+        elif to_y == 3 and self.arr[2, x] == self.space and \
+                self.arr[1, x] == self.my_pawn and restrict_y in {None, 1}:
+            return [(1, x)]
+        else:
+            return []
+
+    def find_origin_pawn_en_passant_capture(self, restrict, to):
+        restrict_y, restrict_x = restrict
+        to_y, to_x = to
+
+        if self.arr[to_y - 1, to_x] != self.their_pawn or \
+                self.arr[to_y, to_x] != self.space:
+            return []
+
+        ret = []
+
+        y = to_y - 1
+        x = to_x - 1
+        if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn \
+                and restrict_x in {None, x} and restrict_y in {None, y}:
+            coords = y, x
+            ret.append((coords, True))
+
+        y = to_y - 1
+        x = to_x + 1
+        if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn \
+                and restrict_x in {None, x} and restrict_y in {None, y}:
+            coords = y, x
+            ret.append((coords, True))
+
+        return ret
+
+    def find_origin_pawn_normal_capture(self, restrict, to):
+        restrict_y, restrict_x = restrict
+        to_y, to_x = to
+
+        ret = []
+
+        y = to_y - 1
+        x = to_x - 1
+        if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn \
+                and restrict_x in {None, x} and restrict_y in {None, y}:
+            ret.append((y, x))
+
+        y = to_y - 1
+        x = to_x + 1
+        if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn \
+                and restrict_x in {None, x} and restrict_y in {None, y}:
+            ret.append((y, x))
+
+        return ret
+
     def find_origin_pawn(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
         ret = []
         if self.arr[to] == self.space:
-            y = to_y - 1
-            x = to_x
-            if 0 <= y < 8 and 0 <= x < 8:
-                if self.arr[y, x] == self.my_pawn:
-                    ret.append((y, x))
-                elif to_y == 3 and self.arr[y, x] == self.space:
-                    y = 1
-                    x = to_x
-                    if 0 <= y < 8 and 0 <= x < 8:
-                        if self.arr[y, x] == self.my_pawn:
-                            ret.append((y, x))
+            ret += self.find_origin_pawn_forward(restrict, to)
+            ret += self.find_origin_pawn_en_passant_capture(restrict, to)
         else:
-            y = to_y - 1
-            x = to_x - 1
-            if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn \
-                    and restrict_x in {None, x}:
-                ret.append((y, x))
-            y = to_y - 1
-            x = to_x + 1
-            if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn \
-                    and restrict_x in {None, x}:
-                ret.append((y, x))
+            ret += self.find_origin_pawn_normal_capture(restrict, to)
         return ret
 
     def find_origin_rook(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
-
+        if restrict_y is not None:
+            center = restrict_y, to_x
+            offs = [(0, -1), (0, 1)]
+        elif restrict_x is not None:
+            center = to_y, restrict_x
+            offs = [(-1, 0), (1, 0)]
+        else:
+            center = to_y, to_x
+            offs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
         ret = []
-
-        if restrict_y is None:
-            for y in range(to_y - 1, -1, -1):
-                n = self.arr[y, to_x]
-                if n == self.space:
-                    pass
-                elif n == self.my_rook:
-                    ret.append((y, to_x))
+        for off_y, off_x in offs:
+            for i in range(8):
+                y = center[0] + i * off_y
+                x = center[1] + i * off_x
+                if y == to_y and x == to_x:
+                    continue
+                if not 0 <= y < 8 or not 0 <= x < 8:
                     break
-                else:
+                if self.arr[y, x] == self.my_rook:
+                    ret.append((y, x))
                     break
-
-            for y in range(to_y + 1, 8):
-                n = self.arr[y, to_x]
-                if n == self.space:
-                    pass
-                elif n == self.my_rook:
-                    ret.append((y, to_x))
+                elif self.arr[y, x] != self.space:
                     break
-                else:
-                    break
-        else:
-            assert self.arr[restrict_y, to_x] == self.my_rook
-            if restrict_y < to_y:
-                for x in range(restrict_y + 1, to_y + 1):
-                    assert self.arr[y, to_x] == self.space
-            else:
-                for x in range(to_y, restrict_y):
-                    assert self.arr[y, to_x] == self.space
-            ret.append((restrict_y, to_x))
-
-        if restrict_x is None:
-            for x in range(to_x - 1, -1, -1):
-                n = self.arr[to_y, x]
-                if n == self.space:
-                    pass
-                elif n == self.my_rook:
-                    ret.append((to_y, x))
-                    break
-                else:
-                    break
-
-            for x in range(to_x + 1, 8):
-                n = self.arr[to_y, x]
-                if n == self.space:
-                    pass
-                elif n == self.my_rook:
-                    ret.append((to_y, x))
-                    break
-                else:
-                    break
-        else:
-            assert self.arr[to_y, restrict_x] == self.my_rook
-            if restrict_x < to_x:
-                for x in range(restrict_x + 1, to_x + 1):
-                    assert self.arr[to_y, x] == self.space
-            else:
-                for x in range(to_x, restrict_x):
-                    assert self.arr[to_y, x] == self.space
-            ret.append((to_y, restrict_x))
-
         return list(set(ret))
 
     def find_origin_knight(self, restrict, to):
@@ -448,8 +453,15 @@ class Board(object):
         if maybe_from is None:
             maybe_from = None, None
         elif maybe_from[0] is not None and maybe_from[1] is not None:
-            return maybe_from
-        return self.PIECE_CHR2FIND_ORIGIN[piece_chr](self, maybe_from, to)
+            assert False
+        ret = self.PIECE_CHR2FIND_ORIGIN[piece_chr](self, maybe_from, to)
+        assert len(ret) == 1
+        ret = ret[0]
+        if isinstance(ret[1], bool):
+            assert len(ret) == 2
+            return ret
+        else:
+            return ret, False
 
     def to_pgn_coords(self, y_x):
         y, x = y_x
@@ -496,13 +508,15 @@ class Board(object):
             else:
                 assert False
 
-    def move(self, from_, to, is_white):
+    def move(self, from_, to, is_white, en_passant):
         if self.arr[from_[0], from_[1]] == self.my_king and \
                 abs(from_[1] - to[1]) == 2:
             self.castle(from_, to, is_white)
         else:
             self.arr[to[0], to[1]] = self.arr[from_[0], from_[1]]
             self.arr[from_[0], from_[1]] = self.space
+            if en_passant:
+                self.arr[to[0] - 1, to[1]] = self.space
 
     def apply_pgn_move(self, move, is_white):
         assert move not in {'0-1', '1-0', '1/2-1/2'}
@@ -511,11 +525,13 @@ class Board(object):
                 from_, to = (0, 4), (0, 6)
             else:
                 from_, to = (0, 3), (0, 1)
+            en_passant = False
         elif move == 'queenside_castle':
             if is_white:
                 from_, to = (0, 4), (0, 2)
             else:
                 from_, to = (0, 3), (0, 5)
+            en_passant = False
         else:
             piece, maybe_from, to, capture, promote_to = move
             piece = piece.lower()
@@ -527,23 +543,24 @@ class Board(object):
                 maybe_from = self.rotate_coords(maybe_from)
                 to = self.rotate_coords(to)
 
+            from_, en_passant = self.find_origin(piece, maybe_from, to)
+
             piece_at_target = self.arr[to[0], to[1]]
             whose = self.whose_piece(piece_at_target)
             if capture:
-                assert whose == 'theirs'
+                if en_passant:
+                    assert whose == 'space'
+                else:
+                    assert whose == 'theirs'
             else:
                 assert whose == 'space'
-
-            froms = self.find_origin(piece, maybe_from, to)
-            assert len(froms) == 1, str(froms)
-            from_ = froms[0]
 
         from_pgn = self.to_pgn_coords(from_)
         to_pgn = self.to_pgn_coords(to)
         top_line = '%s %s\n' % (from_pgn, to_pgn)
         ret = top_line + self.to_text()
 
-        self.move(from_, to, is_white)
+        self.move(from_, to, is_white, en_passant)
 
         self.rotate()
 
