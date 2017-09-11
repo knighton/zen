@@ -60,7 +60,6 @@ def _pgn_load_move(text):
     try:
         move_to = _pgn_load_move_to(text[-2:])
     except:
-        print(text)
         raise
 
     c = text[:-2]
@@ -72,7 +71,8 @@ def _pgn_load_move(text):
             piece = c
         elif c.islower():
             piece = 'P'
-            move_from = ord(c) - ord('a'), None
+            x = ord(c) - ord('a')
+            move_from = None, x
         else:
             assert False
     elif len(c) == 2:
@@ -121,21 +121,19 @@ def _pgn_load_moves(text):
 
 def _pgn_load(text):
     blocks = text.strip().split('\r\n\r\n')
-    games = []
+    samples = []
     for i in range(len(blocks)):
         if not i % 2:
             continue
         game = _pgn_load_moves(blocks[i])
+        if game is None:
+            continue
         board = Board.initial()
-        for i, move in enumerate(game[:-1]):
-            is_white = not i % 2
-            try:
-                sample = board.apply_pgn_move(move, is_white)
-            except:
-                print('*' * 80)
-                break
-            print(sample)
-    return games
+        for j, move in enumerate(game[:-1]):
+            is_white = not j % 2
+            sample = board.apply_pgn_move(move, is_white)
+            samples.append(sample)
+    return samples
 
 
 class Board(object):
@@ -254,11 +252,13 @@ class Board(object):
         else:
             y = to_y - 1
             x = to_x - 1
-            if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn:
+            if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn \
+                    and restrict_x in {None, x}:
                 ret.append((y, x))
             y = to_y - 1
             x = to_x + 1
-            if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn:
+            if 0 <= y < 8 and 0 <= x < 8 and self.arr[y, x] == self.my_pawn \
+                    and restrict_x in {None, x}:
                 ret.append((y, x))
         return ret
 
@@ -288,6 +288,15 @@ class Board(object):
                     break
                 else:
                     break
+        else:
+            assert self.arr[restrict_y, to_x] == self.my_rook
+            if restrict_y < to_y:
+                for x in range(restrict_y + 1, to_y + 1):
+                    assert self.arr[y, to_x] == self.space
+            else:
+                for x in range(to_y, restrict_y):
+                    assert self.arr[y, to_x] == self.space
+            ret.append((restrict_y, to_x))
 
         if restrict_x is None:
             for x in range(to_x - 1, -1, -1):
@@ -309,8 +318,17 @@ class Board(object):
                     break
                 else:
                     break
+        else:
+            assert self.arr[to_y, restrict_x] == self.my_rook
+            if restrict_x < to_x:
+                for x in range(restrict_x + 1, to_x + 1):
+                    assert self.arr[to_y, x] == self.space
+            else:
+                for x in range(to_x, restrict_x):
+                    assert self.arr[to_y, x] == self.space
+            ret.append((to_y, restrict_x))
 
-        return ret
+        return list(set(ret))
 
     def find_origin_knight(self, restrict, to):
         restrict_y, restrict_x = restrict
@@ -361,7 +379,7 @@ class Board(object):
                 if y == restrict_y or x == restrict_x:
                     continue
                 if not 0 <= y < 8 or not 0 <= x < 8:
-                    continue
+                    break
                 n = self.arr[y, x]
                 if n == self.my_bishop:
                     ret.append((y, x))
@@ -369,12 +387,31 @@ class Board(object):
         return ret
 
     def find_origin_queen(self, restrict, to):
-        return self.find_origin_rook(restrict, to) + \
-            self.find_origin_bishop(restrict, to)
+        restrict_y, restrict_x = restrict
+        to_y, to_x = to
+
+        ret = []
+
+        for off_y, off_x in [(1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1),
+                             (0, -1), (1, -1)]:
+            for i in range(8):
+                y = to_y + i * off_y
+                x = to_x + i * off_x
+                if y == restrict_y or x == restrict_x:
+                    continue
+                if not 0 <= y < 8 or not 0 <= x < 8:
+                    break
+                n = self.arr[y, x]
+                if n == self.my_queen:
+                    ret.append((y, x))
+
+        return ret
 
     def find_origin_king(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
+
+        ret = []
 
         for off_y in [-1, 0, 1]:
             for off_x in [-1, 0, 1]:
@@ -427,20 +464,19 @@ class Board(object):
     def white_kingside_castle(self):
         assert tuple(self.arr[0, 4:]) == \
             (self.my_king, self.space, self.space, self.my_rook)
-        self.arr[0, 4:] == (self.space, self.my_rook, self.my_king,
-                            self.space)
+        self.arr[0, 4:] = (self.space, self.my_rook, self.my_king, self.space)
 
     def black_kingside_castle(self):
         assert tuple(self.arr[0, :4]) == \
             (self.my_rook, self.space, self.space, self.my_king)
-        self.arr[0, :4] = (self.space, self.my_rook, self.my_king,
+        self.arr[0, :4] = (self.space, self.my_king, self.my_rook,
                            self.space)
 
     def black_queenside_castle(self):
         assert tuple(self.arr[0, 3:]) == \
             (self.my_king, self.space, self.space, self.space, self.my_rook)
         self.arr[0, 3:] = (self.space, self.my_rook, self.my_king,
-                           self.space)
+                           self.space, self.space)
 
     def castle(self, from_, to, is_white):
         if is_white:
@@ -519,9 +555,15 @@ def _process(zip_filename, processed_dir, verbose):
     paths = zip_.namelist()
     if verbose == 2:
         paths = tqdm(paths, leave=False)
+    samples = []
     for path in paths:
         text = zip_.open(path).read().decode('latin-1')
-        games = _pgn_load(text)
+        samples += _pgn_load(text)
+    np.random.shuffle(samples)
+    out = os.path.join(processed_dir, 'moves.txt')
+    with open(out, 'w') as out:
+        for sample in samples:
+            out.write(sample)
 
 
 def _load(processed_dir, val_frac, verbose):
@@ -533,6 +575,8 @@ def load_kingbase_chess(val_frac=0.2, verbose=2):
     processed_dir = os.path.join(dataset_dir, _PROCESSED_SUBDIR)
     if not os.path.exists(processed_dir):
         zip_filename = os.path.join(dataset_dir, _URL_BASENAME)
-        download(_URL, zip_filename, verbose)
+        if not os.path.exists(zip_filename):
+            download(_URL, zip_filename, verbose)
+        os.mkdir(processed_dir)
         _process(zip_filename, processed_dir, verbose)
     return _load(processed_dir, val_frac, verbose)
