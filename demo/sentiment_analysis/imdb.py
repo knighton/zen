@@ -17,26 +17,20 @@ def parse_args():
 
 
 def cnn(review_len, vocab_size):
-    conv = lambda n: SequenceSpec(Conv(n), BatchNorm, ReLU, MaxPool)
+    conv = lambda n: Conv(n) > BatchNorm > ReLU > MaxPool > Z
     cnn = []
     for n in [32] * 8:
         cnn.append(conv(n))
-    cnn = SequenceSpec(*cnn)
+    cnn = Sequence(*cnn)
     in_shape = review_len,
-    spec = SequenceSpec(
-        Input(in_shape, dtype='int64'), Embed(vocab_size, 64), cnn, Flatten,
-        Dense(1), Sigmoid)
-    model, out_shape, out_dtype = spec.build()
-    return model
+    return Input(in_shape, dtype='int64') > Embed(vocab_size, 64) > cnn > \
+        Flatten > Dense(1) > Sigmoid > Z
 
 
 def eru(review_len, vocab_size):
-    in_shape = review_len,
-    spec = SequenceSpec(
-        Input(in_shape, dtype='int64'), Embed(vocab_size, 64), ERU(64),
-        Dropout(0.1), ERU(64, ret='last'), Dropout(0.1), Dense(1), Sigmoid)
-    model, out_shape, out_dtype = spec.build()
-    return model
+    return Input((review_len,), dtype='int64') > Embed(vocab_size, 64) > \
+        ERU(64) > Dropout(0.1) > ERU(64, ret='last') > Dropout(0.1) > \
+        Dense(1) > Sigmoid > Z
 
 
 def transform(data, text_pipe, label_pipe):
