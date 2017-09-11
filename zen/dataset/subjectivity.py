@@ -45,7 +45,7 @@ def _read(processed_dir, basename, verbose):
 
 def _blend(obj, sbj, val_frac):
     samples = list(map(lambda text: (text, 0), obj)) + \
-              list(map(lambda text: (text, 1), sbj))
+        list(map(lambda text: (text, 1), sbj))
     shuffle(samples)
     x, y = list(zip(*samples))
     y = np.array(y, dtype='int64')

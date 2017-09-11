@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from zen.dataset.wine import load_wine_color
-from zen.layer import *
+from zen.layer import *  # noqa
 
 
 def parse_args():
@@ -15,12 +15,10 @@ def parse_args():
 
 
 def mlp(num_features):
-    layer = lambda n: SequenceSpec(Dense(n), BatchNorm, ReLU, Dropout(0.5))
-    mlp = SequenceSpec(layer(64), layer(64), layer(64), layer(8))
+    layer = lambda n: Dense(n) > BatchNorm > ReLU > Dropout(0.5) > Z
+    mlp = layer(64) > layer(64) > layer(64) > layer(8) > Z
     in_shape = num_features,
-    spec = SequenceSpec(Input(in_shape), mlp, Dense(1), Sigmoid)
-    model, out_shape, out_dtype = spec.build()
-    return model
+    return Input(in_shape) > mlp > Dense(1) > Sigmoid > Z
 
 
 def run(args):

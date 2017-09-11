@@ -3,8 +3,8 @@ import string
 import sys
 
 from zen.dataset.twenty_newsgroups import load_twenty_newsgroups
-from zen.layer import *
-from zen.transform import *
+from zen.layer import *  # noqa
+from zen.transform import *  # noqa
 
 
 def parse_args():
@@ -24,26 +24,26 @@ def cnn(review_len, vocab_size, num_classes):
     cnn = Sequence(*cnn)
     in_shape = review_len,
     return Input(in_shape, dtype='int64') > Embed(vocab_size, 32) > cnn > \
-           Flatten > Dense(num_classes) > Softmax > Z
+        Flatten > Dense(num_classes) > Softmax > Z
 
 
 def eru(review_len, vocab_size, num_classes):
     in_shape = review_len,
     return Input(in_shape, dtype='int64') > Embed(vocab_size, 64) > ERU(64) > \
-           Dropout(0.25) > ERU(64, ret='last') > Dropout(0.25) > \
-           Dense(num_classes) > Softmax > Z
+        Dropout(0.25) > ERU(64, ret='last') > Dropout(0.25) > \
+        Dense(num_classes) > Softmax > Z
 
 
 def gru(review_len, vocab_size, num_classes):
     in_shape = review_len,
     return Input(in_shape, dtype='int64') > Embed(vocab_size, 64) > \
-           GRU(64, ret='last') > Dense(num_classes) > Softmax > Z
+        GRU(64, ret='last') > Dense(num_classes) > Softmax > Z
 
 
 def lstm(review_len, vocab_size, num_classes):
     in_shape = review_len,
     return Input(in_shape, dtype='int64') > Embed(vocab_size, 64) > \
-           LSTM(64, ret='last') > Dense(num_classes) > Softmax > Z
+        LSTM(64, ret='last') > Dense(num_classes) > Softmax > Z
 
 
 def transform(data, text_pipe, label_pipe):

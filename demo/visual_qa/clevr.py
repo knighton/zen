@@ -3,9 +3,9 @@ import string
 import sys
 
 from zen.dataset.clevr import load_clevr
-from zen.layer import *
+from zen.layer import *  # noqa
 from zen.model import Graph
-from zen.transform import *
+from zen.transform import *  # noqa
 
 
 def parse_args():
@@ -26,15 +26,16 @@ dense = lambda n: Dense(n) > BatchNorm > ReLU > Dropout(0.5) > Z
 
 def cnn_cnn_mlp(image_shape, text_len, vocab_size, num_classes):
     image = Input(image_shape)
-    image_embedding = image > conv(32) > conv(32) > conv(32) > conv(32) > \
-                      conv(32) > Flatten > Z
+    image_embedding = image > conv(256) > conv(256) > conv(256) > conv(256) > \
+        conv(256) > conv(256) > Flatten > Z
 
     text = Input((text_len,), dtype='int64')
-    text_embedding = text > Embed(vocab_size, 64) > conv(64) > conv(64) > \
-                     conv(64) > conv(64) > Flatten > Z
+    text_embedding = text > Embed(vocab_size, 128) > conv(512) > conv(512) > \
+        conv(512) > conv(512) > Flatten > Z
 
     label = Concat()(image_embedding, text_embedding) > Dropout(0.5) > \
-            dense(512) > Dense(num_classes) > Softmax > Z
+        dense(512) > dense(512) > dense(512) > dense(512) > \
+        Dense(num_classes) > Softmax > Z
     return Graph([image, text], label)
 
 

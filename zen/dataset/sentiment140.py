@@ -39,6 +39,7 @@ def _process(local, processed_dir, verbose):
         for encoding in _ENCODINGS:
             try:
                 line = line.decode(encoding)
+                break
             except:
                 pass
         ss = line[1:-1].split('","')
@@ -76,7 +77,7 @@ def _load(processed_dir, val_frac, verbose):
     filename = os.path.join(processed_dir, _NEG_BASENAME)
     neg = _read_tweets(filename, verbose)
     samples = list(map(lambda tweet: (tweet, 1), pos)) + \
-              list(map(lambda tweet: (tweet, 0), neg))
+        list(map(lambda tweet: (tweet, 0), neg))
     if verbose:
         t0 = time()
     shuffle(samples)

@@ -3,9 +3,9 @@ import string
 import sys
 
 from zen.dataset.nlvr import load_nlvr
-from zen.layer import *
+from zen.layer import *  # noqa
 from zen.model import Graph
-from zen.transform import *
+from zen.transform import *  # noqa
 
 
 def parse_args():
@@ -25,14 +25,14 @@ dense = lambda n: Dense(n) > BatchNorm > ReLU > Dropout(0.5) > Z
 def cnn_cnn_mlp(image_shape, text_len, vocab_size):
     image = Input(image_shape)
     image_embedding = image > conv(32) > conv(32) > conv(32) > conv(32) > \
-                      conv(32) > Flatten > Z
+        conv(32) > Flatten > Z
 
     text = Input((text_len,), dtype='int64')
     text_embedding = text > Embed(vocab_size, 64) > conv(64) > conv(64) > \
-                     conv(64) > conv(64) > Flatten > Z
+        conv(64) > conv(64) > Flatten > Z
 
     label = Concat()(image_embedding, text_embedding) > Dropout(0.5) > \
-            dense(512) > dense(32) > Dense(1) > Sigmoid > Z
+        dense(512) > dense(32) > Dense(1) > Sigmoid > Z
     return Graph([image, text], label)
 
 

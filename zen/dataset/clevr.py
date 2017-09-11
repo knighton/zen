@@ -39,7 +39,7 @@ def _normalize_image_shape(shape, possible_image_shapes):
         shape = 60, 40
     assert shape in possible_image_shapes, \
         'Image shape %s is not available.  Possible values: %s.' % \
-            (shape, possible_image_shapes)
+        (shape, possible_image_shapes)
     return shape
 
 

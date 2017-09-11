@@ -3,9 +3,9 @@ import string
 import sys
 
 from zen.dataset.subjectivity import load_subjectivity
+from zen.layer import *  # noqa
 from zen.model import Graph
-from zen.layer import *
-from zen.transform import *
+from zen.transform import *  # noqa
 
 
 def parse_args():
@@ -26,14 +26,14 @@ def cnn(review_len, vocab_size):
     cnn = Sequence(*cnn)
     in_shape = review_len,
     return Input(in_shape, dtype='int64') > Embed(vocab_size, 64) > cnn > \
-           Flatten > Dense(1) > Sigmoid > Z
+        Flatten > Dense(1) > Sigmoid > Z
 
 
 def rnn(review_len, vocab_size):
     rnn = lambda n: BiLSTM(n, ret='last') > Dropout(0.5) > Z
     in_shape = review_len,
     return Input(in_shape, dtype='int64') > Embed(vocab_size, 32) > rnn(64) > \
-           Flatten > Dense(1) > Sigmoid > Z
+        Flatten > Dense(1) > Sigmoid > Z
 
 
 def cnn_rnn(review_len, vocab_size):

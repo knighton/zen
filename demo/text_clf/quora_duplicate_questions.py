@@ -5,9 +5,9 @@ import string
 import sys
 
 from zen.dataset.quora_duplicate_questions import load_quora_duplicate_questions
-from zen.layer import *
+from zen.layer import *  # noqa
 from zen.model import Graph
-from zen.transform import *
+from zen.transform import *  # noqa
 
 
 def parse_args():
@@ -28,7 +28,7 @@ def cnn(question_len, vocab_size):
     q1 = Input((question_len,), dtype='int64')
     q2 = Input((question_len,), dtype='int64')
     label = Concat()(q1, q2) > Embed(vocab_size, 8) > cnn > Flatten > \
-            Dense(1) > Sigmoid > Z
+        Dense(1) > Sigmoid > Z
     return Graph([q1, q2], label)
 
 

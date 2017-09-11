@@ -1,9 +1,8 @@
 from argparse import ArgumentParser
-from random import shuffle
 import sys
 
 from zen.dataset.cifar import load_cifar
-from zen.layer import *
+from zen.layer import *  # noqa
 from zen.model import Graph
 from zen.transform.one_hot import one_hot
 

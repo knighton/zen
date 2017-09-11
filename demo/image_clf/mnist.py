@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from zen.dataset.mnist import load_mnist
-from zen.layer import *
+from zen.layer import *  # noqa
 from zen.transform.one_hot import one_hot
 
 

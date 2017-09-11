@@ -2,8 +2,8 @@ from argparse import ArgumentParser
 import sys
 
 from zen.dataset.us_names import load_us_name_gender
-from zen.layer import *
-from zen.transform import *
+from zen.layer import *  # noqa
+from zen.transform import *  # noqa
 
 
 def parse_args():
@@ -22,8 +22,8 @@ def cnn(review_len, vocab_size):
     conv = lambda n: Conv(n) > BatchNorm > ReLU > Z
     block = lambda n: conv(n) > conv(n) > MaxPool > Z
     return Input((review_len,), dtype='int64') > Embed(vocab_size, 64) > \
-           block(64) > block(64) > block(64) > block(64) > Flatten > \
-           Dense(1) > Sigmoid > Z
+        block(64) > block(64) > block(64) > block(64) > Flatten > \
+        Dense(1) > Sigmoid > Z
 
 
 def name_to_ints(s, text_len):
