@@ -3,6 +3,9 @@ from .. import backend as Z
 
 get_ndim = Z.get_ndim
 get_shape = Z.get_shape
+reshape = Z.reshape
+permute = Z.permute
+repeat = Z.repeat
 
 
 """

@@ -15,6 +15,14 @@ def get_shape(x):
     return tuple(x.size())
 
 
+def permute(x, axes):
+    return x.permute(*axes)
+
+
+def repeat(x, shape):
+    return x.repeat(*shape)
+
+
 def expand_dims(x, axis):
     return x.unsqueeze(axis)
 

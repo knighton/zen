@@ -10,7 +10,8 @@ class ReshapeLayer(Transform):
         self.out_shape = out_shape
 
     def forward(self, x, is_training):
-        return Z.reshape(x, self.out_shape)
+        new_shape = (Z.get_shape(x)[0],) + self.out_shape
+        return Z.reshape(x, new_shape)
 
 
 class ReshapeSpec(TransformSpec):

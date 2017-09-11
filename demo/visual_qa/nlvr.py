@@ -36,6 +36,21 @@ def cnn_cnn_mlp(image_shape, text_len, vocab_size):
     return Graph([image, text], label)
 
 
+def cnn_cnn_rel(image_shape, text_len, vocab_size):
+    image = Input(image_shape)
+    image_grid = image > conv(32) > conv(32) > conv(32) > conv(32) > Z
+
+    text = Input((text_len,), dtype='int64')
+    text_embedding = text > Embed(vocab_size, 64) > conv(64) > conv(64) > \
+        conv(64) > conv(64) > Flatten > Z
+
+    relater_in_shape = 2 * 32 + 64,
+    relater = Input(relater_in_shape) > dense(64) > dense(64) > Z
+    label = EachPairWith(relater)(image_grid, text_embedding) > dense(64) > \
+        dense(64) > Dense(1) > Sigmoid > Z
+    return Graph([image, text], label)
+
+
 def transform_images(x):
     x = x.astype('float32')
     x -= x.mean()

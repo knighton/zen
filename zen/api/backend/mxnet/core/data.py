@@ -11,6 +11,14 @@ def get_shape(x):
     return x.shape
 
 
+def permute(x, axes):
+    return mx.nd.transpose(x, axes)
+
+
+def repeat(x, shape):
+    raise mx.nd.tile(x, shape)
+
+
 def expand_dims(x, axis):
     return mx.nd.expand_dims(x, axis)
 

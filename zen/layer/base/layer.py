@@ -27,6 +27,14 @@ class Layer(object):
             param = Z.constant(arr)
         return param
 
+    def add_variable_param(self, x):
+        """
+        variable ->
+
+        Networks inside networks (eg, relational networks).
+        """
+        self._params.append(x)
+
     def params(self):
         """
         -> variables

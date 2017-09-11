@@ -9,6 +9,7 @@ from .loss import *  # noqa
 from .merge import *  # noqa
 from .optim import *  # noqa
 from .proj import *  # noqa
+from .relational import *  # noqa
 from .shape import *  # noqa
 
 
