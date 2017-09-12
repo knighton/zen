@@ -619,7 +619,7 @@ def _load_board(block):
     dest = np.zeros((8, 8), dtype='uint8')
     coords = _yx_from_a1(to)
     dest[coords] = 1
-    return board, piece, dest
+    return board.flatten(), piece.flatten(), dest.flatten()
 
 
 def _stack(tuples):
@@ -666,7 +666,7 @@ class ChessSelectPieceDataset(Dataset):
         return len(self.boards)
 
     def get_sample(self, index):
-        board = self.board[index].astype('int64')
+        board = self.boards[index].astype('int64')
         piece = self.pieces[index].astype('float32')
         return (board,), (piece,)
 
@@ -681,7 +681,7 @@ class ChessSelectDestDataset(Dataset):
         return len(self.boards)
 
     def get_sample(self, index):
-        board = self.board[index].astype('int64')
+        board = self.boards[index].astype('int64')
         piece = self.pieces[index].astype('float32')
         dest = self.dests[index].astype('float32')
         return (board, piece), (dest,)
