@@ -3,6 +3,7 @@ import os
 from tqdm import tqdm
 from zipfile import ZipFile
 
+from ..model.data.dataset import Dataset
 from .util import download, get_dataset_dir
 
 
@@ -10,6 +11,7 @@ _DATASET_NAME = 'kingbase_chess'
 _URL = 'http://kingbase-chess.net/download/484'
 _URL_BASENAME = 'KingBase2017-pgn.zip'
 _PROCESSED_SUBDIR = 'processed'
+_PROCESSED_FILE = 'boards.txt'
 
 
 def _pgn_load_without_comments(text):
@@ -119,27 +121,6 @@ def _pgn_load_moves(text):
     return moves
 
 
-def _pgn_load(text):
-    blocks = text.strip().split('\r\n\r\n')
-    samples = []
-    for i in range(len(blocks)):
-        if not i % 2:
-            continue
-        game = _pgn_load_moves(blocks[i])
-        if game is None:
-            continue
-        board = Board.initial()
-        for j, move in enumerate(game[:-1]):
-            is_white = not j % 2
-            try:
-                sample = board.apply_pgn_move(move, is_white)
-            except:
-                print('Ambiguity at game %d, move %d, gave up.' % (i, j))
-                break
-            samples.append(sample)
-    return samples
-
-
 class Board(object):
     int2chr = '.prnbqkPRNBQK'
 
@@ -153,6 +134,13 @@ class Board(object):
 
     def __init__(self, arr):
         self.arr = arr
+
+    def to_numpy(self):
+        return self.arr
+
+    @classmethod
+    def from_numpy(cls, arr):
+        return cls(arr)
 
     def to_text(self):
         lines = []
@@ -169,7 +157,7 @@ class Board(object):
     def from_text(cls, text):
         lines = text.strip().split()
         assert len(lines) == 8
-        arr = np.zeros((8, 8), dtype='int8')
+        arr = np.zeros((8, 8), dtype='uint8')
         for y, line in enumerate(lines):
             assert len(line) == 8
             for x, c in enumerate(line):
@@ -237,7 +225,7 @@ class Board(object):
                     ret.append((i, j))
         return ret
 
-    def find_origin_pawn_forward(self, restrict, to):
+    def find_origin_of_pawn_forward(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
 
@@ -254,7 +242,7 @@ class Board(object):
         else:
             return []
 
-    def find_origin_pawn_en_passant_capture(self, restrict, to):
+    def find_origin_of_pawn_en_passant_capture(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
 
@@ -280,7 +268,7 @@ class Board(object):
 
         return ret
 
-    def find_origin_pawn_normal_capture(self, restrict, to):
+    def find_origin_of_pawn_normal_capture(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
 
@@ -300,18 +288,18 @@ class Board(object):
 
         return ret
 
-    def find_origin_pawn(self, restrict, to):
+    def find_origin_of_pawn(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
         ret = []
         if self.arr[to] == self.space:
-            ret += self.find_origin_pawn_forward(restrict, to)
-            ret += self.find_origin_pawn_en_passant_capture(restrict, to)
+            ret += self.find_origin_of_pawn_forward(restrict, to)
+            ret += self.find_origin_of_pawn_en_passant_capture(restrict, to)
         else:
-            ret += self.find_origin_pawn_normal_capture(restrict, to)
+            ret += self.find_origin_of_pawn_normal_capture(restrict, to)
         return ret
 
-    def find_origin_rook(self, restrict, to):
+    def find_origin_of_rook(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
         if restrict_y is not None:
@@ -339,7 +327,7 @@ class Board(object):
                     break
         return list(set(ret))
 
-    def find_origin_knight(self, restrict, to):
+    def find_origin_of_knight(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
 
@@ -375,7 +363,7 @@ class Board(object):
 
         return ret
 
-    def find_origin_bishop(self, restrict, to):
+    def find_origin_of_bishop(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
 
@@ -395,7 +383,7 @@ class Board(object):
 
         return ret
 
-    def find_origin_queen(self, restrict, to):
+    def find_origin_of_queen(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
 
@@ -416,7 +404,7 @@ class Board(object):
 
         return ret
 
-    def find_origin_king(self, restrict, to):
+    def find_origin_of_king(self, restrict, to):
         restrict_y, restrict_x = restrict
         to_y, to_x = to
 
@@ -445,15 +433,15 @@ class Board(object):
         return ret
 
     PIECE_CHR2FIND_ORIGIN = {
-        'p': find_origin_pawn,
-        'r': find_origin_rook,
-        'n': find_origin_knight,
-        'b': find_origin_bishop,
-        'q': find_origin_queen,
-        'k': find_origin_king,
+        'p': find_origin_of_pawn,
+        'r': find_origin_of_rook,
+        'n': find_origin_of_knight,
+        'b': find_origin_of_bishop,
+        'q': find_origin_of_queen,
+        'k': find_origin_of_king,
     }
 
-    def find_origin(self, piece_chr, maybe_from, to):
+    def find_origin_of(self, piece_chr, maybe_from, to):
         if maybe_from is None:
             maybe_from = None, None
         elif maybe_from[0] is not None and maybe_from[1] is not None:
@@ -551,7 +539,7 @@ class Board(object):
                 maybe_from = self.rotate_coords(maybe_from)
                 to = self.rotate_coords(to)
 
-            from_, en_passant = self.find_origin(piece, maybe_from, to)
+            from_, en_passant = self.find_origin_of(piece, maybe_from, to)
 
             piece_at_target = self.arr[to[0], to[1]]
             whose = self.whose_piece(piece_at_target)
@@ -566,13 +554,36 @@ class Board(object):
         from_pgn = self.to_pgn_coords(from_)
         to_pgn = self.to_pgn_coords(to)
         top_line = '%s %s\n' % (from_pgn, to_pgn)
-        ret = top_line + self.to_text()
+        ret = top_line + self.to_text() + '\n'
 
         self.move(from_, to, is_white, en_passant, promote_to)
 
         self.rotate()
 
         return ret
+
+
+def _process_pgns(text):
+    blocks = text.strip().split('\r\n\r\n')
+    samples = []
+    for i in range(len(blocks)):
+        if not i % 2:
+            continue
+        if 0.01 < np.random.random():
+            continue
+        game = _pgn_load_moves(blocks[i])
+        if game is None:
+            continue
+        board = Board.initial()
+        for j, move in enumerate(game[:-1]):
+            is_white = not j % 2
+            try:
+                sample = board.apply_pgn_move(move, is_white)
+            except:
+                print('Ambiguity at game %d, move %d, gave up.' % (i, j))
+                break
+            samples.append(sample)
+    return samples
 
 
 def _process(zip_filename, processed_dir, verbose):
@@ -583,25 +594,112 @@ def _process(zip_filename, processed_dir, verbose):
     samples = []
     for path in paths:
         text = zip_.open(path).read().decode('latin-1')
-        samples += _pgn_load(text)
+        samples += _process_pgns(text)
     np.random.shuffle(samples)
-    out = os.path.join(processed_dir, 'moves.txt')
+    out = os.path.join(processed_dir, _PROCESSED_FILE)
     with open(out, 'w') as out:
         for sample in samples:
             out.write(sample)
 
 
-def _load(processed_dir, val_frac, verbose):
-    raise NotImplementedError # XXX
+def _yx_from_a1(a1):
+    x = ord(a1[0]) - ord('a')
+    y = ord(a1[1]) - ord('1')
+    return y, x
 
 
-def load_kingbase_chess(val_frac=0.2, verbose=2):
-    dataset_dir = get_dataset_dir(_DATASET_NAME)
-    processed_dir = os.path.join(dataset_dir, _PROCESSED_SUBDIR)
+def _load_board(block):
+    x = block.index('\n')
+    from_, to = block[:x].split()
+    board = Board.from_text(block[x + 1:])
+    board = board.to_numpy()
+    piece = np.zeros((8, 8), dtype='uint8')
+    coords = _yx_from_a1(from_)
+    piece[coords] = 1
+    dest = np.zeros((8, 8), dtype='uint8')
+    coords = _yx_from_a1(to)
+    dest[coords] = 1
+    return board, piece, dest
+
+
+def _stack(tuples):
+    arrs = list(zip(*tuples))
+    for i, arr in enumerate(arrs):
+        arrs[i] = np.stack(arr)
+    return tuple(arrs)
+
+
+def _load_boards(processed_dir, val_frac, verbose):
+    filename = os.path.join(processed_dir, _PROCESSED_FILE)
+    text = open(filename, 'r').read()
+    blocks = text.split('\n\n')[:-1]
+    if verbose == 2:
+        blocks = tqdm(blocks, leave=False)
+    tuples = []
+    for block in blocks:
+        arrs = _load_board(block)
+        tuples.append(arrs)
+    split = int(len(tuples) * val_frac)
+    train = _stack(tuples[split:])
+    val = _stack(tuples[:split])
+    return train, val
+
+
+def _ready(dataset_name, processed_subdir, url_basename):
+    dataset_dir = get_dataset_dir(dataset_name)
+    processed_dir = os.path.join(dataset_dir, processed_subdir)
     if not os.path.exists(processed_dir):
-        zip_filename = os.path.join(dataset_dir, _URL_BASENAME)
+        zip_filename = os.path.join(dataset_dir, url_basename)
         if not os.path.exists(zip_filename):
             download(_URL, zip_filename, verbose)
         os.mkdir(processed_dir)
         _process(zip_filename, processed_dir, verbose)
-    return _load(processed_dir, val_frac, verbose)
+    return processed_dir
+
+
+class ChessSelectPieceDataset(Dataset):
+    def __init__(self, boards, pieces):
+        self.boards = boards
+        self.pieces = pieces
+
+    def get_num_samples(self):
+        return len(self.boards)
+
+    def get_sample(self, index):
+        board = self.board[index].astype('int64')
+        piece = self.pieces[index].astype('float32')
+        return (board,), (piece,)
+
+
+class ChessSelectDestDataset(Dataset):
+    def __init__(self, boards, pieces, dests):
+        self.boards = boards
+        self.pieces = pieces
+        self.dests = dests
+
+    def get_num_samples(self):
+        return len(self.boards)
+
+    def get_sample(self, index):
+        board = self.board[index].astype('int64')
+        piece = self.pieces[index].astype('float32')
+        dest = self.dests[index].astype('float32')
+        return (board, piece), (dest,)
+
+
+def load_chess_moves_select_piece(val_frac=0.2, verbose=2):
+    processed_dir = _ready(_DATASET_NAME, _PROCESSED_SUBDIR, _URL_BASENAME)
+    train, val = _load_boards(processed_dir, val_frac, verbose)
+    train_boards, train_pieces, _ = train
+    train = ChessSelectPieceDataset(train_boards, train_pieces)
+    val_boards, val_pieces, _ = val
+    val = ChessSelectPieceDataset(val_boards, val_pieces)
+    return train, val
+
+
+def load_chess_moves_select_dest(val_frac=0.2, verbose=2):
+    processed_dir = _ready(_DATASET_NAME, _PROCESSED_SUBDIR, _URL_BASENAME)
+    train, val = _load_boards(processed_dir, val_frac, verbose)
+    train = ChessSelectDestDataset(*train)
+    val = ChessSelectDestDataset(*val)
+    return train, val
