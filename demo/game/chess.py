@@ -40,56 +40,77 @@ def show_board(board, heatmap, selected_yx):
     print(''.join(lines))
 
 
-def console(piece_model, target_model):
+def select(heatmap, strategy):
+    if strategy == 'best':
+        index = heatmap.argmax()
+    elif strategy == 'sample':
+        cumsum = heatmap.cumsum()
+        rand = np.random.random() * cumsum[-1]
+        for index, cumsum_up_to in enumerate(heatmap.flatten()):
+            if rand < cumsum_up_to:
+                break
+    else:
+        assert False, 'Unknown strategy (%s).' % strategy
+    yx = index // 8, index % 8
+    return a1_from_yx(yx)
+
+
+def select_piece(piece_model, board, strategy):
+    indexes = board.to_numpy()
+    board_arr = np.equal.outer(np.arange(13), indexes).astype('float32')
+    board_arr = board_arr.reshape((1, 13, 8, 8))
+    heatmap, = piece_model.predict_on_batch([board_arr])
+    piece = select(heatmap, strategy)
+    return board_arr, heatmap.reshape((8, 8)), piece
+
+
+def select_target(target_model, board, board_arr, piece, strategy):
+    piece_yx = _yx_from_a1(piece)
+    piece_arr = np.zeros((1, 1, 8, 8), dtype='float32')
+    piece_arr[0, 0, piece_yx[0], piece_yx[1]] = 1.
+    board_from_arr = np.concatenate([board_arr, piece_arr], 1)
+    heatmap, = target_model.predict_on_batch([board_from_arr])
+    target = select(heatmap, strategy)
+    return heatmap.reshape((8, 8)), target
+
+
+def move(board, piece, target):
+    piece = _yx_from_a1(piece)
+    target = _yx_from_a1(target)
+    board.move(piece, target, True, False, None)
+
+
+def input_with_default(text, default):
+    s = input(text)
+    if not s:
+        s = default
+    return s
+
+
+def console(piece_model, target_model, my_strategy='best',
+            their_strategy='sample'):
     board = Board.initial()
     while True:
-        indexes = board.to_numpy()
-        board_arr = np.equal.outer(np.arange(13), indexes).astype('float32')
-        board_arr = board_arr.reshape((1, 13, 8, 8))
-        heatmap, = piece_model.predict_on_batch([board_arr])
-        heatmap = heatmap.reshape((8, 8))
-        show_board(board, heatmap, None)
+        board_arr, piece_heatmap, default_piece = \
+            select_piece(piece_model, board, my_strategy)
+        show_board(board, piece_heatmap, None)
+        piece = input_with_default('move piece at (%s): ' % default_piece,
+                                   default_piece)
 
-        n = heatmap.argmax()
-        best_from_yx = n // 8, n % 8
-        best_from_a1 = a1_from_yx(best_from_yx)
-        from_a1 = input('move piece at (%s): ' % best_from_a1)
-        if not from_a1:
-            from_a1 = best_from_a1
-        from_yx = _yx_from_a1(from_a1)
-        from_arr = np.zeros((1, 1, 8, 8), dtype='float32')
-        from_arr[0, 0, from_yx[0], from_yx[1]] = 1.
-        board_from_arr = np.concatenate([board_arr, from_arr], 1)
-        heatmap, = target_model.predict_on_batch([board_from_arr])
-        heatmap = heatmap.reshape((8, 8))
-        show_board(board, heatmap, from_yx)
+        target_heatmap, default_target = select_target(
+            target_model, board, board_arr, piece, my_strategy)
+        show_board(board, target_heatmap, piece)
+        target = input_with_default('move piece to (%s): ' % default_target,
+                                    default_target)
 
-        n = heatmap.argmax()
-        best_to_yx = n // 8, n % 8
-        best_to_a1 = a1_from_yx(best_to_yx)
-        to_a1 = input('move piece to (%s): ' % best_to_a1)
-        if not to_a1:
-            to_a1 = best_to_a1
-        to_yx = _yx_from_a1(to_a1)
-        board.move(from_yx, to_yx, True, False, None)
+        move(board, piece, target)
 
         board.rotate()
 
-        indexes = board.to_numpy()
-        board_arr = np.equal.outer(np.arange(13), indexes).astype('float32')
-        board_arr = board_arr.reshape((1, 13, 8, 8))
-        heatmap, = piece_model.predict_on_batch([board_arr])
-        n = heatmap.argmax()
-        best_from_yx = n // 8, n % 8
-
-        from_arr = np.zeros((1, 1, 8, 8), dtype='float32')
-        from_arr[0, 0, best_from_yx[0], best_from_yx[1]] = 1.
-        board_from_arr = np.concatenate([board_arr, from_arr], 1)
-        heatmap, = target_model.predict_on_batch([board_from_arr])
-        n = heatmap.argmax()
-        best_to_yx = n // 8, n % 8
-
-        board.move(best_from_yx, best_to_yx, True, False, None)
+        board_arr, _, piece = select_piece(piece_model, board, their_strategy)
+        _, target = select_target(target_model, board, board_arr, piece,
+                                  my_strategy)
+        move(board, piece, target)
 
         board.rotate()
 
