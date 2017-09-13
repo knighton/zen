@@ -1,3 +1,4 @@
+from colorama import Fore, Style
 import numpy as np
 import os
 from tqdm import tqdm
@@ -149,8 +150,65 @@ class Board(object):
             for x in range(8):
                 n = self.arr[y, x]
                 c = self.int2chr[n]
-                line.append(c)
+                line.append(c + ' ')
             lines.append(''.join(line))
+        return ''.join(map(lambda line: line + '\n', lines))
+
+    def to_color_text(self, heatmap, selected_yx):
+        lines = []
+        lines.append(Fore.WHITE + Style.DIM + '  ╔' + '─' * 17 + '╗' +
+                     Style.RESET_ALL)
+        for y in reversed(range(8)):
+            if selected_yx is not None and y == selected_yx[0]:
+                color = Fore.WHITE + Style.BRIGHT
+            else:
+                color = Fore.WHITE + Style.DIM
+            line = [color + str(y + 1), '│'+ Style.RESET_ALL]
+            for x in range(8):
+                n = self.arr[y, x]
+                c = self.int2chr[n]
+                if c == '.':
+                    c = '.'  # '■'
+                heat = heatmap[y][x]
+                if selected_yx is not None and selected_yx[0] == y and \
+                        selected_yx[1] == x:
+                    color = Fore.WHITE
+                elif heat < 0.001:
+                    color = Style.DIM + Fore.BLUE
+                elif heat <= 0.01:
+                    color = Fore.BLUE
+                elif heat < 0.025:
+                    color = Style.BRIGHT + Fore.BLUE
+                elif heat < 0.1:
+                    color = Fore.CYAN
+                elif heat < 0.2:
+                    color = Style.BRIGHT + Fore.GREEN
+                elif heat < 0.5:
+                    color = Style.BRIGHT + Fore.YELLOW
+                else:
+                    color = Style.BRIGHT + Fore.RED
+                line.append(color + c + Style.RESET_ALL)
+            line.append(Fore.WHITE + Style.DIM + '│' + Style.RESET_ALL)
+            lines.append(' '.join(line))
+        left = Fore.WHITE + Style.DIM + '  ╚─' + Style.RESET_ALL
+        middle = []
+        for x in range(8):
+            if selected_yx is not None and selected_yx[1] == x:
+                color = Fore.WHITE + Style.BRIGHT
+            else:
+                color = Fore.WHITE + Style.DIM
+            middle.append(color + '─' + Style.RESET_ALL)
+        middle = (Fore.WHITE + Style.DIM + '─' + Style.RESET_ALL).join(middle)
+        right = Fore.WHITE + Style.DIM + '─╝' + Style.RESET_ALL
+        lines.append(left + middle + right)
+        line = []
+        for i, c in enumerate('abcdefgh'):
+            if selected_yx is not None and i == selected_yx[1]:
+                color = Fore.WHITE + Style.BRIGHT
+            else:
+                color = Fore.WHITE + Style.DIM
+            line.append(color + c + Style.RESET_ALL)
+        lines.append('    ' + ' '.join(line))
         return ''.join(map(lambda line: line + '\n', lines))
 
     @classmethod
@@ -608,6 +666,13 @@ def _yx_from_a1(a1):
     return y, x
 
 
+def a1_from_yx(yx):
+    y, x = yx
+    _18 = '12345678'[y]
+    ah = 'abcdefgh'[x]
+    return ah + _18
+
+
 def _load_board(block):
     x = block.index('\n')
     from_, to = block[:x].split()
@@ -632,7 +697,7 @@ def _stack(tuples):
 def _load_boards(processed_dir, val_frac, verbose):
     filename = os.path.join(processed_dir, _PROCESSED_FILE)
     text = open(filename, 'r').read()
-    blocks = text.split('\n\n')[:-1]
+    blocks = text.split('\n\n')[:-1][:1000000]
     if verbose == 2:
         blocks = tqdm(blocks, leave=False)
     tuples = []
@@ -694,7 +759,7 @@ class ChessTargetSelectionDataset(Dataset):
         return (board_plus_from,), (to,)
 
 
-def load_chess_moves_select_piece(val_frac=0.2, verbose=2):
+def load_chess_piece_selection(val_frac=0.2, verbose=2):
     processed_dir = _ready(_DATASET_NAME, _PROCESSED_SUBDIR, _URL_BASENAME)
     train, val = _load_boards(processed_dir, val_frac, verbose)
     train_boards, train_pieces, _ = train
@@ -704,7 +769,7 @@ def load_chess_moves_select_piece(val_frac=0.2, verbose=2):
     return train, val
 
 
-def load_chess_moves_select_target(val_frac=0.2, verbose=2):
+def load_chess_target_selection(val_frac=0.2, verbose=2):
     processed_dir = _ready(_DATASET_NAME, _PROCESSED_SUBDIR, _URL_BASENAME)
     train, val = _load_boards(processed_dir, val_frac, verbose)
     train = ChessTargetSelectionDataset(*train)
