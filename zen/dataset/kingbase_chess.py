@@ -616,10 +616,10 @@ def _load_board(block):
     piece = np.zeros((8, 8), dtype='uint8')
     coords = _yx_from_a1(from_)
     piece[coords] = 1
-    dest = np.zeros((8, 8), dtype='uint8')
+    target = np.zeros((8, 8), dtype='uint8')
     coords = _yx_from_a1(to)
-    dest[coords] = 1
-    return board.flatten(), piece.flatten(), dest.flatten()
+    target[coords] = 1
+    return board, piece, target
 
 
 def _stack(tuples):
@@ -666,25 +666,28 @@ class ChessSelectPieceDataset(Dataset):
         return len(self.boards)
 
     def get_sample(self, index):
-        board = self.boards[index].astype('int64')
-        piece = self.pieces[index].astype('float32')
+        indexes = self.boards[index]
+        board = np.equal.outer(np.arange(13), indexes).astype('float32')
+        piece = self.pieces[index].astype('float32').flatten()
         return (board,), (piece,)
 
 
-class ChessSelectDestDataset(Dataset):
-    def __init__(self, boards, pieces, dests):
+class ChessSelectTargetDataset(Dataset):
+    def __init__(self, boards, pieces, targets):
         self.boards = boards
         self.pieces = pieces
-        self.dests = dests
+        self.targets = targets
 
     def get_num_samples(self):
         return len(self.boards)
 
     def get_sample(self, index):
-        board = self.boards[index].astype('int64')
-        piece = self.pieces[index].astype('float32')
-        dest = self.dests[index].astype('float32')
-        return (board, piece), (dest,)
+        indexes = self.boards[index]
+        board = np.equal.outer(np.arange(13), indexes).astype('float32')
+        piece = self.pieces[index].astype('float32').reshape((1, 8, 8))
+        board_plus_selected = np.vstack([board, piece])
+        target = self.targets[index].astype('float32').flatten()
+        return (board_plus_selected,), (target,)
 
 
 def load_chess_moves_select_piece(val_frac=0.2, verbose=2):
@@ -697,9 +700,9 @@ def load_chess_moves_select_piece(val_frac=0.2, verbose=2):
     return train, val
 
 
-def load_chess_moves_select_dest(val_frac=0.2, verbose=2):
+def load_chess_moves_select_target(val_frac=0.2, verbose=2):
     processed_dir = _ready(_DATASET_NAME, _PROCESSED_SUBDIR, _URL_BASENAME)
     train, val = _load_boards(processed_dir, val_frac, verbose)
-    train = ChessSelectDestDataset(*train)
-    val = ChessSelectDestDataset(*val)
+    train = ChessSelectTargetDataset(*train)
+    val = ChessSelectTargetDataset(*val)
     return train, val
