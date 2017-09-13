@@ -45,8 +45,8 @@ def select(heatmap, strategy):
         index = heatmap.argmax()
     elif strategy == 'sample':
         cumsum = heatmap.cumsum()
-        rand = np.random.random() * cumsum[-1]
-        for index, cumsum_up_to in enumerate(heatmap.flatten()):
+        rand = np.random.random()
+        for index, cumsum_up_to in enumerate(cumsum):
             if rand < cumsum_up_to:
                 break
     else:
@@ -109,7 +109,8 @@ def console(piece_model, target_model, my_strategy='best',
 
         board_arr, _, piece = select_piece(piece_model, board, their_strategy)
         _, target = select_target(target_model, board, board_arr, piece,
-                                  my_strategy)
+                                  their_strategy)
+        print('\nThe computer moved from %s to %s.' % (piece, target))
         move(board, piece, target)
 
         board.rotate()
