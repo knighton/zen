@@ -613,13 +613,13 @@ def _load_board(block):
     from_, to = block[:x].split()
     board = Board.from_text(block[x + 1:])
     board = board.to_numpy()
-    piece = np.zeros((8, 8), dtype='uint8')
-    coords = _yx_from_a1(from_)
-    piece[coords] = 1
-    target = np.zeros((8, 8), dtype='uint8')
-    coords = _yx_from_a1(to)
-    target[coords] = 1
-    return board, piece, target
+    yx = _yx_from_a1(from_)
+    index = yx[0] * 8 + yx[1]
+    from_ = np.array([index], dtype='int8')
+    yx = _yx_from_a1(to)
+    index = yx[0] * 8 + yx[1]
+    to = np.array([index], dtype='int8')
+    return board, from_, to
 
 
 def _stack(tuples):
@@ -657,10 +657,10 @@ def _ready(dataset_name, processed_subdir, url_basename):
     return processed_dir
 
 
-class ChessSelectPieceDataset(Dataset):
-    def __init__(self, boards, pieces):
+class ChessPieceSelectionDataset(Dataset):
+    def __init__(self, boards, froms):
         self.boards = boards
-        self.pieces = pieces
+        self.froms = froms
 
     def get_num_samples(self):
         return len(self.boards)
@@ -668,15 +668,16 @@ class ChessSelectPieceDataset(Dataset):
     def get_sample(self, index):
         indexes = self.boards[index]
         board = np.equal.outer(np.arange(13), indexes).astype('float32')
-        piece = self.pieces[index].astype('float32').flatten()
-        return (board,), (piece,)
+        from_ = np.zeros((64,), dtype='float32')
+        from_[self.froms[index]] = 1.
+        return (board,), (from_,)
 
 
-class ChessSelectTargetDataset(Dataset):
-    def __init__(self, boards, pieces, targets):
+class ChessTargetSelectionDataset(Dataset):
+    def __init__(self, boards, froms, tos):
         self.boards = boards
-        self.pieces = pieces
-        self.targets = targets
+        self.froms = froms
+        self.tos = tos
 
     def get_num_samples(self):
         return len(self.boards)
@@ -684,25 +685,28 @@ class ChessSelectTargetDataset(Dataset):
     def get_sample(self, index):
         indexes = self.boards[index]
         board = np.equal.outer(np.arange(13), indexes).astype('float32')
-        piece = self.pieces[index].astype('float32').reshape((1, 8, 8))
-        board_plus_selected = np.vstack([board, piece])
-        target = self.targets[index].astype('float32').flatten()
-        return (board_plus_selected,), (target,)
+        from_ = np.zeros((64,), dtype='float32')
+        from_[self.froms[index]] = 1.
+        from_ = from_.reshape((1, 8, 8))
+        board_plus_from = np.vstack([board, from_])
+        to = np.zeros((64,), dtype='float32')
+        to[self.tos[index]] = 1.
+        return (board_plus_from,), (to,)
 
 
 def load_chess_moves_select_piece(val_frac=0.2, verbose=2):
     processed_dir = _ready(_DATASET_NAME, _PROCESSED_SUBDIR, _URL_BASENAME)
     train, val = _load_boards(processed_dir, val_frac, verbose)
     train_boards, train_pieces, _ = train
-    train = ChessSelectPieceDataset(train_boards, train_pieces)
+    train = ChessPieceSelectionDataset(train_boards, train_pieces)
     val_boards, val_pieces, _ = val
-    val = ChessSelectPieceDataset(val_boards, val_pieces)
+    val = ChessPieceSelectionDataset(val_boards, val_pieces)
     return train, val
 
 
 def load_chess_moves_select_target(val_frac=0.2, verbose=2):
     processed_dir = _ready(_DATASET_NAME, _PROCESSED_SUBDIR, _URL_BASENAME)
     train, val = _load_boards(processed_dir, val_frac, verbose)
-    train = ChessSelectTargetDataset(*train)
-    val = ChessSelectTargetDataset(*val)
+    train = ChessTargetSelectionDataset(*train)
+    val = ChessTargetSelectionDataset(*val)
     return train, val
