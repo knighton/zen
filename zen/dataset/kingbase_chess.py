@@ -5,7 +5,7 @@ from tqdm import tqdm
 from zipfile import ZipFile
 
 from ..model.data.dataset import Dataset
-from .chess import Board
+from .chessboard import Board
 from .util import download, get_dataset_dir
 
 
