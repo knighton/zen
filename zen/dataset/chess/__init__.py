@@ -19,7 +19,7 @@ def _each_pgn(text):
     blocks = text.strip().split('\r\n\r\n')
     assert len(blocks) % 2 == 0
     for i in range(0, len(blocks), 2):
-        if 0.001 < np.random.random():
+        if 0.01 < np.random.random():
             continue
         text = '\r\n\r\n'.join([blocks[i], blocks[i + 1]])
         yield PGN.from_text(text)
@@ -40,8 +40,9 @@ def _process(zip_filename, processed_dir, verbose):
     os.mkdir(processed_dir)
     out = os.path.join(processed_dir, _PROCESSED_FILE)
     with open(out, 'w') as out:
-        for board in boards:
-            out.write(board)
+        for board in boards[:-1]:
+            out.write(board + '\n')
+        out.write(boards[-1])
 
 
 def _ready(dataset_name, processed_subdir, url_basename, verbose):

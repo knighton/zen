@@ -24,6 +24,17 @@ class Game(object):
         self.has_their_king_moved = has_their_king_moved
         self.i_won = i_won
 
+    def dump_board(self):
+        lines = []
+        for y in reversed(range(8)):
+            line = []
+            for x in range(8):
+                n = self.board[y, x]
+                c = Chess.int2chr[n]
+                line.append(c)
+            lines.append(''.join(line))
+        return '\n'.join(lines) + '\n'
+
     @classmethod
     def from_text(cls, text, moves, has_my_king_moved, has_their_king_moved,
                   i_won):
@@ -51,13 +62,20 @@ class Game(object):
         return cls.from_text(board, [], False, False, None)
 
     @classmethod
-    def a1_to_yx(self, a1):
+    def a1_to_yx(cls, a1):
         assert len(a1) == 2
         assert 'a' <= a1[0] <= 'h'
         assert '1' <= a1[1] <= '8'
         x = ord(a1[0]) - ord('a')
         y = ord(a1[1]) - ord('1')
         return y, x
+
+    @classmethod
+    def yx_to_a1(cls, yx):
+        y, x = yx
+        one = '12345678'[y]
+        a = 'abcdefgh'[x]
+        return a + one
 
     @classmethod
     def decode_pgn_move(cls, text):
@@ -275,8 +293,10 @@ class Game(object):
 
     @classmethod
     def each_board(cls, pgn):
-        game = Game.start()
         result = pgn.tags['Result']
+        if result == '*':
+            return
+        game = Game.start()
         will_win = {
             '1-0': 1,
             '1/2-1/2': 0,
@@ -284,10 +304,20 @@ class Game(object):
         }[result]
         for i, move in enumerate(pgn.moves[:-1]):
             is_white = i % 2 == 0
+            board = game.dump_board()
             ok, from_yx, to_yx = game.apply_pgn_move(move, is_white)
             assert ok
+            from_a1 = cls.yx_to_a1(from_yx)
+            to_a1 = cls.yx_to_a1(to_yx)
+            will_win_chr = {
+                1: 'W',
+                0: 'D',
+                -1: 'L',
+            }[will_win]
+            top_line = ' '.join([from_a1, to_a1, str(i),
+                                 str(len(pgn.moves) - 1), will_win_chr])
+            yield '\n'.join([top_line, board])
             will_win *= -1
-        return []  # XXX
 
     def can_move_piece_at(self, from_yx):
         """
