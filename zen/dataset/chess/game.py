@@ -322,6 +322,44 @@ class Game(object):
             will_win *= -1
         return boards
 
+    @classmethod
+    def make_board_arrays(cls, pgn):
+        result = pgn.tags['Result']
+        if result == '*':
+            return
+        game = Game.start()
+        will_win = {
+            '1-0': 1,
+            '1/2-1/2': 0,
+            '0-1': -1,
+        }[result]
+        arrays = []
+        for i, move in enumerate(pgn.moves[:-1]):
+            board_ints = []
+            is_white = i % 2 == 0
+            for y in range(8):
+                mul = 1
+                int_ = 0
+                for x in range(8):
+                    int_ += game.board[y, 7 - x] * mul
+                    mul *= 16
+                board_ints.append(int_)
+            ok, from_yx, to_yx = game.apply_pgn_move(move, is_white)
+            assert ok
+            move_int = from_yx[0] * 8 * 8 * 8 + from_yx[1] * 8 * 8 + \
+                to_yx[0] * 8 + to_yx[1]
+            n = len(pgn.moves) - 1
+            assert 0 <= i < n < 512
+            move_int *= 512
+            move_int += i
+            move_int *= 512
+            move_int += i
+            move_int *= 4
+            move_int += will_win + 1
+            arr = np.array(board_ints + [move_int], dtype='uint32')
+            arrays.append(arr)
+        return arrays
+
     def can_move_piece_at(self, from_yx):
         """
         Return whether the player can move the piece.
