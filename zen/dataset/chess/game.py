@@ -166,6 +166,84 @@ class Game(object):
         self.switch_sides()
         return ret
 
+    def find_my_king(self):
+        for y in range(8):
+            for x in range(8):
+                if self.board[y, x] == Chess.my_king:
+                    return y, x
+
+    def is_piece(self, y, x, piece):
+        if not 0 <= y < 8:
+            return False
+        if not 0 <= x < 8:
+            return False
+        return self.board[y, x] == piece
+
+    def is_in_check(self):
+        king_y, king_x = self.find_my_king()
+
+        if self.is_piece(king_y + 1, king_x - 1, Chess.their_pawn):
+            return True
+        if self.is_piece(king_y + 1, king_x + 1, Chess.their_pawn):
+            return True
+
+        for off_y, off_x in [(2, 1), (1, 2), (-1, 2), (-2, 1), (-2, -1),
+                             (-1, -2), (1, -2), (2, -1)]:
+            if self.is_piece(king_y + off_y, king_x + off_x,
+                             Chess.their_knight):
+                return True
+
+        for off_y, off_x in [(1, 0), (0, 1), (-1, 0), (0, -1)]:
+            for i in range(1, 8):
+                y = king_y + i * off_y
+                x = king_x + i * off_x
+                if self.is_piece(y, x, Chess.space):
+                    continue
+                elif self.is_piece(y, x, Chess.their_rook):
+                    return True
+                elif self.is_piece(y, x, Chess.their_queen):
+                    return True
+                else:
+                    break
+
+        for off_y, off_x in [(1, 1), (-1, 1), (-1, -1), (1, -1)]:
+            for i in range(1, 8):
+                y = king_y + i * off_y
+                x = king_x + i * off_x
+                if self.is_piece(y, x, Chess.space):
+                    continue
+                elif self.is_piece(y, x, Chess.their_bishop):
+                    return True
+                elif self.is_piece(y, x, Chess.their_queen):
+                    return True
+                else:
+                    break
+
+        for off_y, off_x in [(1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1),
+                             (0, -1), (1, -1)]:
+            if self.is_piece(king_y + off_y, king_x + off_x, Chess.their_king):
+                return True
+
+        return False
+
+    def find_origin_of_piece(self, piece_type, restrict_yx, to_yx):
+        class_ = self.piece_classes[piece_type - 1]
+        options = class_.find_origin(self.board, restrict_yx, to_yx)
+        filtered = []
+        if len(options) != 1:
+            for from_yx in options:
+                to_piece = self.board[to_yx]
+                self.board[to_yx] = self.board[from_yx]
+                self.board[from_yx] = Chess.space
+                if not self.is_in_check():
+                    filtered.append(from_yx)
+                self.board[from_yx] = self.board[to_yx]
+                self.board[to_yx] = to_piece
+            ret, = filtered
+        else:
+            ret, = options
+        return ret
+
     def apply_pgn_move(self, move, is_white):
         move = self.decode_pgn_move(move)
         if move == 'kingside_castle':
@@ -190,7 +268,7 @@ class Game(object):
             if not is_white:
                 restrict_yx = self.rotate_coords(restrict_yx)
                 to_yx = self.rotate_coords(to_yx)
-            from_yx, = class_.find_origin(self.board, restrict_yx, to_yx)
+            from_yx = self.find_origin_of_piece(piece_type, restrict_yx, to_yx)
             assert class_.is_capture(self.board, from_yx, to_yx) == is_capture
         ok = self.apply_yx_yx_move(from_yx, to_yx, promote_to)
         return ok, from_yx, to_yx
