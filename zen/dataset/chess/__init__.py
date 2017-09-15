@@ -1,3 +1,4 @@
+from multiprocessing import Pool
 import numpy as np
 import os
 from tqdm import tqdm
@@ -22,24 +23,30 @@ def _each_pgn(text, verbose):
     if verbose == 2:
         indexes = tqdm(indexes, leave=False)
     for i in indexes:
-        if 0.01 < np.random.random():
+        if 0.1 < np.random.random():
             continue
         text = '\r\n\r\n'.join([blocks[i], blocks[i + 1]])
         yield PGN.from_text(text)
 
 
 def _process(zip_filename, processed_dir, verbose):
+    print('Constructing training data from expert games (this will take ' +
+          'some time...)')
     zip_ = ZipFile(zip_filename)
     paths = zip_.namelist()
     boards = []
     print('/%2d    boards  path' % len(paths))
     print('---  --------  ----')
+    pool = Pool(None)
     for i, path in enumerate(paths):
         num_boards = len(boards)
         text = zip_.open(path).read().decode('latin-1')
-        for pgn in _each_pgn(text, verbose):
-            for board in Game.each_board(pgn):
-                boards.append(board)
+        pgns = list(_each_pgn(text, verbose))
+        ret = pool.map(Game.make_boards, pgns)
+        for list_ in ret:
+            if list_ is None:
+                continue
+            boards += list_
         print('%3d  %8d  %s' % (i, len(boards) - num_boards, path))
     np.random.shuffle(boards)
     os.mkdir(processed_dir)

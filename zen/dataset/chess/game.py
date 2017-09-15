@@ -292,7 +292,7 @@ class Game(object):
         return ok, from_yx, to_yx
 
     @classmethod
-    def each_board(cls, pgn):
+    def make_boards(cls, pgn):
         result = pgn.tags['Result']
         if result == '*':
             return
@@ -302,6 +302,7 @@ class Game(object):
             '1/2-1/2': 0,
             '0-1': -1,
         }[result]
+        boards = []
         for i, move in enumerate(pgn.moves[:-1]):
             is_white = i % 2 == 0
             board = game.dump_board()
@@ -316,8 +317,10 @@ class Game(object):
             }[will_win]
             top_line = ' '.join([from_a1, to_a1, str(i),
                                  str(len(pgn.moves) - 1), will_win_chr])
-            yield '\n'.join([top_line, board])
+            board = '\n'.join([top_line, board])
+            boards.append(board)
             will_win *= -1
+        return boards
 
     def can_move_piece_at(self, from_yx):
         """
