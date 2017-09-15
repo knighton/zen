@@ -15,10 +15,13 @@ _PROCESSED_SUBDIR = 'processed'
 _PROCESSED_FILE = 'boards.txt'
 
 
-def _each_pgn(text):
+def _each_pgn(text, verbose):
     blocks = text.strip().split('\r\n\r\n')
     assert len(blocks) % 2 == 0
-    for i in range(0, len(blocks), 2):
+    indexes = range(0, len(blocks), 2)
+    if verbose == 2:
+        indexes = tqdm(indexes, leave=False)
+    for i in indexes:
         if 0.01 < np.random.random():
             continue
         text = '\r\n\r\n'.join([blocks[i], blocks[i + 1]])
@@ -28,14 +31,16 @@ def _each_pgn(text):
 def _process(zip_filename, processed_dir, verbose):
     zip_ = ZipFile(zip_filename)
     paths = zip_.namelist()
-    if verbose == 2:
-        paths = tqdm(paths, leave=False)
     boards = []
-    for path in paths:
+    print('/%2d    boards  path' % len(paths))
+    print('---  --------  ----')
+    for i, path in enumerate(paths):
+        num_boards = len(boards)
         text = zip_.open(path).read().decode('latin-1')
-        for pgn in _each_pgn(text):
+        for pgn in _each_pgn(text, verbose):
             for board in Game.each_board(pgn):
                 boards.append(board)
+        print('%3d  %8d  %s' % (i, len(boards) - num_boards, path))
     np.random.shuffle(boards)
     os.mkdir(processed_dir)
     out = os.path.join(processed_dir, _PROCESSED_FILE)
