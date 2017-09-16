@@ -353,7 +353,7 @@ class Game(object):
             move_int *= 512
             move_int += i
             move_int *= 512
-            move_int += i
+            move_int += n
             move_int *= 4
             move_int += will_win + 1
             arr = np.array(board_ints + [move_int], dtype='uint32')
