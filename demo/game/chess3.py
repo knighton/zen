@@ -84,15 +84,25 @@ def text_to_grid(text):
     return np.flip(grid, 0)
 
 
+def select_sample(heatmap):
+    cumsum = heatmap.cumsum()
+    rand = np.random.random()
+    for index, cumsum_up_to in enumerate(cumsum):
+        if rand < cumsum_up_to:
+            break
+    return index
+
+
 def select(heatmap, strategy):
     if strategy == 'best':
         index = heatmap.argmax()
     elif strategy == 'sample':
-        cumsum = heatmap.cumsum()
-        rand = np.random.random()
-        for index, cumsum_up_to in enumerate(cumsum):
-            if rand < cumsum_up_to:
-                break
+        return select_sample(heatmap)
+    elif strategy == 'skewed_sample':
+        heatmap = heatmap + 1.
+        heatmap **= 5.
+        heatmap /= heatmap.sum()
+        return select_sample(heatmap)
     else:
         assert False, 'Unknown strategy (%s).' % strategy
     return index
@@ -208,8 +218,8 @@ def rotate_square(index):
     return y * 8 + x
 
 
-def get_from_square(piece_model, game, is_human, rotate, strategy='best',
-                    their_to_square=None):
+def get_from_square(piece_model, game, is_human, rotate,
+                    strategy='skewed_sample', their_to_square=None):
     grid = text_to_grid(str(game.board))
     if rotate:
         grid = np.rot90(np.rot90(grid))
@@ -249,7 +259,7 @@ def get_from_square(piece_model, game, is_human, rotate, strategy='best',
 
 
 def get_to_square(target_model, game, from_square, is_human, rotate,
-                  strategy='best'):
+                  strategy='skewed_sample'):
     grid = text_to_grid(str(game.board))
     if rotate:
         grid = np.rot90(np.rot90(grid))
@@ -358,7 +368,7 @@ def run(args):
 
     if args.play == 'console':
         print('Starting game...')
-        console(process, args.tie_per_move, piece_model, target_model,
+        console(process, args.time_per_move, piece_model, target_model,
                 win_model)
 
 
