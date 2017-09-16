@@ -1,4 +1,4 @@
-from colorama import Fore, Style
+from colorama import Back, Fore, Style
 import numpy as np
 
 from .bishop import Bishop
@@ -49,12 +49,11 @@ class Game(object):
             for x in range(8):
                 n = self.board[y, x]
                 c = Chess.int2chr[n]
-                if c == '.':
-                    c = '.'  # '■'
                 heat = heatmap[y][x]
-                if selected_yx is not None and selected_yx[0] == y and \
-                        selected_yx[1] == x:
-                    color = Fore.WHITE
+                if c == '.':
+                    c = '.' if heat < 0.001 else '■'
+                if selected_yx is not None and selected_yx == (y, x):
+                    color = Fore.BLACK + Back.WHITE
                 elif heat < 0.001:
                     color = Style.DIM + Fore.BLUE
                 elif heat <= 0.01:
