@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+import numpy as np
 
 from zen.dataset.chess import Game, load_chess
 from zen.dataset.chess.piece_type import PieceType
@@ -55,19 +56,27 @@ def select_piece(piece_model, game, strategy):
     indexes = game.board
     board_arr = np.equal.outer(np.arange(13), indexes).astype('float32')
     board_arr = board_arr.reshape((1, 13, 8, 8))
+    legal_mask = game.get_movable_pieces()
     heatmap, = piece_model.predict_on_batch([board_arr])
+    heatmap = heatmap.reshape((8, 8))
+    heatmap = heatmap * legal_mask
+    heatmap /= heatmap.sum()
     piece_a1 = select(heatmap, strategy)
-    return board_arr, heatmap.reshape((8, 8)), piece_a1
+    return board_arr, heatmap, piece_a1
 
 
-def select_target(target_model, board, board_arr, piece_a1, strategy):
+def select_target(target_model, game, board_arr, piece_a1, strategy):
     piece_yx = Game.a1_to_yx(piece_a1)
     piece_arr = np.zeros((1, 1, 8, 8), dtype='float32')
     piece_arr[0, 0, piece_yx[0], piece_yx[1]] = 1.
     board_from_arr = np.concatenate([board_arr, piece_arr], 1)
+    legal_mask = game.get_possible_moves(piece_yx)
     heatmap, = target_model.predict_on_batch([board_from_arr])
+    heatmap = heatmap.reshape((8, 8))
+    heatmap = heatmap * legal_mask
+    heatmap /= heatmap.sum()
     target_a1 = select(heatmap, strategy)
-    return heatmap.reshape((8, 8)), target_a1
+    return heatmap, target_a1
 
 
 def input_with_default(text, default):

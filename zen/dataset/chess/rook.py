@@ -50,7 +50,6 @@ class Rook(PieceType):
                     break
                 else:
                     break
-        return ret
 
     @classmethod
     def find_origin(cls, board, restrict_yx, to_yx):

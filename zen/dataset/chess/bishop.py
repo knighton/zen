@@ -34,10 +34,11 @@ class Bishop(PieceType):
 
     @classmethod
     def each_possible_move(cls, board, from_yx, has_my_king_moved):
+        from_y, from_x = from_yx
         for off_y, off_x in [(-1, -1), (-1, 1), (1, 1), (1, -1)]:
             for i in range(1, 8):
-                y = to_y + i * off_y
-                x = to_x + i * off_x
+                y = from_y + i * off_y
+                x = from_x + i * off_x
                 if not 0 <= y < 8 or not 0 <= x < 8:
                     break
                 yield y, x

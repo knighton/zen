@@ -1,3 +1,6 @@
+import numpy as np
+
+
 class PieceType(object):
     """
     A type of chess piece (pawn, rook, etc.), containing the game logic
