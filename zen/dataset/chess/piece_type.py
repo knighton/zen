@@ -7,7 +7,7 @@ class PieceType(object):
     their_pawn, their_rook, their_knight, their_bishop, their_queen, \
     their_king = range(13)
 
-    int2chr = '.prnbqkPRNBQK'
+    int2chr = '.PRNBQKprnbqk'
 
     chr2int = {}
     for i, c in enumerate(int2chr):

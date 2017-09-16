@@ -1,3 +1,4 @@
+from colorama import Fore, Style
 import numpy as np
 
 from .bishop import Bishop
@@ -35,6 +36,63 @@ class Game(object):
             lines.append(''.join(line))
         return '\n'.join(lines) + '\n'
 
+    def dump_board_pretty(self, heatmap, selected_yx):
+        lines = []
+        lines.append(Fore.WHITE + Style.DIM + '  ╔' + '─' * 17 + '╗' +
+                     Style.RESET_ALL)
+        for y in reversed(range(8)):
+            if selected_yx is not None and y == selected_yx[0]:
+                color = Fore.WHITE + Style.BRIGHT
+            else:
+                color = Fore.WHITE + Style.DIM
+            line = [color + str(y + 1), '│'+ Style.RESET_ALL]
+            for x in range(8):
+                n = self.board[y, x]
+                c = Chess.int2chr[n]
+                if c == '.':
+                    c = '.'  # '■'
+                heat = heatmap[y][x]
+                if selected_yx is not None and selected_yx[0] == y and \
+                        selected_yx[1] == x:
+                    color = Fore.WHITE
+                elif heat < 0.001:
+                    color = Style.DIM + Fore.BLUE
+                elif heat <= 0.01:
+                    color = Fore.BLUE
+                elif heat < 0.025:
+                    color = Style.BRIGHT + Fore.BLUE
+                elif heat < 0.1:
+                    color = Fore.CYAN
+                elif heat < 0.2:
+                    color = Style.BRIGHT + Fore.GREEN
+                elif heat < 0.5:
+                    color = Style.BRIGHT + Fore.YELLOW
+                else:
+                    color = Style.BRIGHT + Fore.RED
+                line.append(color + c + Style.RESET_ALL)
+            line.append(Fore.WHITE + Style.DIM + '│' + Style.RESET_ALL)
+            lines.append(' '.join(line))
+        left = Fore.WHITE + Style.DIM + '  ╚─' + Style.RESET_ALL
+        middle = []
+        for x in range(8):
+            if selected_yx is not None and selected_yx[1] == x:
+                color = Fore.WHITE + Style.BRIGHT
+            else:
+                color = Fore.WHITE + Style.DIM
+            middle.append(color + '─' + Style.RESET_ALL)
+        middle = (Fore.WHITE + Style.DIM + '─' + Style.RESET_ALL).join(middle)
+        right = Fore.WHITE + Style.DIM + '─╝' + Style.RESET_ALL
+        lines.append(left + middle + right)
+        line = []
+        for i, c in enumerate('abcdefgh'):
+            if selected_yx is not None and i == selected_yx[1]:
+                color = Fore.WHITE + Style.BRIGHT
+            else:
+                color = Fore.WHITE + Style.DIM
+            line.append(color + c + Style.RESET_ALL)
+        lines.append('    ' + ' '.join(line))
+        return ''.join(map(lambda line: line + '\n', lines))
+
     @classmethod
     def from_text(cls, text, moves, has_my_king_moved, has_their_king_moved,
                   i_won):
@@ -50,14 +108,14 @@ class Game(object):
     @classmethod
     def start(cls):
         board = """
-            RNBQKBNR
-            PPPPPPPP
-            ........
-            ........
-            ........
-            ........
-            pppppppp
             rnbqkbnr
+            pppppppp
+            ........
+            ........
+            ........
+            ........
+            PPPPPPPP
+            RNBQKBNR
         """
         return cls.from_text(board, [], False, False, None)
 
@@ -179,10 +237,8 @@ class Game(object):
                     Chess.int2whose[promote_to] == Chess.mine)
         assert Chess.int2whose[self.board[from_yx]] == Chess.mine
         class_ = self.piece_classes[self.board[from_yx] - 1]
-        ret = class_.move_yx_yx(self.board, from_yx, to_yx, promote_to,
-                                self.has_my_king_moved)
-        self.switch_sides()
-        return ret
+        return class_.move_yx_yx(self.board, from_yx, to_yx, promote_to,
+                                 self.has_my_king_moved)
 
     def find_my_king(self):
         for y in range(8):
