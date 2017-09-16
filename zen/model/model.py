@@ -61,7 +61,7 @@ def _unpack_metric(metric, y_sample_shape):
 def _unpack_metrics(metrics, out_shapes):
     rrr = []
     for i, items in enumerate(metrics):
-        if not hasattr(items, '__getitem__'):
+        if not isinstance(items, (list, tuple)):
             items = [items]
         out_shape = out_shapes[i]
         loss = _unpack_metric(items[0], out_shape)
