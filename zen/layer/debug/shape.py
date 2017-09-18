@@ -1,23 +1,26 @@
 from ... import func as Z
-from ... import init
 from ..base import Transform, TransformSpec, Sugar
 
 
+def _err(got_shape, want_shape, name):
+    if name:
+        ret = 'Shape of %s is wrong: expected %s, but got %s.' % \
+            (name, want_shape, got_shape)
+    else:
+        ret = 'Shape is wrong: expected %s, but got %s.' % \
+            (want_shape, got_shape)
+    return ret
+
+
 class ShapeLayer(Transform):
-    def __init__(self, name):
+    def __init__(self, shape, name):
         super().__init__()
+        self.shape = shape
         self.name = name
-        self.has_printed = False
 
     def forward(self, x, is_training):
-        if not self.has_printed:
-            ss = []
-            ss.append('[forward shape]')
-            if self.name:
-                ss.append('[%s]' % self.name)
-            ss.append(str(Z.shape(x)))
-            print(' '.join(ss))
-            self.has_printed = True
+        x_shape = Z.shape(x)[1:]
+        assert x_shape == self.shape, _err(x_shape, self.shape, self.name)
         return x
 
 
@@ -27,13 +30,11 @@ class ShapeSpec(TransformSpec):
         self.name = name
 
     def build(self, in_shape, in_dtype):
-        ss = []
-        ss.append('[build shape]')
         if self.name:
-            ss.append('[%s]' % self.name)
-        ss.append(str(in_shape))
-        print(' '.join(ss))
-        return ShapeLayer(self.name), in_shape, in_dtype
+            print('Shape of %s: %s' % (self.name, in_shape))
+        else:
+            print('Shape: %s' % (in_shape,))
+        return ShapeLayer(in_shape, self.name), in_shape, in_dtype
 
 
 Shape = Sugar(ShapeSpec)
