@@ -1,14 +1,13 @@
 from torch.nn import functional as F
 
-from ... import base as B
 from ... import core as C
 from .pad import constant_pad3d
 
 
 def avg_pool1d(x, window, padding, stride):
-    window = B.to_one(window)
-    padding = B.to_one(padding)
-    stride = B.to_one(stride)
+    window = C.to_one(window)
+    padding = C.to_one(padding)
+    stride = C.to_one(stride)
     return F.avg_pool1d(x, window, stride, padding)
 
 
@@ -34,9 +33,9 @@ def avg_pool(x, window, padding, stride):
 
 
 def max_pool1d(x, window, padding, stride):
-    window = B.to_one(window)
-    padding = B.to_one(padding)
-    stride = B.to_one(stride)
+    window = C.to_one(window)
+    padding = C.to_one(padding)
+    stride = C.to_one(stride)
     return F.max_pool1d(x, window, stride, padding)
 
 

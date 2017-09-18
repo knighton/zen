@@ -1,6 +1,5 @@
 import numpy as np
 
-from . import base as B
 from . import core as C
 
 
@@ -30,7 +29,7 @@ def sgd_step(x):
 
 
 def zeros_like(var):
-    return C.tensor(np.zeros(C.shape(var), B.floatx()))
+    return C.tensor(np.zeros(C.shape(var), C.floatx()))
 
 
 def sgd_momentum_init(var, lr=0.01, momentum=0.9):

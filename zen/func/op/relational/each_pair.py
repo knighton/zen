@@ -1,6 +1,5 @@
 import numpy as np
 
-from ... import base as B
 from ... import core as C
 
 
@@ -120,7 +119,7 @@ def each_pair_out_shape(grid_shape, concat_to_each_shape, relater, global_pool):
     else:
         dim = 2 * grid_shape[0] + concat_to_each_shape[0]
     relater_in_shape = (1, dim)
-    arr = np.zeros(relater_in_shape, dtype=B.floatx())
+    arr = np.zeros(relater_in_shape, dtype=C.floatx())
     relater_outs = relater.predict_on_batch([arr])
     relater_out, = relater_outs
     relater_out_shape = relater_out.shape[1:]

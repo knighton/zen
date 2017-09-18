@@ -1,7 +1,6 @@
 import sys
 
 from .accuracy import *  # noqa
-from .base import *  # noqa
 from .core import *  # noqa
 from .loss import *  # noqa
 from .op import *  # noqa

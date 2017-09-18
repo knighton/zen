@@ -1,8 +1,8 @@
-from .. import base as B
+from .base.float import floatx
 
 
 def cast(x, dtype=None):
-    dtype = dtype or B.floatx()
+    dtype = dtype or floatx()
     return x.astype(dtype)
 
 
