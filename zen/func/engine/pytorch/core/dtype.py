@@ -1,7 +1,7 @@
 from torch.autograd import Variable
 from torch import _TensorBase
 
-from .floatx import floatx
+from .. import base as B
 
 
 class DataTypeConverter(object):
@@ -36,7 +36,7 @@ _DTC = DataTypeConverter()
 
 
 def cast(x, dtype=None):
-    dtype = dtype or floatx()
+    dtype = dtype or B.floatx()
     if x.is_cuda:
         t = _DTC.numpy2gpu_tensor[dtype]
     else:

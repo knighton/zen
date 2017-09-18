@@ -1,24 +1,23 @@
 import numpy as np
 
-from .core.data import data, get_shape, gradient, tensor, update
-from .core.elemwise import sqrt, square
-from .core.floatx import floatx
+from . import base as B
+from . import core as C
 
 
 class Optimizee(object):
     def __init__(self, var, **kwargs):
         self.variable = var
-        self.data = data(var)
+        self.data = C.data(var)
         assert 'variable' not in kwargs
         assert 'data' not in kwargs
         assert 'grad' not in kwargs
         self.__dict__.update(kwargs)
 
     def grad(self):
-        return gradient(self.variable)
+        return C.gradient(self.variable)
 
     def update(self, delta):
-        update(self.variable, self.data + delta)
+        C.update(self.variable, self.data + delta)
 
 
 def sgd_init(var, lr=0.01):
@@ -31,7 +30,7 @@ def sgd_step(x):
 
 
 def zeros_like(var):
-    return tensor(np.zeros(get_shape(var), floatx()))
+    return C.tensor(np.zeros(C.get_shape(var), B.floatx()))
 
 
 def sgd_momentum_init(var, lr=0.01, momentum=0.9):
@@ -63,8 +62,8 @@ def rmsprop_init(var, decay_rate=0.99, epsilon=1e-6, lr=0.01):
 
 def rmsprop_step(x):
     grad = x.grad()
-    x.cache = x.decay_rate * x.cache + (1. - x.decay_rate) * square(grad)
-    x.update(-x.lr * grad / (sqrt(x.cache) + x.epsilon))
+    x.cache = x.decay_rate * x.cache + (1. - x.decay_rate) * C.square(grad)
+    x.update(-x.lr * grad / (C.sqrt(x.cache) + x.epsilon))
 
 
 def adam_init(var, beta1=0.9, beta2=0.99, epsilon=1e-6, lr=1e-3):
@@ -86,7 +85,7 @@ def adam_init(var, beta1=0.9, beta2=0.99, epsilon=1e-6, lr=1e-3):
 def adam_step(x):
     grad = x.grad()
     x.m = x.beta1 * x.m + (1. - x.beta1) * grad
-    x.v = x.beta2 * x.v + (1. - x.beta2) * square(grad)
+    x.v = x.beta2 * x.v + (1. - x.beta2) * C.square(grad)
     scaled_m = x.m / (1. - x.beta1 ** x.t)
     scaled_v = x.v / (1. - x.beta2 ** x.t)
-    x.update(-x.lr * scaled_m / (sqrt(scaled_v) + x.epsilon))
+    x.update(-x.lr * scaled_m / (C.sqrt(scaled_v) + x.epsilon))
