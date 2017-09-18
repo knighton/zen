@@ -1,5 +1,6 @@
 from .arch import *  # noqa
 from .curve import *  # noqa
+from .debug import *  # noqa
 from .dot import *  # noqa
 from .fuzzy import *  # noqa
 from .geometry import *  # noqa
