@@ -17,8 +17,8 @@ def each_pair(grid, concat_to_each, is_training, relater, flat):
     # Get shapes.
     grid_shape = C.get_shape(grid)
     batch_size, num_grid_channels = grid_shape[:2]
-    spatial_grid_shape = grid_shape[2:]
-    num_cells = int(np.prod(spatial_grid_shape))
+    spatial_shape = grid_shape[2:]
+    num_cells = int(np.prod(spatial_shape))
 
     # Flatten `grid` shapewise and put the channels dimension last.
     grid = C.reshape(grid, (batch_size, num_grid_channels, num_cells))
@@ -49,27 +49,27 @@ def each_pair(grid, concat_to_each, is_training, relater, flat):
     relater_out, = relater_outs
 
     if flat:
-        # Sum the outputs.
+        # Sum the outputs, resulting in a single 'globally pooled' embedding.
         ret = C.reshape(relater_out, (batch_size, num_cells ** 2, -1))
         ret = C.sum(ret, 1)
     else:
-        # Add every cell's embedding per depth, height, and width, preserving
-        # the input's spatial shape.
-        relater_out = C.reshape(relater_out, (batch_size, num_cells ** 2, -1))
-        _, _2, y_channels = C.get_shape(relater_out)
-        distributed_shape = (batch_size,) + spatial_grid_shape + (y_channels,)
-        distributed = C.variable(np.zeros(distributed_shape, dtype=C.floatx()))
-        for left in range(num_cells):
-            lefts_slices = _get_slices(left, spatial_grid_shape)
-            for right in range(num_cells):
-                rights_slices = _get_slices(right, spatial_grid_shape)
-                embedding = relater_out[:, left * num_cells + right, :]
-                for i in range(1, len(spatial_grid_shape)):
-                    embedding = C.expand_dims(embedding, 1)
-                distributed[lefts_slices] += embedding
-                distributed[rights_slices] += embedding
-        permute_shape = (batch_size,) + (y_channels,) + spatial_grid_shape
-        ret = C.permute(distributed, permute_shape)
+        # For each cell (depth x height x width), sum all embeddings that
+        # involve it, preserving the input's spatial shape.
+
+        # Break it down into the actual dimensions (4, 6, or 8).
+        true_shape = (batch_size,) + spatial_shape + spatial_shape + (-1,)
+        ret = C.reshape(relater_out, true_shape)
+
+        # Permute the depth, height, and width dimensions together.
+        permute_axes = [0, len(true_shape) - 1]
+        for i in range(len(spatial_shape)):
+            permute_axes.append(i + 1)  # Left embedding.
+            permute_axes.append(i + 1 + len(spatial_shape))  # Right embedding.
+        ret = C.permute(ret, permute_axes)
+
+        # Reduce over depth, height, and width.
+        for i in reversed(range(len(spatial_shape))):
+            ret = C.sum(ret, (i + 1) * 2)
     return ret
 
 
