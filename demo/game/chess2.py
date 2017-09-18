@@ -99,16 +99,18 @@ def move(game, piece, target):
 def console(piece_model, target_model, win_model, my_strategy='best',
             their_strategy='sample'):
     game = Game.start()
+    selected_yx = None
     while True:
         board_arr, piece_heatmap, default_piece_a1 = \
             select_piece(piece_model, game, my_strategy)
-        print(game.dump_board_pretty(piece_heatmap, None))
+        print(game.dump_board_pretty(piece_heatmap, selected_yx))
         piece_a1 = input_with_default('move piece at (%s): ' % default_piece_a1,
                                       default_piece_a1)
 
         target_heatmap, default_target_a1 = select_target(
             target_model, game, board_arr, piece_a1, my_strategy)
-        print(game.dump_board_pretty(target_heatmap, piece_a1))
+        selected_yx = Game.a1_to_yx(piece_a1)
+        print(game.dump_board_pretty(target_heatmap, selected_yx))
         target_a1 = input_with_default(
             'move piece to (%s): ' % default_target_a1, default_target_a1)
 
@@ -120,6 +122,7 @@ def console(piece_model, target_model, win_model, my_strategy='best',
                                      their_strategy)
         move(game, piece_a1, target_a1)
         game.switch_sides()
+        selected_yx = Game.rotate_coords(Game.a1_to_yx(target_a1))
 
 
 def run(args):

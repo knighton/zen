@@ -17,6 +17,22 @@ class Game(object):
 
     piece_classes = Pawn, Rook, Knight, Bishop, Queen, King
 
+    chr2unicode = {
+        'k': chr(0x2654),
+        'q': chr(0x2655),
+        'r': chr(0x2656),
+        'b': chr(0x2657),
+        'n': chr(0x2658),
+        'p': chr(0x2659),
+
+        'K': chr(0x265A),
+        'Q': chr(0x265B),
+        'R': chr(0x265C),
+        'B': chr(0x265D),
+        'N': chr(0x265E),
+        'P': chr(0x265F),
+    }
+
     def __init__(self, board, moves, has_my_king_moved, has_their_king_moved,
                  i_won):
         self.board = board
@@ -49,11 +65,20 @@ class Game(object):
             for x in range(8):
                 n = self.board[y, x]
                 c = Chess.int2chr[n]
+                c = self.chr2unicode.get(c, c)
                 heat = heatmap[y][x]
                 if c == '.':
-                    c = '.' if heat < 0.001 else '■'
-                if selected_yx is not None and selected_yx == (y, x):
+                    c = chr(0xB7) if heat < 0.001 else chr(0x25A0)
+                if selected_yx == (y, x):
                     color = Fore.BLACK + Back.WHITE
+                elif selected_yx is not None and \
+                        Chess.int2whose[self.board[selected_yx]] == \
+                        Chess.theirs and \
+                        Chess.int2whose[self.board[y, x]] != Chess.mine:
+                    color = Style.DIM + Fore.WHITE
+                elif selected_yx is None and  \
+                        Chess.int2whose[self.board[y, x]] != Chess.mine:
+                    color = Style.DIM + Fore.WHITE
                 elif heat < 0.001:
                     color = Style.DIM + Fore.BLUE
                 elif heat <= 0.01:
@@ -83,7 +108,7 @@ class Game(object):
         right = Fore.WHITE + Style.DIM + '─╝' + Style.RESET_ALL
         lines.append(left + middle + right)
         line = []
-        for i, c in enumerate('abcdefgh'):
+        for i, c in enumerate('ABCDEFGH'):
             if selected_yx is not None and i == selected_yx[1]:
                 color = Fore.WHITE + Style.BRIGHT
             else:
