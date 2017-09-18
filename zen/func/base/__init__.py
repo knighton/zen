@@ -1,2 +1,2 @@
-from .floatx import *  # noqa
+from .float import *  # noqa
 from .util import *  # noqa

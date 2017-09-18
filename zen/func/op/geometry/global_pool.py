@@ -13,7 +13,7 @@ def global_avg_pool(x):
     Output:
         y  variable  NC   NC    NC
     """
-    ndim = C.get_ndim(x)
+    ndim = C.ndim(x)
     assert ndim in {3, 4, 5}
     axes = list(range(ndim))[2:]
     return C.mean(x, axes)
@@ -36,7 +36,7 @@ def global_max_pool(x):
     Output:
         y  variable  NC   NC    NC
     """
-    ndim = C.get_ndim(x)
+    ndim = C.ndim(x)
     assert ndim in {3, 4, 5}
     axes = list(range(ndim))[2:]
     return C.max(x, axes)

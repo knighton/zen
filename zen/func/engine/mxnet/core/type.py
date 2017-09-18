@@ -6,5 +6,5 @@ def cast(x, dtype=None):
     return x.astype(dtype)
 
 
-def get_dtype(x):
+def dtype(x):
     return x.dtype.__name__

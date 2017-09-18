@@ -2,7 +2,7 @@ from torch import cuda
 from torch.cuda import device_count
 
 
-def get_num_gpus():
+def num_gpus():
     return device_count()
 
 

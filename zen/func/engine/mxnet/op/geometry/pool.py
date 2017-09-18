@@ -5,7 +5,7 @@ from ... import core as C
 
 
 def avg_pool(x, window, padding, stride):
-    ndim = C.get_ndim(x)
+    ndim = C.ndim(x)
     window = B.to_shape(window, ndim)
     padding = B.to_shape(padding, ndim)
     stride = B.to_shape(padding, ndim)
@@ -19,7 +19,7 @@ avg_pool3d = avg_pool
 
 
 def max_pool(x, window, padding, stride):
-    ndim = C.get_ndim(x) - 2
+    ndim = C.ndim(x) - 2
     window = B.to_shape(window, ndim)
     padding = B.to_shape(padding, ndim)
     stride = B.to_shape(stride, ndim)

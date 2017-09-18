@@ -36,7 +36,7 @@ def each_pair(grid, concat_to_each, is_training, relater, global_pool):
                                           O    O     O (if pooled)
     """
     # Get shapes.
-    grid_shape = C.get_shape(grid)
+    grid_shape = C.shape(grid)
     batch_size, num_grid_channels = grid_shape[:2]
     spatial_shape = grid_shape[2:]
     num_cells = int(np.prod(spatial_shape))

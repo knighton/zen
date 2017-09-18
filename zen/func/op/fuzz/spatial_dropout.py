@@ -7,7 +7,7 @@ from ... import engine as E
 def _spatial_dropout(x, is_training, rate):
     if not is_training:
         return x
-    shape = C.get_shape(x)
+    shape = C.shape(x)
     noise_shape = shape[:2] + (1,) * (len(shape) - 2)
     max_value = 1. / rate
     mask = np.random.uniform(0, max_value, noise_shape).astype('float32')

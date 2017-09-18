@@ -33,7 +33,7 @@ _NDIM2CONSTANT_PAD = {
 
 
 def constant_pad(x, padding, value):
-    ndim = C.get_ndim(x) - 2
+    ndim = C.ndim(x) - 2
     return _NDIM2CONSTANT_PAD[ndim](x, padding, value)
 
 
@@ -67,7 +67,7 @@ _NDIM2EDGE_PAD = {
 
 
 def edge_pad(x, padding):
-    ndim = C.get_ndim(x) - 2
+    ndim = C.ndim(x) - 2
     return _NDIM2EDGE_PAD[ndim](x, padding)
 
 
@@ -101,5 +101,5 @@ _NDIM2REFLECT_PAD = {
 
 
 def reflect_pad(x, padding):
-    ndim = C.get_ndim(x) - 2
+    ndim = C.ndim(x) - 2
     return _NDIM2REFLECT_PAD[ndim](x, padding)

@@ -1,8 +1,8 @@
 from .. import engine as E
 
 
-def get_num_gpus():
-    return E.get_num_gpus()
+def num_gpus():
+    return E.num_gpus()
 
 
 def default_device():
@@ -25,4 +25,4 @@ def to_gpu(x, device=None):
     return E.to_gpu(x, device)
 
 
-set_default_device(get_num_gpus() - 1)
+set_default_device(num_gpus() - 1)

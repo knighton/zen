@@ -44,7 +44,7 @@ def cast(x, dtype=None):
     return x.type(t)
 
 
-def get_dtype(x):
+def dtype(x):
     if isinstance(x, Variable):
         tensor = x.data
     elif isinstance(x, _TensorBase):

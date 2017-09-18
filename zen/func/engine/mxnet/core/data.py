@@ -3,11 +3,11 @@ import mxnet as mx
 from .device import _get_device_context
 
 
-def get_ndim(x):
+def ndim(x):
     return x.ndim
 
 
-def get_shape(x):
+def shape(x):
     return x.shape
 
 
@@ -49,7 +49,7 @@ def clone(x):
 
 
 def tensor(arr, dtype=None, device=None):
-    dtype = dtype or arr.dtype.name
+    dtype = dtype or arr.dtype.__name__
     ctx = _get_device_context(device)
     return mx.nd.array(arr, ctx, dtype)
 

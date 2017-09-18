@@ -1,8 +1,8 @@
 from .. import engine as E
 
 
-get_ndim = E.get_ndim
-get_shape = E.get_shape
+ndim = E.ndim
+shape = E.shape
 reshape = E.reshape
 permute = E.permute
 repeat = E.repeat

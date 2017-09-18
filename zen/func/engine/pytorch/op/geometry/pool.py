@@ -29,7 +29,7 @@ _DIM2AVG_POOL = {
 
 
 def avg_pool(x, window, padding, stride):
-    dim = C.get_ndim(x) - 2
+    dim = C.ndim(x) - 2
     return _DIM2AVG_POOL[dim](x, window, padding, stride)
 
 
@@ -56,5 +56,5 @@ _DIM2MAX_POOL = {
 
 
 def max_pool(x, window, padding, stride):
-    dim = C.get_ndim(x) - 2
+    dim = C.ndim(x) - 2
     return _DIM2MAX_POOL[dim](x, window, padding, stride)

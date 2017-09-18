@@ -2,7 +2,7 @@ from . import core as C
 
 
 def binary_cross_entropy(true, pred):
-    if C.get_ndim(true) == 1:
+    if C.ndim(true) == 1:
         true = C.expand_dims(true, 1)
     pred = C.clip(pred, C.epsilon(), 1. - C.epsilon())
     return -true * C.log(pred) - (1. - true) * C.log(1. - pred)

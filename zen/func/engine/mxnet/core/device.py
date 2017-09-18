@@ -2,7 +2,7 @@ import mxnet as mx
 import os
 
 
-def get_num_gpus():
+def num_gpus():
     i = 0
     while True:
         python = 'import mxnet as mx; mx.nd.zeros((1,), ctx=mx.gpu(%d))' % i

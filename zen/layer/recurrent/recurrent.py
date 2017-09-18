@@ -27,7 +27,7 @@ class RecurrentLayer(Transform):
         raise NotImplementedError
 
     def forward_one_way(self, x, is_training, is_forward):
-        num_samples, num_out_dim, num_timesteps = Z.get_shape(x)
+        num_samples, num_out_dim, num_timesteps = Z.shape(x)
         arr = np.zeros((num_samples, self.out_dim)).astype(Z.floatx())
         initial_state = Z.constant(arr)
         states = [initial_state]

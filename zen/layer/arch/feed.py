@@ -39,8 +39,8 @@ class Input(Node):
         """
         Receive and propagate input through the network.
         """
-        assert Z.get_shape(data)[1:] == self._out_shape
-        assert Z.get_dtype(data) == self._out_dtype
+        assert Z.shape(data)[1:] == self._out_shape
+        assert Z.dtype(data) == self._out_dtype
         self._out_data = data
         for node in self._out_nodes:
             node.in_node_is_ready(is_training)

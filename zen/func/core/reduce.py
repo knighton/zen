@@ -1,7 +1,7 @@
 from .. import engine as E
 from .data import size
-from .dtype import cast
 from .elemwise import abs, ceil, clip, sqrt, square
+from .type import cast
 
 
 def _any_all_common(x, axis=None, keepdims=False):

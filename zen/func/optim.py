@@ -30,7 +30,7 @@ def sgd_step(x):
 
 
 def zeros_like(var):
-    return C.tensor(np.zeros(C.get_shape(var), B.floatx()))
+    return C.tensor(np.zeros(C.shape(var), B.floatx()))
 
 
 def sgd_momentum_init(var, lr=0.01, momentum=0.9):

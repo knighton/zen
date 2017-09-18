@@ -4,14 +4,14 @@ from torch.autograd import Variable
 from torch import _TensorBase
 
 from .device import to_device
-from .dtype import cast
+from .type import cast
 
 
-def get_ndim(x):
+def ndim(x):
     return x.dim()
 
 
-def get_shape(x):
+def shape(x):
     return tuple(x.size())
 
 

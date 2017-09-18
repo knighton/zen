@@ -72,7 +72,7 @@ class ConvBaseSpec(TransformSpec):
 class ConvLayer(ConvBaseLayer):
     def __init__(self, kernel, bias, padding, stride, dilation):
         super().__init__(kernel, bias, padding, stride, dilation)
-        ndim = Z.get_ndim(self.kernel) - 2
+        ndim = Z.ndim(self.kernel) - 2
         self.conv = Z.get('conv', ndim)
 
     def forward(self, x, is_training):
