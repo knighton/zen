@@ -1,12 +1,12 @@
 from torch.nn import functional as F
 
-from .....core.util import to_one
+from ... import base as B
 
 
 def conv1d(x, kernel, bias, padding, stride, dilation):
-    padding = to_one(padding)
-    stride = to_one(stride)
-    dilation = to_one(dilation)
+    padding = B.to_one(padding)
+    stride = B.to_one(stride)
+    dilation = B.to_one(dilation)
     return F.conv1d(x, kernel, bias, stride, padding, dilation)
 
 

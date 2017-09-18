@@ -1,6 +1,6 @@
 from math import floor
 
-from ...core.util import to_shape
+from ... import base as B
 from ... import engine as E
 
 
@@ -43,10 +43,10 @@ def conv_out_shape(in_shape, window, padding, stride, dilation):
         out_shape     shape         The shape of y without channel dimension.
     """
     dim = len(in_shape)
-    window = to_shape(window, dim)
-    padding = to_shape(padding, dim)
-    stride = to_shape(stride, dim)
-    dilation = to_shape(dilation, dim)
+    window = B.to_shape(window, dim)
+    padding = B.to_shape(padding, dim)
+    stride = B.to_shape(stride, dim)
+    dilation = B.to_shape(dilation, dim)
     out_shape = [None] * len(in_shape)
     for i in range(len(in_shape)):
         numerator = \
