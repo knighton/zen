@@ -3,8 +3,8 @@ import string
 import sys
 
 from zen.dataset.imdb import load_imdb
-from zen.layer import *
-from zen.transform import *
+from zen.layer import *  # noqa
+from zen.transform import *  # noqa
 
 
 def parse_args():

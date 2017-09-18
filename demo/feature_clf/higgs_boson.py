@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from zen.dataset.higgs_boson import load_higgs_boson
-from zen.layer import *
+from zen.layer import *  # noqa
 
 
 def parse_args():

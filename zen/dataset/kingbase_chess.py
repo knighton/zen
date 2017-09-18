@@ -1,4 +1,3 @@
-from colorama import Fore, Style
 import numpy as np
 import os
 from tqdm import tqdm
@@ -212,7 +211,7 @@ def _load_boards(processed_dir, val_frac, verbose):
     return train, val
 
 
-def _ready(dataset_name, processed_subdir, url_basename):
+def _ready(dataset_name, processed_subdir, url_basename, verbose):
     dataset_dir = get_dataset_dir(dataset_name)
     processed_dir = os.path.join(dataset_dir, processed_subdir)
     if not os.path.exists(processed_dir):
@@ -262,7 +261,8 @@ class ChessTargetSelectionDataset(Dataset):
 
 
 def load_chess_piece_selection(val_frac=0.2, verbose=2):
-    processed_dir = _ready(_DATASET_NAME, _PROCESSED_SUBDIR, _URL_BASENAME)
+    processed_dir = _ready(_DATASET_NAME, _PROCESSED_SUBDIR, _URL_BASENAME,
+                           verbose)
     train, val = _load_boards(processed_dir, val_frac, verbose)
     train_boards, train_pieces, _ = train
     train = ChessPieceSelectionDataset(train_boards, train_pieces)

@@ -10,8 +10,8 @@ class Board(object):
         chr2int[c] = i
 
     space, my_pawn, my_rook, my_knight, my_bishop, my_queen, my_king, \
-    their_pawn, their_rook, their_knight, their_bishop, their_queen, \
-    their_king = range(13)
+        their_pawn, their_rook, their_knight, their_bishop, their_queen, \
+        their_king = range(13)
 
     def __init__(self, arr):
         self.arr = arr
@@ -43,7 +43,7 @@ class Board(object):
                 color = Fore.WHITE + Style.BRIGHT
             else:
                 color = Fore.WHITE + Style.DIM
-            line = [color + str(y + 1), '│'+ Style.RESET_ALL]
+            line = [color + str(y + 1), '│' + Style.RESET_ALL]
             for x in range(8):
                 n = self.arr[y, x]
                 c = self.int2chr[n]

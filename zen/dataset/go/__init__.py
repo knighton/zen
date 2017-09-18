@@ -1,4 +1,4 @@
-from colorama import Back, Fore, Style
+from colorama import Fore, Style
 import numpy as np
 
 from .kgs import load_kgs
@@ -6,8 +6,9 @@ from .kgs import load_kgs
 
 class GoGame(object):
     int2chr = 'ABCDEFGHJKLMNOPQRST'
-    int2full_chr = ''.join(map(chr, list(range(0xFF21, 0xFF29)) +
-                                    list(range(0xFF2a, 0xFF35))))
+    int2full_chr = list(range(0xFF21, 0xFF29)) + \
+        list(range(0xFF2a, 0xFF35))
+    int2full_chr = ''.join(map(chr, int2full_chr))
 
     black = 0
     space = 1
@@ -67,7 +68,8 @@ class GoGame(object):
     free_cross = Style.BRIGHT + Fore.BLACK + board_bg + chr(0xFF0B) + \
         Style.RESET_ALL
 
-    free_dot = Style.BRIGHT + Fore.BLACK + board_bg + chr(0x30FB) + Style.RESET_ALL
+    free_dot = Style.BRIGHT + Fore.BLACK + board_bg + chr(0x30FB) + \
+        Style.RESET_ALL
 
     white_stone = Style.BRIGHT + Fore.WHITE + board_bg + waxing_moon + \
         Style.RESET_ALL
@@ -148,6 +150,6 @@ def load_go(verbose=2):
     np.random.shuffle(sgfs)
     arrs = []
     for sgf in sgfs:
-        arr = GoGame.replay_sgf(sgf) 
+        arr = GoGame.replay_sgf(sgf)
         arrs.append(arr)
     assert False

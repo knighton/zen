@@ -7,8 +7,8 @@ class PieceType(object):
     associated with that piece.
     """
     space, my_pawn, my_rook, my_knight, my_bishop, my_queen, my_king, \
-    their_pawn, their_rook, their_knight, their_bishop, their_queen, \
-    their_king = range(13)
+        their_pawn, their_rook, their_knight, their_bishop, their_queen, \
+        their_king = range(13)
 
     int2chr = '.PRNBQKprnbqk'
 

@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 
 from zen.dataset.cover_type import load_cover_type
-from zen.layer import *
+from zen.layer import *  # noqa
 from zen.transform.one_hot import one_hot
 
 

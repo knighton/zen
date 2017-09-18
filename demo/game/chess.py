@@ -4,7 +4,6 @@ import numpy as np
 from zen.dataset.kingbase_chess import Board, load_chess_piece_selection, \
     load_chess_target_selection, _yx_from_a1, a1_from_yx
 from zen.layer import *  # noqa
-from zen.model import Graph
 
 
 def parse_args():

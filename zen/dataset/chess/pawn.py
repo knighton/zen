@@ -63,7 +63,7 @@ class Pawn(PieceType):
     @classmethod
     def each_possible_move(cls, board, from_yx, has_my_king_moved):
         y, x = from_yx
-        promote_to = MY_QUEEN if y + 1 == 7 else None
+        promote_to = cls.my_queen if y + 1 == 7 else None
 
         # One square forward
         to_yx = y + 1, x

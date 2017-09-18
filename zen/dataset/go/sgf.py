@@ -21,7 +21,7 @@ class SGF(object):
         key = None
         values = []
         for i in range(len(splits) - 1):
-            orig_subtext = text[splits[i] + 1 : splits[i + 1]]
+            orig_subtext = text[splits[i] + 1:splits[i + 1]]
             subtext = orig_subtext.strip()
             bracket_on_left = text[splits[i]]
             bracket_on_right = text[splits[i + 1]]
@@ -45,7 +45,7 @@ class SGF(object):
         for key, value in pairs:
             if len(value) == 1:
                 value, = value
-            if key ==';B':
+            if key == ';B':
                 if black_first is None:
                     black_first = True
                 if black_first:

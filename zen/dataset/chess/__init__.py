@@ -1,7 +1,6 @@
 from multiprocessing import Pool
 import numpy as np
 import os
-from tqdm import tqdm
 from zipfile import ZipFile
 
 from ...model.data.dataset import Dataset
@@ -165,20 +164,20 @@ class ChessTrainingData(object):
     def for_piece_selection(self):
         return PieceSelectionDataset(self.arrs, self.samples_per_epoch,
                                      self.val_frac, True), \
-               PieceSelectionDataset(self.arrs, self.samples_per_epoch,
-                                     self.val_frac, False)
+            PieceSelectionDataset(self.arrs, self.samples_per_epoch,
+                                  self.val_frac, False)
 
     def for_target_selection(self):
         return TargetSelectionDataset(self.arrs, self.samples_per_epoch,
                                       self.val_frac, True), \
-               TargetSelectionDataset(self.arrs, self.samples_per_epoch,
-                                      self.val_frac, False)
+            TargetSelectionDataset(self.arrs, self.samples_per_epoch,
+                                   self.val_frac, False)
 
     def for_board_evaluation(self):
         return BoardEvaluationDataset(self.arrs, self.samples_per_epoch,
                                       self.val_frac, True), \
-               BoardEvaluationDataset(self.arrs, self.samples_per_epoch,
-                                      self.val_frac, False)
+            BoardEvaluationDataset(self.arrs, self.samples_per_epoch,
+                                   self.val_frac, False)
 
 
 def load_chess(keep_frac=0.1, samples_per_epoch=100000, val_frac=0.2,

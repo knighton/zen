@@ -1,4 +1,9 @@
+from functools import reduce
+import json
+import os
 from random import shuffle
+from tqdm import tqdm
+from zipfile import ZipFile
 
 from .util import download, get_dataset_dir
 
@@ -111,7 +116,7 @@ def _load_nli(input_format, config, splits, verbose):
     dataset_dir = get_dataset_dir(config.dataset_name)
     processed_dir = os.path.join(dataset_dir, config.processed_subdir)
     if not os.path.exists(processed_dir):
-        filename = os.path.join(dataset_dir, os.path.basename(config.url)
+        filename = os.path.join(dataset_dir, os.path.basename(config.url))
         if not os.path.exists(filename):
             download(config.url, filename, verbose)
         _process(filename, config.zip_path_pattern, config.all_splits,

@@ -31,7 +31,7 @@ def cnn_cnn_mlp(image_shape, text_len, vocab_size):
     text_embedding = text > Embed(vocab_size, 16) > conv(16) > conv(16) > \
         conv(16) > Shape('text output') > Flatten > Z
 
-    label = Concat()(image_embedding, text_embedding) > Shape('concat') >
+    label = Concat()(image_embedding, text_embedding) > Shape('concat') > \
         dense(64) > dense(64) > Dense(1) > Sigmoid > Z
     return Graph([image, text], label)
 

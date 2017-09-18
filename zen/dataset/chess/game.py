@@ -61,7 +61,7 @@ class Game(object):
                 color = Fore.WHITE + Style.BRIGHT
             else:
                 color = Fore.WHITE + Style.DIM
-            line = [color + str(y + 1), '│'+ Style.RESET_ALL]
+            line = [color + str(y + 1), '│' + Style.RESET_ALL]
             for x in range(8):
                 n = self.board[y, x]
                 c = Chess.int2chr[n]
