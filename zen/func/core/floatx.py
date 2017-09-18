@@ -1,7 +1,7 @@
-from .. import backend as Z
+from .. import engine as E
 
 
-floatx = Z.floatx
-set_floatx = Z.set_floatx
+floatx = E.floatx
+set_floatx = E.set_floatx
 
 set_floatx('float32')

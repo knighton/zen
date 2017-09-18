@@ -2,13 +2,13 @@ import os
 import sys
 
 
-backend = os.environ.get('ZEN_BACKEND', 'pytorch')
-if backend == 'mxnet':
+engine = os.environ.get('ZEN_BACKEND', 'pytorch')
+if engine == 'mxnet':
     from .mxnet import *  # noqa
-elif backend == 'pytorch':
+elif engine == 'pytorch':
     from .pytorch import *  # noqa
 else:
-    assert False, 'Unsupported backend: %s.' % backend
+    assert False, 'Unsupported engine: %s.' % engine
 
 
 def get(name, fallback=None):

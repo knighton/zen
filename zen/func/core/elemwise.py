@@ -1,14 +1,14 @@
-from .. import backend as Z
+from .. import engine as E
 from .data import clone
 
 
 # Arithmetic.
 
 
-abs = Z.abs
-clip = Z.clip
-neg = Z.neg
-sign = Z.sign
+abs = E.abs
+clip = E.clip
+neg = E.neg
+sign = E.sign
 
 
 # Cumulative.
@@ -36,8 +36,8 @@ def _cumsum(x, axis):
     return out
 
 
-cumprod = Z.get('cumprod', _cumprod)
-cumsum = Z.get('cumsum', _cumsum)
+cumprod = E.get('cumprod', _cumprod)
+cumsum = E.get('cumsum', _cumsum)
 
 
 # Exponentiation.
@@ -47,8 +47,8 @@ def _expm1(x):
     return exp(x) - 1.
 
 
-exp = Z.exp
-expm1 = Z.get('expm1', _expm1)  # = exp(x) - 1
+exp = E.exp
+expm1 = E.get('expm1', _expm1)  # = exp(x) - 1
 
 
 # Logarithms.
@@ -66,10 +66,10 @@ def _log1p(x):
     return log(1. + x)
 
 
-log = Z.log
-log10 = Z.get('log10', _log10)
-log2 = Z.get('log2', _log2)
-log1p = Z.get('log1p', _log1p)  # = log(1 + x)
+log = E.log
+log10 = E.get('log10', _log10)
+log2 = E.get('log2', _log2)
+log1p = E.get('log1p', _log1p)  # = log(1 + x)
 
 
 # Power.
@@ -87,19 +87,19 @@ def _square(x):
     return pow(x, 2.)
 
 
-pow = Z.pow
-rsqrt = Z.get('rsqrt', _rsqrt)
-sqrt = Z.get('sqrt', _sqrt)
-square = Z.get('square', _square)
+pow = E.pow
+rsqrt = E.get('rsqrt', _rsqrt)
+sqrt = E.get('sqrt', _sqrt)
+square = E.get('square', _square)
 
 
 # Rounding.
 
 
-ceil = Z.ceil    # Up.
-floor = Z.floor  # Down.
-round = Z.round  # To nearest.
-trunc = Z.trunc  # Toward zero.
+ceil = E.ceil    # Up.
+floor = E.floor  # Down.
+round = E.round  # To nearest.
+trunc = E.trunc  # Toward zero.
 
 
 # Trigonometry.
@@ -131,15 +131,15 @@ def _arctanh(x):
     return 0.5 * log((1. + x) / (1. - x))
 
 
-sin = Z.sin
-cos = Z.cos
-tan = Z.tan
-arcsin = Z.arcsin
-arccos = Z.arccos
-arctan = Z.arctan
-sinh = Z.get('sinh', _sinh)
-cosh = Z.get('cosh', _cosh)
-tanh = Z.get('tanh', _tanh)
-arcsinh = Z.get('arcsinh', _arcsinh)
-arccosh = Z.get('arccosh', _arccosh)
-arctanh = Z.get('arctanh', _arctanh)
+sin = E.sin
+cos = E.cos
+tan = E.tan
+arcsin = E.arcsin
+arccos = E.arccos
+arctan = E.arctan
+sinh = E.get('sinh', _sinh)
+cosh = E.get('cosh', _cosh)
+tanh = E.get('tanh', _tanh)
+arcsinh = E.get('arcsinh', _arcsinh)
+arccosh = E.get('arccosh', _arccosh)
+arctanh = E.get('arctanh', _arctanh)

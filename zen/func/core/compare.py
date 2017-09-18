@@ -1,11 +1,11 @@
-from .. import backend as Z
+from .. import engine as E
 
 
-equal = Z.equal
-greater_equal = Z.greater_equal
-greater = Z.greater
-less_equal = Z.less_equal
-less = Z.less
-maximum = Z.maximum
-minimum = Z.minimum
-not_equal = Z.not_equal
+equal = E.equal
+greater_equal = E.greater_equal
+greater = E.greater
+less_equal = E.less_equal
+less = E.less
+maximum = E.maximum
+minimum = E.minimum
+not_equal = E.not_equal

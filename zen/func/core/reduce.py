@@ -1,4 +1,4 @@
-from .. import backend as Z
+from .. import engine as E
 from .data import size
 from .dtype import cast
 from .elemwise import abs, ceil, clip, sqrt, square
@@ -33,14 +33,14 @@ def _std(x, axis=None, keepdims=False):
     return sqrt(_var(x, axis, keepdims))
 
 
-all = Z.get('all', _all)
-any = Z.get('any', _any)
-argmax = Z.argmax
-argmin = Z.argmin
-max = Z.max
-mean = Z.mean
-min = Z.min
-prod = Z.prod
-std = Z.get('std', _std)
-sum = Z.sum
-var = Z.get('var', _var)
+all = E.get('all', _all)
+any = E.get('any', _any)
+argmax = E.argmax
+argmin = E.argmin
+max = E.max
+mean = E.mean
+min = E.min
+prod = E.prod
+std = E.get('std', _std)
+sum = E.sum
+var = E.get('var', _var)

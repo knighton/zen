@@ -1,7 +1,7 @@
 import numpy as np
 
-from .. import backend as Z
 from .. import core as C
+from .. import engine as E
 
 
 def _elu(x, alpha=1.):
@@ -129,18 +129,18 @@ Activation functions.
     tanh          (x)
     tanh_shrink   (x)
 """
-elu = Z.get('elu', _elu)
-hard_shrink = Z.get('hard_shrink', _hard_shrink)
-hard_sigmoid = Z.get('hard_sigmoid', _hard_sigmoid)
-hard_tanh = Z.get('hard_tanh', _hard_tanh)
-leaky_relu = Z.get('leaky_relu', _leaky_relu)
+elu = E.get('elu', _elu)
+hard_shrink = E.get('hard_shrink', _hard_shrink)
+hard_sigmoid = E.get('hard_sigmoid', _hard_sigmoid)
+hard_tanh = E.get('hard_tanh', _hard_tanh)
+leaky_relu = E.get('leaky_relu', _leaky_relu)
 linear = _linear
 relu = _relu
-selu = Z.get('selu', _selu)
-sigmoid = Z.get('sigmoid', _sigmoid)
-softmax = Z.get('softmax', _softmax)
-softplus = Z.get('softplus', _softplus)
-softshrink = Z.get('softshrink', _softshrink)
-softsign = Z.get('softsign', _softsign)
+selu = E.get('selu', _selu)
+sigmoid = E.get('sigmoid', _sigmoid)
+softmax = E.get('softmax', _softmax)
+softplus = E.get('softplus', _softplus)
+softshrink = E.get('softshrink', _softshrink)
+softsign = E.get('softsign', _softsign)
 tanh = C.tanh
-tanh_shrink = Z.get('tanh_shrink', _tanh_shrink)
+tanh_shrink = E.get('tanh_shrink', _tanh_shrink)

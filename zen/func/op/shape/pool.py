@@ -1,7 +1,7 @@
 from math import floor
 
-from ... import backend as Z
 from ... import core as C
+from ... import engine as E
 
 
 """
@@ -20,10 +20,10 @@ Input:
 Output:
     y        variable      NCW  NCHW  NCDHW
 """
-avg_pool = Z.avg_pool
-avg_pool1d = Z.avg_pool1d
-avg_pool2d = Z.avg_pool2d
-avg_pool3d = Z.avg_pool3d
+avg_pool = E.avg_pool
+avg_pool1d = E.avg_pool1d
+avg_pool2d = E.avg_pool2d
+avg_pool3d = E.avg_pool3d
 
 
 """
@@ -42,10 +42,10 @@ Input:
 Output:
     y        variable      NCW  NCHW  NCDHW
 """
-max_pool = Z.max_pool
-max_pool1d = Z.max_pool1d
-max_pool2d = Z.max_pool2d
-max_pool3d = Z.max_pool3d
+max_pool = E.max_pool
+max_pool1d = E.max_pool1d
+max_pool2d = E.max_pool2d
+max_pool3d = E.max_pool3d
 
 
 def pool_out_shape(in_shape, window, padding, stride):

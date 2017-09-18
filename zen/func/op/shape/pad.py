@@ -1,5 +1,5 @@
-from ... import backend as Z
 from ... import core as C
+from ... import engine as E
 
 
 """
@@ -18,10 +18,10 @@ Input:
 Output:
     y        variable                      NCW  NCHW  NCDHW
 """
-constant_pad = Z.constant_pad
-constant_pad1d = Z.constant_pad1d
-constant_pad2d = Z.constant_pad2d
-constant_pad3d = Z.constant_pad3d
+constant_pad = E.constant_pad
+constant_pad1d = E.constant_pad1d
+constant_pad2d = E.constant_pad2d
+constant_pad3d = E.constant_pad3d
 
 
 """
@@ -39,10 +39,10 @@ Input:
 Output:
     y        variable                      NCW  NCHW  NCDHW
 """
-edge_pad = Z.edge_pad
-edge_pad1d = Z.edge_pad1d
-edge_pad2d = Z.edge_pad2d
-edge_pad3d = Z.edge_pad3d
+edge_pad = E.edge_pad
+edge_pad1d = E.edge_pad1d
+edge_pad2d = E.edge_pad2d
+edge_pad3d = E.edge_pad3d
 
 
 """
@@ -60,10 +60,10 @@ Input:
 Output:
     y        variable                      NCW  NCHW  NCDHW
 """
-reflect_pad = Z.reflect_pad
-reflect_pad1d = Z.reflect_pad1d
-reflect_pad2d = Z.reflect_pad2d
-reflect_pad3d = Z.reflect_pad3d
+reflect_pad = E.reflect_pad
+reflect_pad1d = E.reflect_pad1d
+reflect_pad2d = E.reflect_pad2d
+reflect_pad3d = E.reflect_pad3d
 
 
 def pad_out_shape(in_shape, padding):

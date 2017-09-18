@@ -1,7 +1,7 @@
 from math import floor
 
-from ... import backend as Z
 from ...core.util import to_shape
+from ... import engine as E
 
 
 """
@@ -22,10 +22,10 @@ Input:
 Output:
     y         variable      NOW  NOHW  NODHW
 """
-conv1d = Z.conv1d
-conv2d = Z.conv2d
-conv3d = Z.conv3d
-conv = Z.conv
+conv1d = E.conv1d
+conv2d = E.conv2d
+conv3d = E.conv3d
+conv = E.conv
 
 
 def conv_out_shape(in_shape, window, padding, stride, dilation):

@@ -1,5 +1,5 @@
-from ... import backend as Z
 from ... import core as C
+from ... import engine as E
 
 
 def _do_batch_norm(x, mean, variance, beta, gamma):
@@ -68,8 +68,8 @@ The variables beta, gamma, running_mean, and running_variance are the same shape
 as `x` but with a length of 1 on every reduced axis.  Reduction axes is going to
 be everything but the channels axis.
 """
-batch_norm = Z.get('batch_norm', _batch_norm)
-batch_norm0d = Z.get('batch_norm0d', _batch_norm)
-batch_norm1d = Z.get('batch_norm1d', _batch_norm)
-batch_norm2d = Z.get('batch_norm2d', _batch_norm)
-batch_norm3d = Z.get('batch_norm3d', _batch_norm)
+batch_norm = E.get('batch_norm', _batch_norm)
+batch_norm0d = E.get('batch_norm0d', _batch_norm)
+batch_norm1d = E.get('batch_norm1d', _batch_norm)
+batch_norm2d = E.get('batch_norm2d', _batch_norm)
+batch_norm3d = E.get('batch_norm3d', _batch_norm)

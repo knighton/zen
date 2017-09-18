@@ -1,4 +1,4 @@
-from ... import backend as Z
+from ... import engine as E
 
 
 """
@@ -13,4 +13,4 @@ Input:
 Output:
     y           variable (batch_size, channels, shape...)
 """
-embed = Z.embed
+embed = E.embed

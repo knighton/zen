@@ -1,4 +1,4 @@
-from ... import backend as Z
+from ... import engine as E
 
 
 """
@@ -16,8 +16,8 @@ Input:
 Output:
     y            variable  NC  NCW  NCHW  NCDHW
 """
-dropout = Z.dropout
-dropout0d = Z.dropout0d
-dropout1d = Z.dropout1d
-dropout2d = Z.dropout2d
-dropout3d = Z.dropout3d
+dropout = E.dropout
+dropout0d = E.dropout0d
+dropout1d = E.dropout1d
+dropout2d = E.dropout2d
+dropout3d = E.dropout3d

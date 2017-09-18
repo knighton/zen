@@ -1,5 +1,5 @@
-from .. import backend as Z
+from .. import engine as E
 
 
-cast = Z.cast
-get_dtype = Z.get_dtype
+cast = E.cast
+get_dtype = E.get_dtype
