@@ -13,7 +13,27 @@ def _get_slices(index, spatial_grid_shape):
     return tuple(slices)
 
 
-def each_pair(grid, concat_to_each, is_training, relater, flat):
+def each_pair(grid, concat_to_each, is_training, relater, global_pool):
+    """
+    Given a small 1D/2D/3D grid, relate each of its cells (eg. timesteps,
+    pixels, or voxels) to every other one using the `relater` neural network,
+    optionally also considering an auxiliary vector `concat_to_each` for each
+    pair.  Either preserves the original spatial shape or outputs a single
+    globally pooled vector (`global_pool`).
+
+    Input:
+                                          1D   2D    3D
+                                          --   --    --
+        grid            variable          NCW  NCHW  NCDHW
+        concat_to_each  None or variable  NE   NE    NE
+        is_training     bool              -    -     -
+        relater         Model             Input (N, 2C + E).  Output (N, O).
+        global_pool     bool              -    -     -
+
+    Output:
+        related               shape       OW   OHW   ODHW (if not pooled)
+                                          O    O     O (if pooled)
+    """
     # Get shapes.
     grid_shape = C.get_shape(grid)
     batch_size, num_grid_channels = grid_shape[:2]
@@ -43,28 +63,28 @@ def each_pair(grid, concat_to_each, is_training, relater, flat):
     # Reshape to pass the tuples through `relater`.
     relater_in = C.reshape(grid_x_grid, (batch_size * num_cells ** 2, -1))
 
-    # Relate each tuple of embeddings.
+    # Relate each tuple of vectors.
     relater_outs = relater.model_forward([relater_in], is_training)
     assert len(relater_outs) == 1
     relater_out, = relater_outs
 
-    if flat:
-        # Sum the outputs, resulting in a single 'globally pooled' embedding.
+    if global_pool:
+        # Reduce the output vectors to a single channel-wise vector.
         ret = C.reshape(relater_out, (batch_size, num_cells ** 2, -1))
         ret = C.sum(ret, 1)
     else:
-        # For each cell (depth x height x width), sum all embeddings that
+        # For each cell (depth x height x width), sum all vectors that
         # involve it, preserving the input's spatial shape.
 
         # Break it down into the actual dimensions (4, 6, or 8).
         true_shape = (batch_size,) + spatial_shape + spatial_shape + (-1,)
         ret = C.reshape(relater_out, true_shape)
 
-        # Permute the depth, height, and width dimensions together.
+        # Permute the depth, height, and width dimensions next to each other.
         permute_axes = [0, len(true_shape) - 1]
         for i in range(len(spatial_shape)):
-            permute_axes.append(i + 1)  # Left embedding.
-            permute_axes.append(i + 1 + len(spatial_shape))  # Right embedding.
+            permute_axes.append(i + 1)  # On the left.
+            permute_axes.append(i + 1 + len(spatial_shape))  # Right side.
         ret = C.permute(ret, permute_axes)
 
         # Reduce over depth, height, and width.
@@ -78,7 +98,22 @@ each_pair2d = each_pair
 each_pair3d = each_pair
 
 
-def each_pair_out_shape(grid_shape, concat_to_each_shape, relater, flat):
+def each_pair_out_shape(grid_shape, concat_to_each_shape, relater, global_pool):
+    """
+    Calculate each_pair() output shape.
+
+    Input:
+                                             1D  2D   3D
+                                             --  --   --
+        grid_shape            shape          CW  CHW  CDHW
+        concat_to_each_shape  None or shape  E   E    E
+        relater               Model          Input (N, 2C + E).  Output (N, O).
+        global_pool           bool           -   -    -
+
+    Output:
+        related               shape          OW  OHW  ODHW (if not pooled)
+                                             O   O    O (if pooled)
+    """
     if concat_to_each_shape is None:
         dim = 2 * grid_shape[0]
     else:
@@ -88,7 +123,7 @@ def each_pair_out_shape(grid_shape, concat_to_each_shape, relater, flat):
     relater_outs = relater.predict_on_batch([arr])
     relater_out, = relater_outs
     relater_out_shape = relater_out.shape[1:]
-    if flat:
+    if global_pool:
         ret = relater_out_shape
     else:
         shape = list(grid_shape)
