@@ -52,6 +52,8 @@ class SGF(object):
                     assert len(moves) % 2 == 0, 'Black moved twice.'
                 else:
                     assert len(moves) % 2 == 1, 'Black moved twice.'
+                if not value:
+                    value = None
                 moves.append(value)
             elif key == ';W':
                 if black_first is None:
@@ -60,6 +62,8 @@ class SGF(object):
                     assert len(moves) % 2 == 1, 'White moved twice.'
                 else:
                     assert len(moves) % 2 == 0, 'White moved twice.'
+                if not value:
+                    value = None
                 moves.append(value)
             else:
                 if key in properties:

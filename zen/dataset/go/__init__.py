@@ -5,6 +5,8 @@ from .kgs import load_kgs
 
 
 class GoGame(object):
+    int2chr = 'ABCDEFGHJKLMNOPQRST'
+
     def __init__(self, board):
         self.board = board
 
@@ -37,19 +39,41 @@ class GoGame(object):
         return np.array(ints, dtype='uint32')
 
     def to_human(self, heatmap=None, selected_yx=None):
+        indent = ' ' * 4
         shape = self.board.shape
         lines = []
+        cc = []
+        line = indent + '    ' + ' '.join(cc)
+        lines.append(line)
+        line = Style.DIM + indent + '   ╔─' + '─' * (shape[1] * 2 - 1) + \
+            '─╗' + Style.RESET_ALL
+        lines.append(line)
         for y in reversed(range(shape[0])):
             ss = []
+            ss.append('%s%2d' % (Style.DIM, y + 1))
+            ss.append('│%s' % Style.RESET_ALL)
             for x in range(shape[1]):
+                mark = shape == (19, 19) and y in {3, 9, 15} and x in {3, 9, 15}
                 s = {
-                    -1: Style.BRIGHT + Fore.WHITE + 'o' + Style.RESET_ALL,
-                    0: ' ',
-                    1: Style.DIM + Fore.WHITE + 'o' + Style.RESET_ALL,
+                    -1: Style.BRIGHT + Fore.WHITE + chr(0x23FA) + \
+                        Style.RESET_ALL,
+                    0: Style.DIM + Fore.WHITE + ('+' if mark else '᛫') + \
+                        Style.RESET_ALL,
+                    1: Style.DIM + Fore.WHITE + chr(0x23FA) + Style.RESET_ALL,
                 }[self.board[y, x]]
                 ss.append(s)
-            line = ' '.join(ss)
+            ss.append(Style.DIM + '│' + Style.RESET_ALL)
+            line = indent + ' '.join(ss)
             lines.append(line)
+        line = Style.DIM + indent + '   ╚─' + '─' * (shape[1] * 2 - 1) + \
+            '─╝' + Style.RESET_ALL
+        lines.append(line)
+        cc = []
+        for i in range(shape[1]):
+            c = self.int2chr[i]
+            cc.append(c)
+        line = Style.DIM + indent + '     ' + ' '.join(cc) + Style.RESET_ALL
+        lines.append(line)
         return '\n'.join(lines)
 
     @classmethod
@@ -75,13 +99,20 @@ class GoGame(object):
         game = GoGame(board)
         arrs = []
         for aa in sgf.moves:
+            if aa is None:
+                game.switch_sides()
+                continue
             print(game.to_human())
+            print()
+            print()
             yx = cls.aa_to_yx(aa)
             arr = game.to_training_data(yx)
             assert game.move(yx)
             game.switch_sides()
             arrs.append(arr)
         print(game.to_human())
+        print()
+        print()
         return np.stack(arrs)
 
 
