@@ -25,14 +25,14 @@ dense = lambda n: Dense(n) > BatchNorm > ReLU > Dropout(0.5) > Z
 def cnn_cnn_mlp(image_shape, text_len, vocab_size):
     image = Input(image_shape)
     image_embedding = image > conv(32) > conv(32) > conv(32) > conv(32) > \
-        conv(32) > Flatten > Z
+        Shape('image output') > Flatten > Z
 
     text = Input((text_len,), dtype='int64')
-    text_embedding = text > Embed(vocab_size, 64) > conv(64) > conv(64) > \
-        conv(64) > conv(64) > Flatten > Z
+    text_embedding = text > Embed(vocab_size, 16) > conv(16) > conv(16) > \
+        conv(16) > Shape('text output') > Flatten > Z
 
-    label = Concat()(image_embedding, text_embedding) > Dropout(0.5) > \
-        dense(512) > dense(32) > Dense(1) > Sigmoid > Z
+    label = Concat()(image_embedding, text_embedding) > Shape('concat') >
+        dense(64) > dense(64) > Dense(1) > Sigmoid > Z
     return Graph([image, text], label)
 
 
@@ -46,8 +46,8 @@ def cnn_cnn_rel(image_shape, text_len, vocab_size):
 
     relater_in_shape = 2 * 32 + 64,
     relater = Input(relater_in_shape) > dense(64) > dense(64) > Z
-    label = EachPairWith(relater)(image_grid, text_embedding) > dense(64) > \
-        dense(64) > Dense(1) > Sigmoid > Z
+    label = EachPairWith(relater, True)(image_grid, text_embedding) > \
+        dense(64) > dense(64) > Dense(1) > Sigmoid > Z
     return Graph([image, text], label)
 
 
