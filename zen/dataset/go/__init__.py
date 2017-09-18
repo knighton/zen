@@ -6,6 +6,8 @@ from .kgs import load_kgs
 
 class GoGame(object):
     int2chr = 'ABCDEFGHJKLMNOPQRST'
+    int2full_chr = ''.join(map(chr, list(range(0xFF21, 0xFF29)) +
+                                    list(range(0xFF2a, 0xFF35))))
 
     black = 0
     space = 1
@@ -55,47 +57,48 @@ class GoGame(object):
         ints.append(y * shape[0] + x)
         return np.array(ints, dtype='uint32')
 
+    board_bg = ''
+
+    waxing_moon = chr(0x1F312)
+
+    black_stone = Style.BRIGHT + Fore.BLACK + board_bg + waxing_moon + \
+        Style.RESET_ALL
+
+    free_cross = Style.BRIGHT + Fore.BLACK + board_bg + chr(0xFF0B) + \
+        Style.RESET_ALL
+
+    free_dot = Style.BRIGHT + Fore.BLACK + board_bg + chr(0x30FB) + Style.RESET_ALL
+
+    white_stone = Style.BRIGHT + Fore.WHITE + board_bg + waxing_moon + \
+        Style.RESET_ALL
+
     def to_human(self, heatmap=None, selected_yx=None):
         indent = ' ' * 4
         shape = self.board.shape
         lines = []
-        cc = []
-        line = indent + '    ' + ' '.join(cc)
-        lines.append(line)
-        line = Style.DIM + indent + '   ╔─' + '─' * (shape[1] * 2 - 1) + \
-            '─╗' + Style.RESET_ALL
-        lines.append(line)
         for y in reversed(range(shape[0])):
-            ss = []
-            ss.append('%s%2d' % (Style.DIM, y + 1))
-            ss.append('│%s' % Style.RESET_ALL)
+            on_left = '%s%2d%s ' % (Style.BRIGHT, y + 1, Style.RESET_ALL)
+            row = []
             for x in range(shape[1]):
                 n = self.board[y, x]
                 if n == self.black:
-                    square = Style.DIM + Fore.WHITE + chr(0x23FA) + \
-                        Style.RESET_ALL
+                    square = self.black_stone
                 elif n == self.space:
                     is_mark = shape == (19, 19) and y in {3, 9, 15} and \
                         x in {3, 9, 15}
-                    c = '+' if is_mark else '᛫'
-                    square = Style.DIM + Fore.WHITE + c + Style.RESET_ALL
+                    square = self.free_cross if is_mark else self.free_dot
                 elif n == self.white:
-                    square = Style.BRIGHT + Fore.WHITE + chr(0x23FA) + \
-                        Style.RESET_ALL
+                    square = self.white_stone
                 else:
                     assert False
-                ss.append(square)
-            ss.append(Style.DIM + '│' + Style.RESET_ALL)
-            line = indent + ' '.join(ss)
+                row.append(square)
+            line = indent + on_left + ''.join(row)
             lines.append(line)
-        line = Style.DIM + indent + '   ╚─' + '─' * (shape[1] * 2 - 1) + \
-            '─╝' + Style.RESET_ALL
-        lines.append(line)
         cc = []
         for i in range(shape[1]):
-            c = self.int2chr[i]
+            c = self.int2full_chr[i]
             cc.append(c)
-        line = Style.DIM + indent + '     ' + ' '.join(cc) + Style.RESET_ALL
+        line = indent + '   ' + ''.join(cc) + Style.RESET_ALL
         lines.append(line)
         return '\n'.join(lines)
 
