@@ -2,15 +2,9 @@ import sys
 
 from .accuracy import *  # noqa
 from .core import *  # noqa
-from .curve import *  # noqa
-from .dot import *  # noqa
-from .fuzz import *  # noqa
 from .loss import *  # noqa
-from .merge import *  # noqa
+from .op import *  # noqa
 from .optim import *  # noqa
-from .proj import *  # noqa
-from .relational import *  # noqa
-from .shape import *  # noqa
 
 
 def get(name, dim=None):
