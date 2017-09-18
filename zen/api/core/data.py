@@ -30,6 +30,7 @@ Concatenate variables.
     variables, axis -> variable
 """
 concat = Z.concat
+stack = Z.stack
 
 
 size = Z.size

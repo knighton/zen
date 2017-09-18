@@ -27,6 +27,10 @@ def concat(xx, axis):
     return mx.nd.concat(*xx, dim=axis)
 
 
+def stack(xx, axis=0):
+    return mx.nd.stack(*xx, axis=axis)
+
+
 def squeeze(x, axis):
     shape = list(x.shape)
     axis %= len(shape)

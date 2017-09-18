@@ -35,6 +35,10 @@ def concat(xx, axis):
     return torch.cat(xx, axis)
 
 
+def stack(xx, axis=0):
+    return torch.stack(xx, axis)
+
+
 def size(x):
     return x.numel()
 
