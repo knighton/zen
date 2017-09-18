@@ -3,7 +3,7 @@ import mxnet as mx
 from ... import core as C
 
 
-_BATCH_CHANNELS = 0, 0, 0, 0
+_BATCH_CHANNELS_PADDING = 0, 0, 0, 0
 
 
 def constant_pad1d(x, padding, value):
@@ -16,14 +16,14 @@ def constant_pad1d(x, padding, value):
 
 def constant_pad2d(x, padding, value):
     (top, bottom), (left, right) = padding
-    padding = _BATCH_CHANNELS + (top, bottom, left, right)
+    padding = _BATCH_CHANNELS_PADDING + (top, bottom, left, right)
     ret = mx.nd.pad(x, mode='constant', pad_width=padding, constant_value=value)
     return C.cast(ret, C.dtype(x))
 
 
 def constant_pad3d(x, padding, value):
     (front, back), (top, bottom), (left, right) = padding
-    padding = _BATCH_CHANNELS + (front, back, top, bottom, left, right)
+    padding = _BATCH_CHANNELS_PADDING + (front, back, top, bottom, left, right)
     ret = mx.nd.pad(x, mode='constant', pad_width=padding, constant_value=value)
     return C.cast(ret, C.dtype(x))
 
@@ -51,7 +51,7 @@ def edge_pad1d(x, padding):
 def edge_pad2d(x, padding, value):
     (top, bottom), (left, right) = \
         C.normalize_int_padding(padding, 2, 'padding')
-    padding = _BATCH_CHANNELS + (top, bottom, left, right)
+    padding = _BATCH_CHANNELS_PADDING + (top, bottom, left, right)
     ret = mx.nd.pad(x, mode='edge', pad_width=padding)
     return C.cast(ret, C.dtype(x))
 
@@ -59,7 +59,7 @@ def edge_pad2d(x, padding, value):
 def edge_pad3d(x, padding, value):
     (front, back), (top, bottom), (left, right) = \
         C.normalize_int_padding(padding, 3, 'padding')
-    padding = _BATCH_CHANNELS + (front, back, top, bottom, left, right)
+    padding = _BATCH_CHANNELS_PADDING + (front, back, top, bottom, left, right)
     ret = mx.nd.pad(x, mode='edge', pad_width=padding)
     return C.cast(ret, C.dtype(x))
 
@@ -87,7 +87,7 @@ def reflect_pad1d(x, padding):
 def reflect_pad2d(x, padding, value):
     (top, bottom), (left, right) = \
         C.normalize_int_padding(padding, 2, 'padding')
-    padding = _BATCH_CHANNELS + (top, bottom, left, right)
+    padding = _BATCH_CHANNELS_PADDING + (top, bottom, left, right)
     ret = mx.nd.pad(x, mode='reflect', pad_width=padding)
     return C.cast(ret, C.dtype(x))
 
@@ -95,7 +95,7 @@ def reflect_pad2d(x, padding, value):
 def reflect_pad3d(x, padding, value):
     (front, back), (top, bottom), (left, right) = \
         C.normalize_int_padding(padding, 3, 'padding')
-    padding = _BATCH_CHANNELS + (front, back, top, bottom, left, right)
+    padding = _BATCH_CHANNELS_PADDING + (front, back, top, bottom, left, right)
     ret = mx.nd.pad(x, mode='reflect', pad_width=padding)
     return C.cast(ret, C.dtype(x))
 
