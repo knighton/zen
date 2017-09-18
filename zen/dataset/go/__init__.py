@@ -7,32 +7,49 @@ from .kgs import load_kgs
 class GoGame(object):
     int2chr = 'ABCDEFGHJKLMNOPQRST'
 
+    black = 0
+    space = 1
+    white = 2
+
     def __init__(self, board):
         self.board = board
 
     @classmethod
     def aa_to_yx(cls, aa):
+        if aa is None:
+            return None
         x = ord(aa[0]) - ord('a')
         y = ord(aa[1]) - ord('a')
         return y, x
 
-    def move(self, yx):
-        self.board[yx] = 1
+    @classmethod
+    def aa_to_a1(cls, aa):
+        if aa is None:
+            return None
+        x = ord(aa[0]) - ord('a')
+        y = ord(aa[1]) - ord('a')
+        return cls.int2chr[x], y + 1
+
+    def move(self, color, yx):
+        self.board[yx] = color
         return True
 
-    def switch_sides(self):
-        self.board *= -1
-
-    def to_training_data(self, yx):
+    def to_training_data(self, color, yx):
         shape = self.board.shape
         assert shape[0] <= 19
         assert shape[1] <= 19
+        if color == self.black:
+            board = self.board
+        elif color == self.white:
+            board = (self.board - 1) * -1 + 1
+        else:
+            assert False
         ints = []
         for y in range(shape[0]):
             int_ = 0
             for x in reversed(range(shape[1])):
                 int_ *= 3
-                int_ += self.board[y, x] + 1
+                int_ += board[y, x]
             ints.append(int_)
         y, x = yx
         ints.append(y * shape[0] + x)
@@ -53,15 +70,21 @@ class GoGame(object):
             ss.append('%s%2d' % (Style.DIM, y + 1))
             ss.append('│%s' % Style.RESET_ALL)
             for x in range(shape[1]):
-                mark = shape == (19, 19) and y in {3, 9, 15} and x in {3, 9, 15}
-                s = {
-                    -1: Style.BRIGHT + Fore.WHITE + chr(0x23FA) + \
-                        Style.RESET_ALL,
-                    0: Style.DIM + Fore.WHITE + ('+' if mark else '᛫') + \
-                        Style.RESET_ALL,
-                    1: Style.DIM + Fore.WHITE + chr(0x23FA) + Style.RESET_ALL,
-                }[self.board[y, x]]
-                ss.append(s)
+                n = self.board[y, x]
+                if n == self.black:
+                    square = Style.DIM + Fore.WHITE + chr(0x23FA) + \
+                        Style.RESET_ALL
+                elif n == self.space:
+                    is_mark = shape == (19, 19) and y in {3, 9, 15} and \
+                        x in {3, 9, 15}
+                    c = '+' if is_mark else '᛫'
+                    square = Style.DIM + Fore.WHITE + c + Style.RESET_ALL
+                elif n == self.white:
+                    square = Style.BRIGHT + Fore.WHITE + chr(0x23FA) + \
+                        Style.RESET_ALL
+                else:
+                    assert False
+                ss.append(square)
             ss.append(Style.DIM + '│' + Style.RESET_ALL)
             line = indent + ' '.join(ss)
             lines.append(line)
@@ -80,17 +103,11 @@ class GoGame(object):
     def sgf_to_initial_board(cls, sgf):
         size = int(sgf.fields['SZ'])
         assert size == 19
-        board = np.zeros((19, 19), dtype='int8')
-        if sgf.black_first:
-            for aa in sgf.fields.get('AB', []):
-                board[cls.aa_to_yx(aa)] = 1
-            for aa in sgf.fields.get('AW', []):
-                board[cls.aa_to_yx(aa)] = -1
-        else:
-            for aa in sgf.fields.get('AB', []):
-                board[cls.aa_to_yx(aa)] = -1
-            for aa in sgf.fields.get('AW', []):
-                board[cls.aa_to_yx(aa)] = 1
+        board = np.ones((19, 19), dtype='int8') * cls.space
+        for aa in sgf.fields.get('AB', []):
+            board[cls.aa_to_yx(aa)] = cls.black
+        for aa in sgf.fields.get('AW', []):
+            board[cls.aa_to_yx(aa)] = cls.white
         return board
 
     @classmethod
@@ -98,17 +115,18 @@ class GoGame(object):
         board = cls.sgf_to_initial_board(sgf)
         game = GoGame(board)
         arrs = []
-        for aa in sgf.moves:
+        for i, aa in enumerate(sgf.moves):
+            print(cls.aa_to_a1(aa))
             if aa is None:
-                game.switch_sides()
                 continue
             print(game.to_human())
             print()
             print()
             yx = cls.aa_to_yx(aa)
-            arr = game.to_training_data(yx)
-            assert game.move(yx)
-            game.switch_sides()
+            is_black = i % 2 == int(not sgf.black_first)
+            color = cls.black if is_black else cls.white
+            arr = game.to_training_data(color, yx)
+            assert game.move(color, yx)
             arrs.append(arr)
         print(game.to_human())
         print()
@@ -119,6 +137,8 @@ class GoGame(object):
 def load_go(verbose=2):
     sgfs = []
     for sgf in load_kgs(verbose):
+        if not sgf.moves:
+            continue
         sgfs.append(sgf)
         if len(sgfs) == 100:
             break
