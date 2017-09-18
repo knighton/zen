@@ -1,4 +1,4 @@
-from ... import api as Z
+from ... import func as Z
 from ... import init
 from ..base import Transform, TransformSpec, Sugar
 

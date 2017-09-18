@@ -2,7 +2,7 @@ import numpy as np
 from scipy.stats import truncnorm
 import sys
 
-from . import api as Z
+import .func as Z
 
 
 class Initializer(object):

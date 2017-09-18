@@ -1,7 +1,7 @@
 import numpy as np
 from time import time
 
-from .. import api as Z
+from .. import func as Z
 from .. import metric as metric_module
 from .. import optim
 from .data.dataset import Dataset

@@ -1,6 +1,6 @@
 import sys
 
-from . import api as Z
+from . import func as Z
 
 
 class Optimizer(object):
