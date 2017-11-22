@@ -49,7 +49,7 @@ def clone(x):
 
 
 def tensor(arr, dtype=None, device=None):
-    dtype = dtype or arr.dtype.__name__
+    dtype = dtype or arr.dtype.name
     ctx = _get_device_context(device)
     return mx.nd.array(arr, ctx, dtype)
 
