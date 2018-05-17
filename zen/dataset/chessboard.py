@@ -93,7 +93,23 @@ class Board(object):
 
     @classmethod
     def from_text(cls, text):
-        lines = text.strip().split()
+        lines = text.strip().split('\n')
+
+        def fix(s):
+            s = s.strip()
+            if ' ' in s:
+                return s.split()
+
+            if len(s) == 8:
+                return list(s)
+
+            if len(s[0]) == 8:
+                return list(s[0])
+
+            print('wtf', s)
+            assert False
+
+        lines = list(map(fix, lines))
         assert len(lines) == 8
         arr = np.zeros((8, 8), dtype='uint8')
         for y, line in enumerate(lines):

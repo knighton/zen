@@ -152,6 +152,8 @@ def _process(zip_filename, processed_dir, verbose):
         paths = tqdm(paths, leave=False)
     samples = []
     for path in paths:
+        if np.random.uniform() < 0.9:
+            continue
         text = zip_.open(path).read().decode('latin-1')
         samples += _process_pgns(text)
     np.random.shuffle(samples)
@@ -272,7 +274,8 @@ def load_chess_piece_selection(val_frac=0.2, verbose=2):
 
 
 def load_chess_target_selection(val_frac=0.2, verbose=2):
-    processed_dir = _ready(_DATASET_NAME, _PROCESSED_SUBDIR, _URL_BASENAME)
+    processed_dir = _ready(_DATASET_NAME, _PROCESSED_SUBDIR, _URL_BASENAME,
+                           verbose)
     train, val = _load_boards(processed_dir, val_frac, verbose)
     train = ChessTargetSelectionDataset(*train)
     val = ChessTargetSelectionDataset(*val)
